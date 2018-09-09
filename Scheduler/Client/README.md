@@ -30,7 +30,7 @@ From `%ClientRoot%`:
 > npm run build:dev
 ```
 
-Now open your dev environment in the browser and the `webpack`-bundled app should load. The dev server will recompile as changes to source files (under `src/AppBundle/Resources/client`) are saved.
+Now open your dev environment in the browser and the `webpack`-bundled app should load. The dev server will recompile as changes to source files (under `/Scheduler/Client/src/`) are saved.
 
 ## Testing JS
 
@@ -40,7 +40,7 @@ Run all test suites:
 ```
 > npm test
 ```
-Run all test suites and generate a coverage report (at `src/AppBundle/Resources/client/coverage`):
+Run all test suites and generate a coverage report (at `/Scheduler/Client/src/coverage/icov-report/index.html`):
 ```
 > npm run testCoverage
 ```
