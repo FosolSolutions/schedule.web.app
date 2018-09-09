@@ -1,0 +1,35 @@
+{
+    "presets": [
+        ["babel-preset-env", {
+            "targets": {
+                "browsers": ["last 4 years"]
+            }
+        }],
+        "babel-preset-airbnb",
+        "babel-preset-react"
+    ],
+    "plugins": [
+        [
+            "module-resolver", {
+                "alias": {
+                    "assets": "./src/__assets__",
+                    "mocks": "./src/__mocks__",
+                    "utils": "./src/__utils__",
+                    "modernizr": "./.modernizrrc"
+                }
+            }
+        ]
+    ],
+    "env": {
+        "DEV": {
+            "plugins": [
+                "react-hot-loader/babel"
+            ]
+        },
+        "TEST": {
+            "plugins": [
+                "transform-es2015-modules-commonjs"
+            ]
+        }
+    }
+}

@@ -1,0 +1,126 @@
+@import "sassResources";
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+html {
+    /* stylelint-disable */
+    -webkit-text-size-adjust: 100%;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+    color: $baseText;
+    font-size: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    text-size-adjust: 100%;
+    width: 100%;
+    /* stylelint-enable */
+
+    // Mobile-first input font-sizes. iOS Safari, possibly other browsers, zoom
+    // on focus if this is not set to a minimum of 16px.
+    input,
+    textarea,
+    select {
+        font-size: 16px;
+    }
+
+    // Hide the right-aligned clear input control in IE 10-11
+    input::-ms-clear {
+        display: none;
+    }
+
+    // This matches the background color webkit browsers use when autofill is
+    // used (to match out focus color bar indicator). Overriding the native
+    // background color isn't possible, so better to just match it to make our
+    // inputs display properly.
+    input:-webkit-autofill {
+        border-color: rgb(250, 255, 189) !important;
+    }
+
+    @include breakpoint($largeBreakpoint) {
+        font-size: 105%;
+
+        input,
+        textarea,
+        select {
+            font-size: inherit;
+        }
+    }
+
+    @include breakpoint($xlargeBreakpoint) {
+        font-size: 110%;
+    }
+
+    @include breakpoint($xxlargeBreakpoint) {
+        font-size: 120%;
+    }
+}
+
+body {
+    font-family: "Open Sans", sans-serif;
+    font-weight: 400;
+    height: 100%;
+    line-height: 1.45;
+    margin: 0;
+    width: 100%;
+}
+
+// Normalize focus ring styles across browsers
+a,
+button {
+    &:focus {
+        outline: 2px solid rgba($secondaryMain, 0.8);
+    }
+
+    // Remove dotted border inside buttons on Firefox
+    &::-moz-focus-inner {
+        border: 0;
+    }
+}
+
+// Remove inset dotted border inside select elements in Firefox. We should
+// always define our own focus styles for inputs.
+select:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #000;
+}
+
+p {
+    margin-bottom: 1.3em;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    line-height: 1.2;
+    margin: 1.414em 0 0.5em;
+}
+
+h1 {
+    font-size: 1.749em;
+    margin-top: 0;
+}
+
+h2 {
+    font-size: 1.521em;
+}
+
+h3 {
+    font-size: 1.322em;
+}
+
+h4 {
+    font-size: 1.15em;
+}
+
+small,
+.fontSmall {
+    font-size: 0.87em;
+}

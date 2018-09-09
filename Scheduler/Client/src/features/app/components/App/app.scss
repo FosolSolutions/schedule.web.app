@@ -1,0 +1,33 @@
+@import "../../../../__assets__/styles/sassResources";
+
+.appBar {
+    align-items: center;
+    box-shadow: none;
+    flex-direction: row;
+    padding: 1em;
+}
+
+.appTitle {
+    font-size: 1.2em;
+    margin: 0 0 0 0.1em;
+}
+
+.buttonLabel {
+    margin-right: 0.2em;
+}
+
+.leftContainer {
+    display: flex;
+    flex: 1 0 auto;
+}
+
+.iconButton {
+    @include button;
+
+    border-color: #fff;
+    color: #fff;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}

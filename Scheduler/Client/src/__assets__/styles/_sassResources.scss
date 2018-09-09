@@ -1,0 +1,40 @@
+// This file must be imported to every css module that needs to reference it
+// (due to local scope of modules). As it only contains SASS resources, none of
+// it is compiled anyways. If this becomes unweildy, split into mixins,
+// variables and animation partials and import here.
+
+// -----------------------------------------------------------------------------
+// SASS framework/plugin imports
+// -----------------------------------------------------------------------------
+@import "../../../node_modules/breakpoint-sass/stylesheets/breakpoint";
+
+// -----------------------------------------------------------------------------
+// Variables
+// -----------------------------------------------------------------------------
+
+// Color
+$primaryMain: #34495e;
+$secondaryMain: #00a6fb;
+$errorMain: #e74c3c;
+
+$baseText: #051923;
+
+// Typeface
+$bodyTypeface: "Open Sans", sans-serif;
+
+// Width Breakpoints
+$xxsmallBreakpoint: 20em !default;     // 320px (@16px)
+$xsmallBreakpoint: 28em !default;      // 448px (@16px)
+$smallBreakpoint: 40em !default;       // 640px (@16px)
+$smallMediumBreakpoint: 52em !default; // 832px (@16px)
+$mediumBreakpoint: 64em !default;      // 1024px (@16px)
+$largeBreakpoint: 90em !default;       // 1440px (@16px)
+$xlargeBreakpoint: 120em !default;     // 1920px (@16px)
+$xxlargeBreakpoint: 160em !default;    // 2560px (@16px)
+
+// -----------------------------------------------------------------------------
+// Elements
+// -----------------------------------------------------------------------------
+@mixin button {
+    font-family: "Open Sans", sans-serif;
+}

@@ -1,0 +1,68 @@
+---
+env:
+    browser: true
+    es6: true
+    jest: true
+    node: true
+extends:
+- airbnb-base
+- plugin:react/recommended
+- plugin:prettier/recommended
+plugins:
+- react
+- prettier
+parserOptions:
+    ecmaVersion: 6
+    sourceType: module
+    ecmaFeatures:
+        jsx: true
+rules:
+    # Reason: Only useful when using static class properties, which are still
+    # stage 2 in TC39. We only use >= stage 3 features.
+    class-methods-use-this: off
+    import/named:
+    - error
+    import/no-extraneous-dependencies:
+    - error
+    - devDependencies:
+      - "**/*.test.js"
+      - "**/jestSetup.js"
+      - "**/webpack.config.**.js"
+      - "**/webpack.server.js"
+      - "**/postcss.config.js"
+    # Reason: Not compatible with pattern default-exporting redux-connected
+    # components and exporting bare components for testing.
+    import/no-named-as-default:
+    - off
+    - SwitchCase: 1
+      # VariableDeclarator can only be a multiple of the global indent (4)
+      # currently. Until that changes, const declaration blocks will be ugly.
+      # Issue: https://github.com/eslint/eslint/issues/6671
+      VariableDeclarator:
+        let: 1
+        const: 1
+    # Reason: Conflicts with convention of alphabetizing methods.
+    no-use-before-define:
+    - off
+    # Reason: Creates unreadable property access.
+    prefer-destructuring:
+    - off
+    linebreak-style:
+    - error
+    - unix
+    prettier/prettier:
+    - error
+    # Reason: We'll only be linking to trusted sites.
+    react/jsx-no-target-blank:
+    - off
+    # Reason: Makes templates less searchable, reasoning for rule is weak (see
+    # documentation).
+    react/no-unescaped-entities:
+    - off
+    react/sort-comp:
+    - error
+settings:
+    import/resolver:
+        babel-module: {}
+        webpack:
+            config: "webpack.config.dev.js"
