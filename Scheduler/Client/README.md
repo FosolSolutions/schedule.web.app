@@ -27,7 +27,7 @@ From `%ClientRoot%`:
 ## 3) Start the `webpack` development server
 From `%ClientRoot%`:
 ```
-> npm run devserver
+> npm run build:dev
 ```
 
 Now open your dev environment in the browser and the `webpack`-bundled app should load. The dev server will recompile as changes to source files (under `src/AppBundle/Resources/client`) are saved.
