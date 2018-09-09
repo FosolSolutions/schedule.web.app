@@ -13,40 +13,16 @@
 // -----------------------------------------------------------------------------
 
 // Color
-$darkPrimary: #2c3e50;
-$darkSecondary: desaturate(lighten($darkPrimary, 15%), 8%);
-$lightPrimary: #f9fbfc;
-$lightSecondary: #dce9f2;
-$lightTertiary: #fff;
-$lightQuaternary: #eff5f9;
-$lightQuinary: #f7fafc;
-$disabled: #c4c4c4;
-$baseText: darken($darkPrimary, 15%);
+$primaryMain: #34495e;
+$secondaryMain: #00a6fb;
+$errorMain: #e74c3c;
 
-$highlightPrimary: #3498db;
-$highlightSecondary: #f98a1e;
-$highlightPrimaryDark: darken($highlightPrimary, 5%);
-$highlightSecondaryDark: darken($highlightSecondary, 5%);
-$highlightTertiary: #639;
-
-$placeholderLight: lighten($darkSecondary, 25%);
-$placeholderDark: lighten($darkSecondary, 15%);
-$placeholderDisabled: darken($disabled, 15%);
-
-$info: $highlightPrimary;
-$infoDark: darken($info, 3%);
-$warning: #f7be00;
-$warningBackground: lighten($warning, 48%);
-$warningDark: darken($warning, 3%);
-$error: #e74c3c;
-$errorDark: darken($error, 3%);
+$baseText: #051923;
 
 // Typeface
-$displayTypeface: "Alegreya Sans ST", sans-serif;
-$bodyTypeface: "Source Sans Pro ST", sans-serif;
+$bodyTypeface: "Open Sans", sans-serif;
 
 // Width Breakpoints
-// If changing/adding here, also update at constants.js
 $xxsmallBreakpoint: 20em !default;     // 320px (@16px)
 $xsmallBreakpoint: 28em !default;      // 448px (@16px)
 $smallBreakpoint: 40em !default;       // 640px (@16px)

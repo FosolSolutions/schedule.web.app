@@ -75,7 +75,7 @@ body {
 a,
 button {
     &:focus {
-        outline: 2px solid rgba($highlightPrimary, 0.8);
+        outline: 2px solid rgba($secondaryMain, 0.8);
     }
 
     // Remove dotted border inside buttons on Firefox
