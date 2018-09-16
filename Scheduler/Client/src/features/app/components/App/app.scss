@@ -4,7 +4,15 @@
     align-items: center;
     box-shadow: none;
     flex-direction: row;
-    padding: 1em;
+    padding: 0.25em;
+    transition: width 0.15s ease-in-out;
+    width: 100%;
+    z-index: 1;
+}
+
+.toolbar {
+    transition: padding 0.15s ease-in-out;
+    width: 100%;
 }
 
 .appTitle {
@@ -12,13 +20,64 @@
     margin: 0 0 0 0.1em;
 }
 
-.buttonLabel {
-    margin-right: 0.2em;
+.backHeader {
+    padding: 0.25em;
+}
+
+.backWrap {
+    align-items: center;
+    display: flex;
+    justify-content: flex-end;
+    min-height: 56px;
+}
+
+.login {
+    color: #fff;
+    margin-right: 1em;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+.signUp {
+    background-color: $secondaryMain;
+    color: #fff;
+
+    &:hover {
+        background-color: darken($secondaryMain, 7%);
+    }
+}
+
+.drawer {
+    position: relative;
+    z-index: 0;
+}
+
+.drawerIsOpen {
+    width: calc(100% - 200px);
+}
+
+.paper {
+    transition: width 0.15s ease-in-out;
+    width: 56px;
+}
+
+.paperIsOpen {
+    width: 200px;
 }
 
 .leftContainer {
     display: flex;
     flex: 1 0 auto;
+}
+
+.logo {
+    max-height: 23px;
+}
+
+.rightContainer {
+    flex: 0 0 auto;
 }
 
 .iconButton {
@@ -29,5 +88,50 @@
 
     &:hover {
         background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+.fullHeight {
+    height: 100%;
+}
+
+.splashScreen {
+    background-color: $primaryMain;
+    height: 100%;
+    padding-top: 72px;
+}
+
+.valueProp {
+    color: #fff;
+    font-size: 2em;
+    font-weight: 200;
+    margin: 2.5em 0;
+    text-align: center;
+}
+
+.hands {
+    max-height: 400px;
+}
+
+.spacer {
+    height: 1000px;
+}
+
+.list {
+    padding-top: 0;
+}
+
+.listItem {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.listItemText {
+    padding-left: 0;
+}
+
+@include breakpoint(37.5em) {
+    .backWrap {
+        min-height: 64px;
     }
 }
