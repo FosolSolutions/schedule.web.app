@@ -12,7 +12,7 @@ export function configureStore() {
     // Connect to the dev tools extension if available, otherwise return the
     // store
     const enhancers = compose(
-        window.devToolsExtension ? window.devToolsExtension() : f => f
+        window.devToolsExtension ? window.devToolsExtension() : (f) => f,
     );
     const store = createStoreWithMiddleware(rootReducer, {}, enhancers);
 

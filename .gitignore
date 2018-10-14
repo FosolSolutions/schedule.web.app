@@ -29,6 +29,7 @@ test-results/
 Thumbs.db
 .vs/
 .vscode/
+*.code-workspace
 **/node_modules/**
 
 # Mac bundle stuff

@@ -15,7 +15,7 @@ module.exports = {
     // devtool: "source-map",
 
     entry: {
-        app: "./src/entry"
+        app: "./src/entry",
     },
 
     mode: "production",
@@ -26,7 +26,7 @@ module.exports = {
         // This ensures that no assets are emitted that include errors.
         noEmitOnErrors: true,
         runtimeChunk: {
-            name: "runtime"
+            name: "runtime",
         },
         splitChunks: {
             cacheGroups: {
@@ -35,30 +35,30 @@ module.exports = {
                     chunks: "initial",
                     enforce: true,
                     name: "vendor",
-                    test: /node_modules/
+                    test: /node_modules/,
                 },
                 styles: {
                     name: "styles",
                     test: /\.css$/,
                     chunks: "all",
-                    enforce: true
-                }
-            }
-        }
+                    enforce: true,
+                },
+            },
+        },
     },
 
     output: {
         path: path.join(__dirname, "../wwwroot/client"),
         // Append .[chunkhash] after [name] for cache-breaking
         filename: "[name].[chunkhash].js",
-        publicPath: "../wwwroot/client"
+        publicPath: "../wwwroot/client",
     },
 
     plugins: [
         // ExtractTextPlugin extracts and merges CSS modules into a single CSS
         // bundle/file
         new MiniCssExtractPlugin({
-            chunkFilename: "styles.[hash].css"
+            chunkFilename: "styles.[hash].css",
         }),
 
         // OptimizeCssAssetsPlugin minifies and de-duplicates CSS output by
@@ -67,17 +67,18 @@ module.exports = {
             assetNameRegExp: /\.css$/g,
             cssProcessor: cssNano,
             cssProcessorOptions: { discardComments: { removeAll: true } },
-            canPrint: true
+            canPrint: true,
         }),
 
-        new CompressionPlugin()
+        new CompressionPlugin(),
 
         // Uncomment for bundle composition analysis
         // new BundleAnalyzerPlugin({ analyzerMode: "static" })
     ],
 
     resolve: {
-        modules: [path.resolve(__dirname, "src/"), "node_modules"]
+        extensions: [".js", ".ts", ".scss"],
+        modules: [path.resolve(__dirname, "src/"), "node_modules"],
     },
 
     module: {
@@ -90,12 +91,12 @@ module.exports = {
                     {
                         loader: MiniCssExtractPlugin.loader,
                         options: {
-                            publicPath: "./"
-                        }
+                            publicPath: "./",
+                        },
                     },
                     "css-loader",
-                    "sass-loader"
-                ]
+                    "sass-loader",
+                ],
             },
             // Load the rest of the styles as css modules.
             {
@@ -105,8 +106,8 @@ module.exports = {
                     {
                         loader: MiniCssExtractPlugin.loader,
                         options: {
-                            publicPath: "./"
-                        }
+                            publicPath: "./",
+                        },
                     },
                     {
                         loader: "css-loader",
@@ -115,17 +116,17 @@ module.exports = {
                             importLoaders: 1,
                             // Just use className hashes in production to
                             // shorten/obfuscate classNames
-                            localIdentName: "[hash:base64:5]"
-                        }
+                            localIdentName: "[hash:base64:5]",
+                        },
                     },
                     "postcss-loader",
-                    "sass-loader"
-                ]
+                    "sass-loader",
+                ],
             },
             {
                 test: /\.jsx?/,
                 exclude: /node_modules/,
-                use: "babel-loader"
+                use: "babel-loader",
             },
             {
                 test: /\.(gif|jpe?g|png|svg)$/i,
@@ -136,10 +137,10 @@ module.exports = {
                         options: {
                             limit: 10000,
                             // -[hash] for cache-breaking
-                            name: "__assets__/images/[name]-[hash].[ext]"
-                        }
-                    }
-                ]
+                            name: "__assets__/images/[name]-[hash].[ext]",
+                        },
+                    },
+                ],
             },
             {
                 test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
@@ -151,11 +152,11 @@ module.exports = {
                             limit: 10000,
                             mimetype: "application/font-woff",
                             // -[hash] for cache-breaking
-                            name: "__assets__/fonts/[name]-[hash].[ext]"
-                        }
-                    }
-                ]
-            }
-        ]
-    }
+                            name: "__assets__/fonts/[name]-[hash].[ext]",
+                        },
+                    },
+                ],
+            },
+        ],
+    },
 };

@@ -14,10 +14,15 @@
 
 // Color
 $primaryMain: #34495e;
+$primaryMid: lighten(desaturate($primaryMain, 10%), 20%);
+$primaryLight: lighten(desaturate($primaryMain, 10%), 67%);
 $secondaryMain: #2196f3;
+$secondaryMid: lighten(desaturate($secondaryMain, 10%), 15%);
+$secondaryLight: lighten(desaturate($secondaryMain, 10%), 20%);
 $errorMain: #e74c3c;
 
 $baseText: #051923;
+$baseLight: #fff;
 
 // Typeface
 $bodyTypeface: "Open Sans", sans-serif;
@@ -32,9 +37,111 @@ $largeBreakpoint: 90em !default;       // 1440px (@16px)
 $xlargeBreakpoint: 120em !default;     // 1920px (@16px)
 $xxlargeBreakpoint: 160em !default;    // 2560px (@16px)
 
+// Animation
+$uiTransitionDuration: 0.15s;
+$uiTransitionFunction: ease-in-out;
+
+// Dimensional
+$headerHeightSmall: 56px;
+$headerHeightLarge: 64px;
+
 // -----------------------------------------------------------------------------
 // Elements
 // -----------------------------------------------------------------------------
 @mixin button {
     font-family: "Open Sans", sans-serif;
 }
+
+@mixin chipAvatarDark {
+    background-color: $primaryMain;
+    color: $baseLight;
+    z-index: 0;
+}
+
+@mixin chipDark {
+    background-color: $primaryMid;
+    color: $baseLight;
+    font-family: $bodyTypeface;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 1em;
+}
+
+@mixin appLayout {
+    height: calc(100% - #{$headerHeightSmall});
+
+    @include breakpoint(37.5em) {
+        height: calc(100% - #{$headerHeightLarge});
+    }
+}
+
+// Miscellaneous ---------------------------------------------------------------
+
+/*
+ * Adds dynamic scrollable content affordances (shadows at top and bottom of
+ * scrollable container). From http://kizu.ru/en/fun/shadowscroll/. Note that
+ * there's a more elegant solution here:
+ * http://lea.verou.me/2012/04/background-attachment-local/; however, it doesn't
+ * work in Android Chrome at time of writing (works everywere else tested).
+ *
+ * @param  {CSS}    $backgroundColor The background color for the container
+ * @param  {number} $shadowIntensity The shadow intensity (decimal percent)
+ * @param  {CSS}    $shadowColor     The shadow color
+ * @param  {CSS}    $coverSize       The size of the shadow covers (px or em)
+ * @param  {CSS}    $shadowSize      The size of the shadows (px or em). Must
+ *                                   be smaller than $coverSize.
+ */
+@mixin scrollingShadows(
+    $backgroundColor: rgb(255, 255, 255),
+    $shadowIntensity: 0.2,
+    $shadowColor: rgb(0, 0, 0),
+    $coverSize: 30px,
+    $shadowSize: 14px
+) {
+    $negCoverSize: $coverSize * -1;
+
+    background: $backgroundColor no-repeat;
+    background-image:
+        radial-gradient(
+            farthest-side at 50% 0,
+            rgba($shadowColor, $shadowIntensity),
+            rgba($shadowColor, 0)
+        ),
+        radial-gradient(
+            farthest-side at 50% 100%,
+            rgba($shadowColor, $shadowIntensity),
+            rgba($shadowColor, 0)
+        );
+    background-position: 0 0, 0 100%;
+    background-size: 100% $shadowSize;
+    z-index: 1;
+
+    &::before,
+    &::after {
+        background:
+            linear-gradient(
+                to bottom,
+                $backgroundColor,
+                $backgroundColor 30%,
+                rgba($backgroundColor, 0)
+            );
+        content: "";
+        display: block;
+        height: $coverSize;
+        margin: 0 0 $negCoverSize;
+        position: relative;
+        z-index: -1;
+    }
+
+    &::after {
+        background:
+            linear-gradient(
+                to bottom,
+                rgba($backgroundColor, 0),
+                $backgroundColor 70%,
+                $backgroundColor
+            );
+        margin: $negCoverSize 0 0;
+    }
+}
+

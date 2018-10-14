@@ -9,7 +9,7 @@ import update from "immutability-helper";
 import {
     FETCH_CALENDARS,
     FETCH_CALENDARS_SUCCESS,
-    FETCH_CALENDARS_ERROR
+    FETCH_CALENDARS_ERROR,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ import {
 export const initialCalendarsState = {
     calendars: [],
     error: null,
-    isLoading: false
+    isLoading: false,
 };
 
 /**
@@ -34,27 +34,27 @@ export const initialCalendarsState = {
  */
 export default function calendarsReducer(
     state = initialCalendarsState,
-    action
+    action,
 ) {
     let returnVal;
 
     switch (action.type) {
         case FETCH_CALENDARS:
             returnVal = update(state, {
-                isLoading: { $set: true }
+                isLoading: { $set: true },
             });
             break;
         case FETCH_CALENDARS_ERROR:
             returnVal = update(state, {
                 isLoading: { $set: false },
-                error: { $set: action.error }
+                error: { $set: action.error },
             });
             break;
         case FETCH_CALENDARS_SUCCESS:
             returnVal = update(state, {
                 isLoading: { $set: false },
                 error: { $set: null },
-                calendars: { $set: action.calendars }
+                calendars: { $set: action.calendars },
             });
             break;
         default:

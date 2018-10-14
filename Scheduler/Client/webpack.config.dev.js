@@ -3,7 +3,6 @@
 // -----------------------------------------------------------------------------
 const path = require("path");
 const webpack = require("webpack");
-const CircularDependencyPlugin = require("circular-dependency-plugin");
 
 // -----------------------------------------------------------------------------
 
@@ -24,7 +23,7 @@ module.exports = {
     entry: [
         "react-hot-loader/patch",
         `webpack-hot-middleware/client?path=${devServerPath}/__webpack_hmr`,
-        "./src/entry"
+        "./src/entry",
     ],
 
     mode: "development",
@@ -32,24 +31,17 @@ module.exports = {
     output: {
         path: path.join(__dirname, "../wwwroot/client"),
         filename: "bundle.js",
-        publicPath: `${devServerPath}/`
+        publicPath: `${devServerPath}/`,
     },
 
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
-        new CircularDependencyPlugin({
-            // Exclude detection of files based on a RegExp
-            exclude: /node_modules/,
-            // Add warnings to webpack instead of errors
-            failOnError: false,
-            // Set the current working directory for displaying module paths
-            cwd: process.cwd()
-        })
     ],
 
     resolve: {
-        modules: [path.resolve(__dirname, "src/"), "node_modules"]
+        extensions: [".ts", ".tsx", ".js", ".json"],
+        modules: [path.resolve(__dirname, "src/"), "node_modules"],
     },
 
     module: {
@@ -58,7 +50,7 @@ module.exports = {
             {
                 test: /core\.scss$/,
                 exclude: /node_modules/,
-                use: ["style-loader", "css-loader", "sass-loader"]
+                use: ["style-loader", "css-loader", "sass-loader"],
             },
             // Load the rest of the styles as css modules.
             {
@@ -72,32 +64,32 @@ module.exports = {
                             sourceMap: true,
                             modules: true,
                             importLoaders: 1,
-                            localIdentName: "[name]__[local]___[hash:base64:5]"
-                        }
+                            localIdentName: "[name]__[local]___[hash:base64:5]",
+                        },
                     },
                     {
                         loader: "postcss-loader",
                         options: {
-                            sourceMap: true
-                        }
+                            sourceMap: true,
+                        },
                     },
                     {
                         loader: "sass-loader",
                         options: {
-                            sourceMap: true
-                        }
-                    }
-                ]
+                            sourceMap: true,
+                        },
+                    },
+                ],
             },
             {
-                test: /\.jsx?/,
+                test: /\.(tsx?)|(js)$/,
                 exclude: /node_modules/,
                 use: {
                     loader: "babel-loader",
                     options: {
-                        cacheDirectory: true
-                    }
-                }
+                        cacheDirectory: true,
+                    },
+                },
             },
             {
                 test: /\.(gif|jpe?g|png|svg)$/i,
@@ -107,10 +99,10 @@ module.exports = {
                         loader: "url-loader",
                         options: {
                             limit: 10000,
-                            name: "__assets__/images/[name].[ext]"
-                        }
-                    }
-                ]
+                            name: "__assets__/images/[name].[ext]",
+                        },
+                    },
+                ],
             },
             {
                 test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
@@ -121,11 +113,11 @@ module.exports = {
                         options: {
                             limit: 10000,
                             mimetype: "application/font-woff",
-                            name: "__assets__/fonts/[name].[ext]"
-                        }
-                    }
-                ]
-            }
-        ]
-    }
+                            name: "__assets__/fonts/[name].[ext]",
+                        },
+                    },
+                ],
+            },
+        ],
+    },
 };

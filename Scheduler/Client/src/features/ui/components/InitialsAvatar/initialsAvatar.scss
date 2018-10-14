@@ -1,0 +1,16 @@
+@import "../../../../__assets__/styles/sassResources";
+
+$avatarSize: 1.85rem;
+
+.circle {
+    background-color: $baseLight;
+    height: $avatarSize;
+    width: $avatarSize;
+}
+
+.initials {
+    color: $baseText;
+    font-size: calc(#{$avatarSize} / 2.25);
+    font-weight: 600;
+    text-transform: uppercase;
+}

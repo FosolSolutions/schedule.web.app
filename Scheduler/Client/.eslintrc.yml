@@ -4,36 +4,115 @@ env:
     es6: true
     jest: true
     node: true
+
 extends:
 - airbnb-base
 - plugin:react/recommended
-- plugin:prettier/recommended
-plugins:
-- react
-- prettier
+- plugin:import/errors
+- plugin:import/warnings
+
 parserOptions:
-    ecmaVersion: 6
+    ecmaVersion: 2018
     sourceType: module
     ecmaFeatures:
         jsx: true
+
 rules:
-    # Reason: Only useful when using static class properties, which are still
-    # stage 2 in TC39. We only use >= stage 3 features.
+    # Require parens in arrow function arguments.
+    # https://eslint.org/docs/rules/arrow-parens
+    # Reason: Consistent style of function arguments regardless of number.
+    arrow-parens:
+    - error
+    - always
+
+    # Require CamelCase.
+    # https://eslint.org/docs/rules/camelcase
+    # Reason: React UNSAFE_ deprecated method names. Remove this once
+    # refactored (which will result in error).
+    camelcase: warn
+
+    # Enforce that class methods utilize this.
+    # https://eslint.org/docs/rules/class-methods-use-this
+    # Reason: This is an opinionated rule that would in many cases, mean moving
+    # methods such as event handlers out of our component classes.
     class-methods-use-this: off
+
+    # Require or disallow trailing commas.
+    # https://eslint.org/docs/rules/comma-dangle
+    # Reason: Reduces diff churn when adding/removing properties/arguments and
+    # trailing function argument commas are removed at transpilation by babel.
+    comma-dangle:
+    - error
+    - arrays: always-multiline
+      objects: always-multiline
+      imports: always-multiline
+      exports: always-multiline
+      functions: always-multiline
+
+    # Require Following Curly Brace Conventions.
+    # https://eslint.org/docs/rules/curly
+    # Reason: A widely understood "Best practice" for code clarity.
+    curly:
+    - error
+    - all
+
+    # Enforce consistent line breaks inside function parentheses.
+    # https://eslint.org/docs/rules/function-paren-newline
+    # Reason: We're flexible here, it would reduce clarity to always require
+    # arguments on the same or a new line, but we require within-function
+    # consistency.
+    function-paren-newline:
+    - error
+    - consistent
+
+    # Forbid a module from importing a module with a dependency path back to
+    # itself.
+    # https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-cycle.md
+    # Reason: These are so-called "circular dependencies," which in many cases
+    # (e.g. function exports) will not cause runtime errors, but indicate hairy
+    # organization. Warning for now as we've got some circular dependencies.
+    # Remove this once refactored (which will result in error).
+    import/no-cycle: warn
+
+    # Ensure named imports correspond to a named export in the remote file.
+    # https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/named.md
+    # Reason: Best practice. Catches import/export typos and API changes.
     import/named:
     - error
+
+    # Forbid the use of extraneous packages (i.e. devDependencies).
+    # https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-extraneous-dependencies.md
+    # Reason: Best practice. Catches dependencies that will result in production
+    # runtime errors. Exclude testing and development environment code.
     import/no-extraneous-dependencies:
     - error
     - devDependencies:
-      - "**/*.test.js"
-      - "**/jestSetup.js"
-      - "**/webpack.config.**.js"
-      - "**/webpack.server.js"
-      - "**/postcss.config.js"
+        - "**/TestUtils.js"
+        - "**/*.test.js"
+        - "**/jestSetup.js"
+        - "**/webpack.config.**.js"
+        - "**/webpack.server.js"
+        - "**/postcss.config.js"
+
+    # Report use of exported name as identifier of default export.
+    # https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-named-as-default.md
     # Reason: Not compatible with pattern default-exporting redux-connected
     # components and exporting bare components for testing.
-    import/no-named-as-default:
-    - off
+    import/no-named-as-default: off
+
+    # When there is only a single export from a module, prefer using default
+    # export over named export.
+    # https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/prefer-default-export.md
+    # Reason: Changing between default and non-default exports is a pain and
+    # creates churn.
+    import/prefer-default-export: off
+
+    # Enforce consistent indentation.
+    # https://eslint.org/docs/rules/indent
+    # Reason: Clarity/convention.
+    indent:
+    - error
+    - 4
     - SwitchCase: 1
       # VariableDeclarator can only be a multiple of the global indent (4)
       # currently. Until that changes, const declaration blocks will be ugly.
@@ -41,28 +120,122 @@ rules:
       VariableDeclarator:
         let: 1
         const: 1
-    # Reason: Conflicts with convention of alphabetizing methods.
-    no-use-before-define:
-    - off
-    # Reason: Creates unreadable property access.
-    prefer-destructuring:
-    - off
+
+    # Enforce consistent linebreak style.
+    # https://eslint.org/docs/rules/linebreak-style
+    # Reason: Convention.
     linebreak-style:
     - error
     - unix
-    prettier/prettier:
+
+    # Enforce a maximum line length.
+    # https://eslint.org/docs/rules/max-len
+    # Reason: Clarity. Ignoring long strings/literals for less code churn. These
+    # can be wrapped at the IDE/editor level.
+    max-len:
     - error
-    # Reason: We'll only be linking to trusted sites.
-    react/jsx-no-target-blank:
-    - off
+    - 90
+    - "ignoreStrings": true
+      "ignoreTemplateLiterals": true
+
+    # Disallow bitwise operators
+    # https://eslint.org/docs/rules/no-bitwise
+    # Reason: ESLint rationale is that these are rare. They are, but also
+    # useful.
+    no-bitwise: off
+
+    # Disallow Early Use.
+    # https://eslint.org/docs/rules/no-use-before-define
+    # Reason: Conflicts with convention of alphabetizing methods. Still reports
+    # errors in problematic cases (when declarations are in the same scope, and
+    # always for classes).
+    no-use-before-define:
+    - error
+    - functions: false
+      classes: true
+      variables: false
+
+    # Enforce consistent linebreak style for operators.
+    # https://eslint.org/docs/rules/operator-linebreak
+    # Reason: This conflicts with our ternary formatting convention.
+    operator-linebreak: off
+
+    # Prefer destructuring from arrays and objects.
+    # https://eslint.org/docs/rules/prefer-destructuring
+    # Reason: Can create unreadable property access. Also, when destructuring
+    # props in redux-connected components, results in prop name and imported
+    # action creator name conflicts.
+    prefer-destructuring: off
+
+    # Enforce the consistent use of either backticks, double, or single quotes.
+    # https://eslint.org/docs/rules/quotes
+    # Reason: Consistency/convention.
+    quotes:
+    - error
+    - double
+    - allowTemplateLiterals: true
+
+    # Limit maximum of props on a single line in JSX.
+    # https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/jsx-max-props-per-line.md
+    # Clarity/convention.
+    react/jsx-max-props-per-line:
+    - error
+    - maximum: 1
+
+    # Prevent invalid characters from appearing in markup.
+    # https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/no-unescaped-entities.md
     # Reason: Makes templates less searchable, reasoning for rule is weak (see
     # documentation).
-    react/no-unescaped-entities:
-    - off
-    react/sort-comp:
+    react/no-unescaped-entities: off
+
+    # Enforce component methods order.
+    # https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/sort-comp.md
+    # Reason: Consistency.
+    react/sort-comp: error
+
+    # Require JSDoc comments.
+    # https://eslint.org/docs/rules/require-jsdoc
+    # Reason: Best practice, until static typing implemented.
+    require-jsdoc: error
+
+    # Require or disallow semicolons instead of ASI.
+    # https://eslint.org/docs/rules/semi
+    # Reason: Consistency, prevent ASI errors.
+    semi:
     - error
+    - always
+
+    # Enforce valid JSDoc comments.
+    # https://eslint.org/docs/rules/valid-jsdoc
+    # Reason: Keep our JSDoc as meaningful as possible. Use lowercase for
+    # primitive types, uppercase for non-primitives.
+    valid-jsdoc:
+    - error
+    - prefer:
+        returns: return
+      requireReturn: false
+      preferType:
+        array: Array
+        Boolean: boolean
+        "Null": "null"
+        Number: number
+        String: string
+        Symbol: symbol
+        Undefined: undefined
+        object: Object
+
 settings:
-    import/resolver:
-        babel-module: {}
-        webpack:
-            config: "webpack.config.dev.js"
+  import/resolver:
+      babel-module:
+        utils: ./src/__utils__
+      webpack:
+          # Must make ESLint aware of our webpack configuration for base path
+          # of imports (import/no-unresolved)
+          config: webpack.config.dev.js
+  react:
+      # Must make ESLint aware of our react version for appropriate
+      # plugin:react/recommended rules. Other properties are defaults.
+      createClass: createReactClass
+      pragma: React
+      version: 16.5.2
+

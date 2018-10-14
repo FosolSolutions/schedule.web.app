@@ -1,0 +1,23 @@
+@import "../../../../__assets__/styles/sassResources";
+
+.splashScreen {
+    background-color: $primaryMain;
+    height: 100%;
+    padding: 65px 0;
+}
+
+.valueProp {
+    color: #fff;
+    font-size: 1.75em;
+    font-weight: 200;
+    margin: 2.5em 0;
+    text-align: center;
+}
+
+.hands {
+    max-height: 350px;
+}
+
+.spacer {
+    height: 1000px;
+}

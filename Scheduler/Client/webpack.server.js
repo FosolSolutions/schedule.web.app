@@ -20,21 +20,21 @@ app.use(
         lazy: false,
         stats: {
             colors: true,
-            cached: false
-        }
-    })
+            cached: false,
+        },
+    }),
 );
 
 app.use(webpackHotMiddleWare(compiler));
 
-server = app.listen(devServerPort, "0.0.0.0", err => {
+server = app.listen(devServerPort, "0.0.0.0", (err) => {
     if (err) {
         console.log(err);
         return;
     }
 
     console.log(
-        `Webpack dev server listening at http://0.0.0.0:${devServerPort}`
+        `Webpack dev server listening at http://0.0.0.0:${devServerPort}`,
     );
     console.log("Performing initial build...");
 });

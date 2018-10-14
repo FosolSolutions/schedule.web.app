@@ -9,7 +9,7 @@ import {
     MuiThemeProvider,
     createMuiTheme,
     createGenerateClassName,
-    jssPreset
+    jssPreset,
 } from "@material-ui/core/styles";
 import { create } from "jss";
 import JssProvider from "react-jss/lib/JssProvider";
@@ -46,15 +46,35 @@ const store = configureStore();
 const theme = createMuiTheme({
     palette: {
         primary: {
-            main: "#34495e"
+            main: "#34495e",
+            light: "#eceff2",
         },
         secondary: {
-            main: "#00a6fb"
+            main: "#00a6fb",
+            dark: "#0c7cd5",
         },
         error: {
-            main: "#fe4a49"
-        }
-    }
+            main: "#fe4a49",
+        },
+        default: {
+            main: "#eceff2",
+            light: "red",
+        },
+    },
+    typography: {
+        fontFamily: [
+            `"Open Sans"`,
+            `"Helvetica Neue"`,
+            "Arial",
+            "sans-serif",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            `"Segoe UI"`,
+            `"Apple Color Emoji"`,
+            `"Segoe UI Emoji"`,
+            `"Segoe UI Symbol"`,
+        ].join(","),
+    },
 });
 
 jss.options.insertionPoint = "insertion-point-jss";
@@ -68,7 +88,7 @@ window.redux = { store };
  *
  * @param  {React} Component React component
  */
-const render = Component => {
+const render = (Component) => {
     ReactDOM.render(
         <AppContainer>
             <Provider store={store}>
@@ -82,7 +102,7 @@ const render = Component => {
                 </MuiThemeProvider>
             </Provider>
         </AppContainer>,
-        document.getElementById("app")
+        document.getElementById("app"),
     );
 };
 
