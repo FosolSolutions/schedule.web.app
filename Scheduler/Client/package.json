@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build:dev": "NODE_ENV=DEV node webpack.server.js & cd ..; dotnet run; cd Client;",
-    "build:prod": "npm run lintJS || exit 0; npm run lintSCSS || exit 0; npm run testCoverage || exit 0; npm run bundle",
+    "build:prod": "npm run lintJS || exit 0; npm run lintSCSS || exit 0; npm run bundle",
     "bundle": "rm -rf ../wwwroot/client/*; webpack --config webpack.config.prod.js --mode production || exit 0;",
     "checkTypes": "tsc",
-    "lintJS": "eslint --color './src/**/*.{ts,tsx}'",
+    "lintJS": "eslint --color './src/**/*.js'",
     "lintSCSS": "stylelint 'src/**/*.scss' --syntax scss",
     "test": "NODE_ENV=TEST jest --config jest.config.js",
     "testCoverage": "NODE_ENV=TEST jest --config jest.config.js --coverage"

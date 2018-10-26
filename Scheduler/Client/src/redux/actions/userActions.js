@@ -68,8 +68,6 @@ export function backdoorLogin() {
                 PATH_API_AUTH_BACKDOOR,
             )
             .then((response) => {
-                console.log(response);
-
                 if (response.status === 200) {
                     dispatch({ type: LOGIN_SUCCESS });
                 } else {
