@@ -13,10 +13,10 @@ steps:
 - task: NodeTool@0
   inputs:
     versionSpec: '8.12.0'
+- script: cd $(Build.Repository.LocalPath)/Scheduler/Client; npm install; npm run build prod;
+  displayName: 'Webpack Build'
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
-- script: cd $(Build.ArtifactStagingDirectory)/Scheduler/Client; npm install; npm run build prod;
-  displayName: 'Webpack Build'
 - task: DotNetCoreCLI@2
   inputs:
     command: publish
