@@ -9,7 +9,6 @@ import classNames from "classnames";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { setCalendars } from "redux/actions/calendarsActions";
 import { setDrawerIsOpen } from "redux/actions/uiActions";
 import { selectCalendars } from "redux/reducers/calendarsReducer";
 import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
@@ -121,44 +120,15 @@ export class MainContent extends React.Component {
     }
 }
 
-/**
- * Map values from redux store state to props
- *
- * @param  {Object} state Redux store state
- *
- * @return {Object}       Object map of props
- */
-function mapStateToProps(state) {
-    return {
-        calendars: selectCalendars(state),
-        drawerIsOpen: selectDrawerIsOpen(state),
-        givenName: selectGivenName(state),
-        surname: selectSurname(state),
-    };
-}
-
-/**
- * Map action creators to props. Export for testing.
- *
- * @private
- *
- * @param  {Function} dispatch Redux dispatch method
- *
- * @return {Object}            Object map of action creators
- */
-export function mapDispatchToProps(dispatch) {
-    return {
-        setCalendars: (...args) => {
-            dispatch(setCalendars(...args));
-        },
-        setDrawerIsOpen: (...args) => {
-            dispatch(setDrawerIsOpen(...args));
-        },
-    };
-}
-
 // Export the redux-connected component
-export default connect(mapStateToProps, mapDispatchToProps)(MainContent);
+export default connect((state) => ({
+    calendars: selectCalendars(state),
+    drawerIsOpen: selectDrawerIsOpen(state),
+    givenName: selectGivenName(state),
+    surname: selectSurname(state),
+}), {
+    setDrawerIsOpen,
+})(MainContent);
 
 MainContent.propTypes = {
     // -------------------------------------------------------------------------
@@ -176,9 +146,6 @@ MainContent.propTypes = {
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
-    // Set the calendars from the endpoint response
-    setCalendars: PropTypes.func.isRequired,
-
     // Set the open state of the drawer
     setDrawerIsOpen: PropTypes.func.isRequired,
 };

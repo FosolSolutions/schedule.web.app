@@ -7,6 +7,10 @@ import update from "immutability-helper";
 // Redux Support
 //------------------------------------------------------------------------------
 import {
+    LOGIN,
+    LOGIN_ERROR,
+    LOGIN_FAILURE,
+    LOGIN_SUCCESS,
     SET_GIVEN_NAME,
     SET_SURNAME,
 } from "redux/actionTypes";
@@ -18,8 +22,11 @@ import {
 //------------------------------------------------------------------------------
 
 export const initialUserState = {
-    givenName: "matthew",
-    surname: "bennett",
+    givenName: "name",
+    isAuthenticated: false,
+    loginError: null,
+    loginInProgress: false,
+    surname: "surname",
 };
 
 /**
@@ -37,6 +44,32 @@ export default function userReducer(
     let returnVal;
 
     switch (action.type) {
+        case LOGIN:
+            returnVal = update(state, {
+                loginInProgress: { $set: true },
+            });
+            break;
+        case LOGIN_ERROR:
+            returnVal = update(state, {
+                isAuthenticated: { $set: false },
+                loginInProgress: { $set: false },
+                error: { $set: action.error },
+            });
+            break;
+        case LOGIN_FAILURE:
+            returnVal = update(state, {
+                isAuthenticated: { $set: false },
+                loginInProgress: { $set: false },
+                error: { $set: null },
+            });
+            break;
+        case LOGIN_SUCCESS:
+            returnVal = update(state, {
+                isAuthenticated: { $set: true },
+                loginInProgress: { $set: false },
+                error: { $set: null },
+            });
+            break;
         case SET_GIVEN_NAME:
             returnVal = update(state, {
                 givenName: { $set: action.givenName },
@@ -63,6 +96,39 @@ export default function userReducer(
  */
 export function selectGivenName(state) {
     return state.user.givenName;
+}
+
+/**
+ * isAuthenticated selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {boolean}      Whether the user is authenticated
+ */
+export function selectIsAuthenticated(state) {
+    return state.user.isAuthenticated;
+}
+
+/**
+ * loginError selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {Object}       The login error
+ */
+export function selectLoginError(state) {
+    return state.user.loginError;
+}
+
+/**
+ * loginInProgress selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {boolean}      Whether the login request is in progress
+ */
+export function selectLoginInProgress(state) {
+    return state.user.loginInProgress;
 }
 
 /**

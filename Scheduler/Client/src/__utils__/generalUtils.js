@@ -62,3 +62,14 @@ export function stringToHslColor(string, saturation = 60, lightness = 65) {
 
     return `hsl(${hash % 360},${saturation}%,${lightness}%)`;
 }
+
+/**
+ *
+ *
+ * @param {string} string The ISO date string.
+ * @return {Date}         The date object
+ */
+export function parseISOString(string) {
+    const b = string.split(/\D+/);
+    return new Date(Date.UTC(b[0], --b[1], b[2], b[3], b[4], b[5], b[6]));
+}

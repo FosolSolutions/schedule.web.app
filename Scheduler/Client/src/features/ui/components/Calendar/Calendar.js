@@ -4,6 +4,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
+import isEmpty from "lodash/isEmpty";
 import addMonths from "date-fns/addMonths";
 import format from "date-fns/format";
 import addDays from "date-fns/addDays";
@@ -12,25 +13,33 @@ import subMonths from "date-fns/subMonths";
 import startOfMonth from "date-fns/startOfMonth";
 import endOfMonth from "date-fns/endOfMonth";
 import endOfWeek from "date-fns/endOfWeek";
+import isBefore from "date-fns/isBefore";
 import isSameMonth from "date-fns/isSameMonth";
 import isSameDay from "date-fns/isSameDay";
-import toDate from "date-fns/toDate";
+import classNames from "classnames";
 
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
+import { fetchCalendarInRange } from "redux/actions/calendarsActions";
+import { selectCalendar } from "redux/reducers/calendarsReducer";
 
 //------------------------------------------------------------------------------
 // Components
 //------------------------------------------------------------------------------
 import Avatar from "@material-ui/core/Avatar";
+import Button from "@material-ui/core/Button";
+import Card from "@material-ui/core/Card";
 import Chip from "@material-ui/core/Chip";
+import IconButton from "@material-ui/core/IconButton";
 
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
 import styles from "features/ui/components/Calendar/calendar.scss";
 import EventIcon from "@material-ui/icons/Event";
+import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
 //------------------------------------------------------------------------------
 
@@ -45,6 +54,20 @@ export class Calendar extends React.PureComponent {
             currentMonth: new Date(),
             selectedDate: new Date(),
         };
+
+        props.fetchCalendarInRange(
+            startOfMonth(this.state.currentMonth),
+            endOfMonth(this.state.currentMonth),
+        );
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (!isSameMonth(this.state.currentMonth, prevState.currentMonth)) {
+            this.props.fetchCalendarInRange(
+                startOfMonth(this.state.currentMonth),
+                endOfMonth(this.state.currentMonth),
+            );
+        }
     }
 
     onDateClick(day) {
@@ -65,47 +88,70 @@ export class Calendar extends React.PureComponent {
         });
     }
 
+    today() {
+        this.setState({
+            currentMonth: new Date(),
+            selectedDate: new Date(),
+        });
+    }
+
     render() {
         const renderHeader = () => {
             const dateFormat = "MMMM yyyy";
             return (
-                <div className={`${styles.header} ${styles.row} ${styles["flex-middle"]}`}>
-                    <div className={`${styles.col} ${styles["col-start"]}`}>
-                        <div className={styles.icon}
-                            onClick={() => this.prevMonth()}>
-                    chevron_left
-                        </div>
+                <div className={styles.header}>
+                    <div className={styles.leftWrap}>
+                        <Button
+                            className={styles.today}
+                            onClick={() => this.today()}
+                            variant={"contained"}
+                        >
+                            Today
+                        </Button>
                     </div>
-                    <div className={`${styles.col} ${styles["col-center"]}`}>
+                    <div className={styles.centerWrap}>
                         <span>
                             {format(this.state.currentMonth, dateFormat)}
                         </span>
                     </div>
-                    <div className={`${styles.col} ${styles["col-end"]}`}
-                        onClick={() => this.nextMonth()}>
-                        <div className={styles.icon}>chevron_right</div>
+                    <div className={styles.rightWrap}>
+                        <IconButton onClick={() => this.prevMonth()}>
+                            <KeyboardArrowLeftIcon />
+                        </IconButton>
+                        <IconButton onClick={() => this.nextMonth()}>
+                            <KeyboardArrowRightIcon />
+                        </IconButton>
                     </div>
                 </div>
             );
         };
-        const renderDays = () => {
+        const renderWeekDays = () => {
             const dateFormat = "EEE";
             const days = [];
             const startDate = startOfWeek(this.state.currentMonth);
-            for (let i = 0; i < 7; i++) {
+            let formattedDate;
+
+            for (let i = 0; i < 7; i += 1) {
+                formattedDate = format(
+                    addDays(startDate, i),
+                    dateFormat,
+                    { awareOfUnicodeTokens: true },
+                );
                 days.push(
-                    <div className={`${styles.col} ${styles["col-center"]}`}
-                        key={i}>
-                        {format(addDays(startDate, i), dateFormat, { awareOfUnicodeTokens: true })}
+                    <div
+                        className={styles.weekDay}
+                        key={i}
+                    >
+                        {formattedDate}
                     </div>,
                 );
             }
-            return <div className={`${styles.days} ${styles.row}`}>{days}</div>;
+
+            return <div className={styles.weekDays}>{days}</div>;
         };
 
-        const renderCells = () => {
-            const { currentMonth, selectedDate } = this.state;
-            const monthStart = startOfMonth(currentMonth);
+        const renderDays = () => {
+            const monthStart = startOfMonth(this.state.currentMonth);
             const monthEnd = endOfMonth(monthStart);
             const startDate = startOfWeek(monthStart);
             const endDate = endOfWeek(monthEnd);
@@ -116,36 +162,70 @@ export class Calendar extends React.PureComponent {
             let days = [];
             let day = startDate;
             let formattedDate = "";
+            let dayEvents;
+            let dayClassNames;
 
             while (day <= endDate) {
-                for (let i = 0; i < 7; i++) {
-                    formattedDate = format(day, dateFormat, { awareOfUnicodeTokens: true });
-                    const cloneDay = day;
+                for (let i = 0; i < 7; i += 1) {
+                    dayEvents = (!isEmpty(this.props.calendar))
+                        ? this.props.calendar.getEvents().getByDay(day)
+                        : [];
+                    dayClassNames = classNames({
+                        [styles.day]: true,
+                        [styles.disabled]: !isSameMonth(day, monthStart),
+                        [styles.selected]: isSameDay(day, this.state.selectedDate),
+                    });
+                    formattedDate = format(
+                        day,
+                        dateFormat,
+                        { awareOfUnicodeTokens: true },
+                    );
                     days.push(
                         <div
-                            className={`${styles.col} ${styles.cell} ${
-                                !isSameMonth(day, monthStart)
-                                    ? styles.disabled
-                                    : isSameDay(day, selectedDate) ? styles.selected : ""
-                            }`}
+                            className={dayClassNames}
                             key={day}
-                            onClick={() => this.onDateClick(toDate(cloneDay))}
                         >
                             <span className={styles.number}>{formattedDate}</span>
-                            <span className={styles.bg}>{formattedDate}</span>
+                            {renderEvents(dayEvents, day)}
                         </div>,
                     );
                     day = addDays(day, 1);
                 }
                 rows.push(
-                    <div className={styles.row}
-                        key={day}>
+                    <div
+                        className={styles.dayRow}
+                        key={day}
+                    >
                         {days}
                     </div>,
                 );
                 days = [];
             }
-            return <div className={styles.body}>{rows}</div>;
+
+            return <div className={styles.days}>{rows}</div>;
+        };
+        const renderEvents = (events, day) => {
+            const eventsMarkup = [];
+            events.forEach((event) => {
+                const eventName = event.getName();
+                const eventClassNames = classNames({
+                    [styles.event]: true,
+                    [styles.past]: isBefore(day, this.state.selectedDate),
+                });
+
+                eventsMarkup.push(
+                    (
+                        <div
+                            className={eventClassNames}
+                            key={eventName}
+                        >
+                            {eventName}
+                        </div>
+                    ),
+                );
+            });
+
+            return eventsMarkup;
         };
 
         return [
@@ -157,37 +237,32 @@ export class Calendar extends React.PureComponent {
                 key="dashboardChip"
                 label="Calendar"
             />,
-            <div
-                className={styles.calendar}
-                key="calendar"
-            >
+            <Card key="calendar">
                 {renderHeader()}
+                {renderWeekDays()}
                 {renderDays()}
-                {renderCells()}
-            </div>,
+            </Card>,
         ];
     }
 }
 
-/**
- * Map values from redux store state to props
- *
- * @param  {Object} state Redux store state
- *
- * @return {Object}       Object map of props
- */
-function mapStateToProps(state) {
-    return {
-    };
-}
-
 // Export the redux-connected component
-export default connect(mapStateToProps, null)(Calendar);
+export default connect((state) => ({
+    calendar: selectCalendar(state),
+}), {
+    fetchCalendarInRange,
+})(Calendar);
 
 Calendar.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
+    calendar: PropTypes.object.isRequired,
+
+    // -------------------------------------------------------------------------
+    // Method propTypes
+    // -------------------------------------------------------------------------
+    fetchCalendarInRange: PropTypes.func.isRequired,
 };
 
 Calendar.defaultProps = {};

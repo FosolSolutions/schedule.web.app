@@ -16,5 +16,9 @@ export const SET_DRAWER_IS_OPEN = "SET_DRAWER_IS_OPEN";
 // -----------------------------------------------------------------------------
 // User action types
 // -----------------------------------------------------------------------------
+export const LOGIN = "LOGIN";
+export const LOGIN_ERROR = "LOGIN_ERROR";
+export const LOGIN_FAILURE = "LOGIN_FAILURE";
+export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const SET_GIVEN_NAME = "SET_GIVEN_NAME";
 export const SET_SURNAME = "SET_SURNAME";

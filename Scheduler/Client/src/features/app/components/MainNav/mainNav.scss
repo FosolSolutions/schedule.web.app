@@ -74,12 +74,7 @@
 }
 
 .signUp {
-    background-color: $secondaryMain;
-    color: #fff;
-
-    &:hover {
-        background-color: darken($secondaryMain, 7%);
-    }
+    @include button($secondaryMain, $baseBackground);
 }
 
 .drawer {
@@ -120,8 +115,6 @@
 }
 
 .iconButton {
-    @include button;
-
     border-color: #fff;
     color: #fff;
 

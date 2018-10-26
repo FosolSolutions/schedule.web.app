@@ -9,12 +9,13 @@ import classNames from "classnames";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { setCalendars } from "redux/actions/calendarsActions";
 import { setDrawerIsOpen } from "redux/actions/uiActions";
+import { backdoorLogin } from "redux/actions/userActions";
 import { selectCalendars } from "redux/reducers/calendarsReducer";
 import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
 import {
     selectGivenName,
+    selectIsAuthenticated,
     selectSurname,
 } from "redux/reducers/userReducer";
 
@@ -73,8 +74,6 @@ export class MainNav extends React.PureComponent {
         this.state = {
             userMenuAnchorEl: null,
         };
-
-        props.setCalendars();
     }
 
     /**
@@ -89,6 +88,10 @@ export class MainNav extends React.PureComponent {
      */
     handleLogoutClick() {
         window.location.href = PATH_ROOT;
+    }
+
+    handleLoginClick() {
+        this.props.backdoorLogin();
     }
 
     /**
@@ -131,6 +134,55 @@ export class MainNav extends React.PureComponent {
                 <MenuIcon />
             </IconButton>
         );
+        const authenticatedRightNav = (
+            <div className={styles.rightContainer}>
+                <IconButton
+                    className={styles.login}
+                    onClick={(e) => this.handleUserMenuClick(e)}
+                >
+                    <InitialsAvatar />
+                </IconButton>
+                <Menu
+                    id="userMenu"
+                    anchorEl={this.state.userMenuAnchorEl}
+                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                    disableAutoFocusItem={true}
+                    open={Boolean(this.state.userMenuAnchorEl)}
+                    onClose={() => this.handleUserMenuClose()}
+                >
+                    <MenuItem
+                        className={styles.name}
+                        disableRipple={true}
+                    >
+                        {`Hi, ${fullName}`}
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={() => this.handleUserMenuClose()}>
+                        My account
+                    </MenuItem>
+                    <MenuItem onClick={() => this.handleLogoutClick()}>
+                        Logout
+                    </MenuItem>
+                </Menu>
+            </div>
+        );
+        const unauthenticatedRightNav = (
+            <div className={styles.rightContainer}>
+                <Button
+                    className={styles.login}
+                    href={PATH_DASHBOARD}
+                    variant={"text"}
+                >
+                    Login
+                </Button>
+                <Button
+                    className={styles.signUp}
+                    variant={"contained"}
+                >
+                    Sign Up
+                </Button>
+            </div>
+        );
         /**
          * Render the main app navigation.
          *
@@ -153,36 +205,11 @@ export class MainNav extends React.PureComponent {
                             alt=""
                         />
                     </div>
-                    <div className={styles.rightContainer}>
-                        <IconButton
-                            className={styles.login}
-                            onClick={(e) => this.handleUserMenuClick(e)}
-                        >
-                            <InitialsAvatar />
-                        </IconButton>
-                        <Menu
-                            id="userMenu"
-                            anchorEl={this.state.userMenuAnchorEl}
-                            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                            disableAutoFocusItem={true}
-                            open={Boolean(this.state.userMenuAnchorEl)}
-                            onClose={() => this.handleUserMenuClose()}
-                        >
-                            <MenuItem
-                                className={styles.name}
-                                disableRipple={true}
-                            >
-                                {`Hi, ${fullName}`}
-                            </MenuItem>
-                            <Divider />
-                            <MenuItem onClick={() => this.handleUserMenuClose()}>
-                                My account
-                            </MenuItem>
-                            <MenuItem onClick={() => this.handleLogoutClick()}>
-                                Logout
-                            </MenuItem>
-                        </Menu>
-                    </div>
+                    {
+                        (true)
+                            ? authenticatedRightNav
+                            : unauthenticatedRightNav
+                    }
                 </Toolbar>
             </AppBar>,
             <Drawer
@@ -283,21 +310,11 @@ export class MainNav extends React.PureComponent {
                             alt=""
                         />
                     </div>
-                    <div className={styles.rightContainer}>
-                        <Button
-                            className={styles.login}
-                            href={PATH_DASHBOARD}
-                            variant={"text"}
-                        >
-                            Login
-                        </Button>
-                        <Button
-                            className={styles.signUp}
-                            variant={"contained"}
-                        >
-                            Sign Up
-                        </Button>
-                    </div>
+                    {
+                        (PAGE_ID !== PAGE_ID_HOME)
+                            ? authenticatedRightNav
+                            : unauthenticatedRightNav
+                    }
                 </Toolbar>
             </AppBar>,
         ];
@@ -325,44 +342,17 @@ export class MainNav extends React.PureComponent {
     }
 }
 
-/**
- * Map values from redux store state to props
- *
- * @param  {Object} state Redux store state
- *
- * @return {Object}       Object map of props
- */
-function mapStateToProps(state) {
-    return {
-        calendars: selectCalendars(state),
-        drawerIsOpen: selectDrawerIsOpen(state),
-        givenName: selectGivenName(state),
-        surname: selectSurname(state),
-    };
-}
-
-/**
- * Map action creators to props. Export for testing.
- *
- * @private
- *
- * @param  {Function} dispatch Redux dispatch method
- *
- * @return {Object}            Object map of action creators
- */
-export function mapDispatchToProps(dispatch) {
-    return {
-        setCalendars: (...args) => {
-            dispatch(setCalendars(...args));
-        },
-        setDrawerIsOpen: (...args) => {
-            dispatch(setDrawerIsOpen(...args));
-        },
-    };
-}
-
 // Export the redux-connected component
-export default connect(mapStateToProps, mapDispatchToProps)(MainNav);
+export default connect((state) => ({
+    calendars: selectCalendars(state),
+    drawerIsOpen: selectDrawerIsOpen(state),
+    givenName: selectGivenName(state),
+    isAuthenticated: selectIsAuthenticated(state),
+    surname: selectSurname(state),
+}), {
+    backdoorLogin,
+    setDrawerIsOpen,
+})(MainNav);
 
 MainNav.propTypes = {
     // -------------------------------------------------------------------------
@@ -374,14 +364,17 @@ MainNav.propTypes = {
     // User's given name
     givenName: PropTypes.string.isRequired,
 
+    // Whether the user is authenticated
+    isAuthenticated: PropTypes.bool.isRequired,
+
     // User's surname
     surname: PropTypes.string.isRequired,
 
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
-    // Set the calendars from the endpoint response
-    setCalendars: PropTypes.func.isRequired,
+    // Login
+    backdoorLogin: PropTypes.func.isRequired,
 
     // Set the open state of the drawer
     setDrawerIsOpen: PropTypes.func.isRequired,

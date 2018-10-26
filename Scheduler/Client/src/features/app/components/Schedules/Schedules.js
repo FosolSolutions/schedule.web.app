@@ -96,7 +96,7 @@ export class Schedules extends React.PureComponent {
                             subheader="My Schedules"
                         />
                         <Divider />
-                        <List className={styles.list}>
+                        <List>
                             <ListItem
                                 className={styles.listItem}
                             >
@@ -192,23 +192,13 @@ export class Schedules extends React.PureComponent {
     }
 }
 
-/**
- * Map values from redux store state to props
- *
- * @param  {Object} state Redux store state
- *
- * @return {Object}       Object map of props
- */
-function mapStateToProps(state) {
-    return {
-        calendars: selectCalendars(state),
-        givenName: selectGivenName(state),
-        surname: selectSurname(state),
-    };
-}
-
 // Export the redux-connected component
-export default connect(mapStateToProps, null)(Schedules);
+export default connect((state) => ({
+    calendars: selectCalendars(state),
+    givenName: selectGivenName(state),
+    surname: selectSurname(state),
+}),
+null)(Schedules);
 
 Schedules.propTypes = {
     // -------------------------------------------------------------------------

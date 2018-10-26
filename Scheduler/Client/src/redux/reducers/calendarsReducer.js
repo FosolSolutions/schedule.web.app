@@ -7,9 +7,12 @@ import update from "immutability-helper";
 // Redux Support
 //------------------------------------------------------------------------------
 import {
+    FETCH_CALENDAR,
     FETCH_CALENDARS,
-    FETCH_CALENDARS_SUCCESS,
     FETCH_CALENDARS_ERROR,
+    FETCH_CALENDARS_SUCCESS,
+    FETCH_CALENDAR_ERROR,
+    FETCH_CALENDAR_SUCCESS,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
@@ -19,9 +22,16 @@ import {
 //------------------------------------------------------------------------------
 
 export const initialCalendarsState = {
-    calendars: [],
-    error: null,
-    isLoading: false,
+    calendar: {
+        data: {},
+        error: false,
+        isLoading: false,
+    },
+    calendars: {
+        data: [],
+        error: false,
+        isLoading: false,
+    },
 };
 
 /**
@@ -32,29 +42,56 @@ export const initialCalendarsState = {
  *
  * @return {Object}        Updated state
  */
-export default function calendarsReducer(
-    state = initialCalendarsState,
-    action,
-) {
+export default function calendarsReducer(state = initialCalendarsState, action) {
     let returnVal;
 
     switch (action.type) {
+        case FETCH_CALENDAR:
+            returnVal = update(state, {
+                calendar: {
+                    isLoading: { $set: true },
+                },
+            });
+            break;
         case FETCH_CALENDARS:
             returnVal = update(state, {
-                isLoading: { $set: true },
+                calendars: {
+                    isLoading: { $set: true },
+                },
+            });
+            break;
+        case FETCH_CALENDAR_ERROR:
+            returnVal = update(state, {
+                calendar: {
+                    isLoading: { $set: false },
+                    error: { $set: action.error },
+                },
             });
             break;
         case FETCH_CALENDARS_ERROR:
             returnVal = update(state, {
-                isLoading: { $set: false },
-                error: { $set: action.error },
+                calendars: {
+                    isLoading: { $set: false },
+                    error: { $set: action.error },
+                },
+            });
+            break;
+        case FETCH_CALENDAR_SUCCESS:
+            returnVal = update(state, {
+                calendar: {
+                    isLoading: { $set: false },
+                    error: { $set: null },
+                    data: { $set: action.calendar },
+                },
             });
             break;
         case FETCH_CALENDARS_SUCCESS:
             returnVal = update(state, {
-                isLoading: { $set: false },
-                error: { $set: null },
-                calendars: { $set: action.calendars },
+                calendars: {
+                    isLoading: { $set: false },
+                    error: { $set: null },
+                    data: { $set: action.calendars },
+                },
             });
             break;
         default:
@@ -65,6 +102,17 @@ export default function calendarsReducer(
 }
 
 /**
+ * calendar selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {Object[]}     The calendar object
+ */
+export function selectCalendar(state) {
+    return state.calendars.calendar.data;
+}
+
+/**
  * calendars selector
  *
  * @param  {Object} state Store state object
@@ -72,7 +120,7 @@ export default function calendarsReducer(
  * @return {Object[]}     The array of calendar objects
  */
 export function selectCalendars(state) {
-    return state.calendars.calendars;
+    return state.calendars.calendars.data;
 }
 
 /**
@@ -91,7 +139,7 @@ export function selectCalendarsIsLoading(state) {
  *
  * @param  {Object} state Store state object
  *
- * @return {string}       The calendars request error
+ * @return {Object}       The calendars request error
  */
 export function selectCalendarsError(state) {
     return state.calendars.error;

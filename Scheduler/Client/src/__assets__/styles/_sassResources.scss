@@ -19,10 +19,16 @@ $primaryLight: lighten(desaturate($primaryMain, 10%), 67%);
 $secondaryMain: #2196f3;
 $secondaryMid: lighten(desaturate($secondaryMain, 10%), 15%);
 $secondaryLight: lighten(desaturate($secondaryMain, 10%), 20%);
+$secondaryExtraLight: lighten(desaturate($secondaryMain, 10%), 42%);
 $errorMain: #e74c3c;
+$neutralLight: #f9f9f9;
+$neutralMid: #eee;
+$neutralDark: #e0e0e0;
 
 $baseText: #051923;
-$baseLight: #fff;
+$baseTextLight: #aaa;
+$baseTextDisabled: #ccc;
+$baseBackground: #fff;
 
 // Typeface
 $bodyTypeface: "Open Sans", sans-serif;
@@ -48,19 +54,25 @@ $headerHeightLarge: 64px;
 // -----------------------------------------------------------------------------
 // Elements
 // -----------------------------------------------------------------------------
-@mixin button {
-    font-family: "Open Sans", sans-serif;
+@mixin button($background, $color) {
+    background-color: $background;
+    box-shadow: none;
+    color: $color;
+
+    &:hover {
+        background-color: darken($background, 7%);
+    }
 }
 
 @mixin chipAvatarDark {
     background-color: $primaryMain;
-    color: $baseLight;
+    color: $baseBackground;
     z-index: 0;
 }
 
 @mixin chipDark {
     background-color: $primaryMid;
-    color: $baseLight;
+    color: $baseBackground;
     font-family: $bodyTypeface;
     font-size: 0.75rem;
     font-weight: 600;
@@ -75,7 +87,45 @@ $headerHeightLarge: 64px;
     }
 }
 
-// Miscellaneous ---------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// Layout
+// -----------------------------------------------------------------------------
+@mixin col {
+    flex-basis: 0;
+    flex-grow: 1;
+    max-width: 100%;
+}
+
+@mixin colStart {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+@mixin colCenter {
+    justify-content: center;
+    text-align: center;
+}
+
+@mixin colEnd {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+@mixin row {
+    display: flex;
+    flex-flow: row wrap;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+@mixin rowMiddle {
+    align-items: center;
+}
+
+// -----------------------------------------------------------------------------
+// Miscellaneous
+// -----------------------------------------------------------------------------
 
 /*
  * Adds dynamic scrollable content affordances (shadows at top and bottom of
@@ -144,4 +194,3 @@ $headerHeightLarge: 64px;
         margin: $negCoverSize 0 0;
     }
 }
-

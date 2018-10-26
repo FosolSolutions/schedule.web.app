@@ -14,7 +14,7 @@ const devServerPort = "3001";
 
 // -----------------------------------------------------------------------------
 
-const devServerPath = `http://${domain}:${devServerPort}`;
+const devServerPath = `//${domain}:${devServerPort}`;
 
 module.exports = {
     cache: true,

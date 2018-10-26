@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 // Third Party
 //------------------------------------------------------------------------------
+import axios from "axios";
 
 //----------------------------------------------------------------------------
 // Redux Support
@@ -10,9 +11,14 @@
 // Helpers
 //----------------------------------------------------------------------------
 import {
+    LOGIN,
+    LOGIN_ERROR,
+    LOGIN_FAILURE,
+    LOGIN_SUCCESS,
     SET_GIVEN_NAME,
     SET_SURNAME,
 } from "redux/actionTypes";
+import { PATH_API_AUTH_BACKDOOR } from "utils/backendConstants";
 //----------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -45,6 +51,40 @@ export function setSurname(surname) {
         surname,
     };
 }
+
+/**
+ * Login the user using the authentication back door.
+ *
+ * @return {Function} Action-dispatching thunk.
+ */
+export function backdoorLogin() {
+    return (dispatch) => {
+        dispatch({
+            type: LOGIN,
+        });
+
+        axios
+            .get(
+                PATH_API_AUTH_BACKDOOR,
+            )
+            .then((response) => {
+                console.log(response);
+
+                if (response.status === 200) {
+                    dispatch({ type: LOGIN_SUCCESS });
+                } else {
+                    dispatch({ type: LOGIN_FAILURE });
+                }
+            })
+            .catch((error) => {
+                dispatch({
+                    type: LOGIN_ERROR,
+                    error,
+                });
+            });
+    };
+}
+
 
 //------------------------------------------------------------------------------
 // Private Implementation Details

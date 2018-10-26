@@ -25,6 +25,8 @@ import Chip from "@material-ui/core/Chip";
 import Divider from "@material-ui/core/Divider";
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
 import { withStyles } from "@material-ui/core/styles";
 
 //------------------------------------------------------------------------------
@@ -54,6 +56,21 @@ export class Dashboard extends React.PureComponent {
                 backgroundColor: stringToHslColor(soName),
             },
         })(Avatar);
+        const renderCalendars = () => {
+            const calendarsMarkup = [];
+
+            this.props.calendars.forEach((calendar) => {
+                const calendarName = calendar.getName();
+
+                calendarsMarkup.push(
+                    <ListItem key={calendarName}>
+                        {calendarName}
+                    </ListItem>,
+                );
+            });
+
+            return calendarsMarkup;
+        };
 
         return [
             <Chip
@@ -108,9 +125,12 @@ export class Dashboard extends React.PureComponent {
                             }
                             className={styles.cardHeader}
                             title={vcName}
-                            subheader="Overview"
+                            subheader="My Calendars"
                         />
                         <Divider />
+                        <List className={styles.list}>
+                            {renderCalendars()}
+                        </List>
                     </Card>
                 </Grid>
                 <Grid
@@ -133,7 +153,7 @@ export class Dashboard extends React.PureComponent {
                             }
                             className={styles.cardHeader}
                             title={soName}
-                            subheader="Overview"
+                            subheader="My Calendars"
                         />
                         <Divider />
                     </Card>
@@ -143,23 +163,13 @@ export class Dashboard extends React.PureComponent {
     }
 }
 
-/**
- * Map values from redux store state to props
- *
- * @param  {Object} state Redux store state
- *
- * @return {Object}       Object map of props
- */
-function mapStateToProps(state) {
-    return {
-        calendars: selectCalendars(state),
-        givenName: selectGivenName(state),
-        surname: selectSurname(state),
-    };
-}
-
 // Export the redux-connected component
-export default connect(mapStateToProps, null)(Dashboard);
+export default connect((state) => ({
+    calendars: selectCalendars(state),
+    givenName: selectGivenName(state),
+    surname: selectSurname(state),
+}),
+null)(Dashboard);
 
 Dashboard.propTypes = {
     // -------------------------------------------------------------------------
