@@ -1,0 +1,134 @@
+@import "../../../../__assets__/styles/sassResources";
+
+.chip {
+    @include chipDark;
+}
+
+.chipAvatar {
+    @include chipAvatarDark;
+}
+
+.header {
+    @include row;
+    @include rowMiddle;
+
+    border-bottom: 1px solid $neutralDark;
+    font-size: 115%;
+    font-weight: 700;
+    padding: 1em 0;
+    text-transform: uppercase;
+}
+
+.header .leftWrap {
+    @include col;
+    @include colEnd;
+
+    .today {
+        @include button($neutralMid, $baseText);
+    }
+}
+
+.header .centerWrap {
+    @include col;
+    @include colCenter;
+}
+
+.header .rightWrap {
+    @include col;
+    @include colStart;
+}
+
+.weekDays {
+    border-bottom: 1px solid $neutralDark;
+    color: $baseTextLight;
+    display: flex;
+    font-size: 70%;
+    font-weight: 400;
+    padding: 0.75em 0;
+    text-transform: uppercase;
+}
+
+.weekDay {
+    @include col;
+    @include colCenter;
+}
+
+.day {
+    background: $baseBackground;
+    border-right: 1px solid $neutralDark;
+    cursor: pointer;
+    flex-basis: calc(100% / 7);
+    flex-grow: 0;
+    height: 8em;
+    overflow: hidden;
+    padding-top: 2em;
+    position: relative;
+    transition: 0.25s ease-out;
+    width: calc(100% / 7);
+}
+
+.day:last-child {
+    border-right: 0;
+}
+
+.day .number {
+    font-size: 78%;
+    font-weight: 400;
+    line-height: 1;
+    position: absolute;
+    right: 0.75em;
+    top: 0.75em;
+    z-index: 0;
+}
+
+.day.disabled {
+    color: $baseTextDisabled;
+    pointer-events: none;
+}
+
+.day.selected {
+    background: $neutralLight;
+
+    .number {
+        font-weight: 600;
+    }
+}
+
+.day.selected .number {
+    color: $baseBackground;
+    font-weight: 600;
+
+    &::before {
+        background: $secondaryMain;
+        border-radius: 50%;
+        content: "";
+        height: 2em;
+        position: absolute;
+        right: -40%;
+        top: -50%;
+        width: 2em;
+        z-index: -1;
+    }
+}
+
+.dayRow {
+    border-bottom: 1px solid $neutralDark;
+    display: flex;
+}
+
+.dayRow:last-child {
+    border-bottom: 0;
+}
+
+.event {
+    background: darken($secondaryMain, 10%);
+    color: $baseBackground;
+    font-size: 70%;
+    padding: 0.1em 0.25em;
+    width: 100%;
+}
+
+.event.past {
+    background: $secondaryLight;
+    color: $baseText;
+}

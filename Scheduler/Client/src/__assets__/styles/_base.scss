@@ -7,6 +7,8 @@
 }
 
 html {
+    @include appLayout;
+
     /* stylelint-disable */
     -webkit-text-size-adjust: 100%;
     -moz-osx-font-smoothing: grayscale;
@@ -16,7 +18,6 @@ html {
     box-sizing: border-box;
     color: $baseText;
     font-size: 100%;
-    height: 100%;
     overflow-x: hidden;
     text-size-adjust: 100%;
     width: 100%;
@@ -68,6 +69,7 @@ body {
     height: 100%;
     line-height: 1.45;
     margin: 0;
+    padding: 0 !important;
     width: 100%;
 }
 

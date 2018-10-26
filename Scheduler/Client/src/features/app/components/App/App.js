@@ -8,126 +8,44 @@ import { connect } from "react-redux";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import setCalendars from "redux/actions/calendarsActions";
-import { selectCalendars } from "redux/reducers/calendarsReducer";
+import { fetchCalendars } from "redux/actions/calendarsActions";
 
 //------------------------------------------------------------------------------
 // Components
 //------------------------------------------------------------------------------
-import Button from "@material-ui/core/Button";
-import Drawer from "@material-ui/core/Drawer";
-import IconButton from "@material-ui/core/IconButton";
-import AppBar from "@material-ui/core/AppBar";
-
-//------------------------------------------------------------------------------
-// Assets
-//------------------------------------------------------------------------------
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import Event from "@material-ui/icons/Event";
-import MoreVert from "@material-ui/icons/MoreVert";
-import styles from "features/app/components/App/app.scss";
-
-//------------------------------------------------------------------------------
-// Helpers
-//------------------------------------------------------------------------------
+import MainNav from "features/app/components/MainNav/MainNav";
+import MainContent from "features/app/components/MainContent/MainContent";
 
 //------------------------------------------------------------------------------
 
-export class App extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            drawerIsOpen: false
-        };
-
-        props.setCalendars();
-    }
-
-    /**
-     * Handle menu button clicks
-     */
-    handleMenuButtonClick() {
-        this.setState({ drawerIsOpen: !this.state.drawerIsOpen });
+/**
+ * Top-level application component. Triggers any runtime data fetching and
+ * renders the application.
+ */
+export class App extends React.PureComponent {
+    componentDidMount() {
+        this.props.fetchCalendars();
     }
 
     render() {
         return [
-            <AppBar
-                className={styles.appBar}
-                position={"static"}
-                key="mainAppBar"
-            >
-                <div className={styles.leftContainer}>
-                    <Event />
-                    <h1 className={styles.appTitle}>EventStack</h1>
-                </div>
-                <IconButton
-                    className={styles.iconButton}
-                    onClick={() => this.handleMenuButtonClick()}
-                >
-                    <MoreVert />
-                </IconButton>
-            </AppBar>,
-            <Drawer
-                anchor="right"
-                key="navDrawer"
-                open={this.state.drawerIsOpen}
-                onClose={() => this.handleMenuButtonClick()}
-            >
-                <Button>
-                    <span className={styles.buttonLabel}>Account</span>
-                    <AccountCircle />
-                </Button>
-            </Drawer>
+            <MainNav key="mainNav" />,
+            <MainContent key="mainContent" />,
         ];
     }
 }
 
-/**
- * Map values from redux store state to props
- *
- * @param  {Object} state Redux store state
- *
- * @return {Object}       Object map of props
- */
-function mapStateToProps(state) {
-    return {
-        calendars: selectCalendars(state)
-    };
-}
-
-/**
- * Map action creators to props. Export for testing.
- *
- * @private
- *
- * @param  {Function} dispatch Redux dispatch method
- *
- * @return {Object}            Object map of action creators
- */
-export function mapDispatchToProps(dispatch) {
-    return {
-        setCalendars: (...args) => {
-            dispatch(setCalendars(...args));
-        }
-    };
-}
-
 // Export the redux-connected component
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(App);
+export default connect(null, {
+    fetchCalendars,
+})(App);
 
 App.propTypes = {
     // -------------------------------------------------------------------------
-    // Data propTypes
-    // -------------------------------------------------------------------------
-    // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
-    setCalendars: PropTypes.func.isRequired
+    // Set the calendars from the endpoint response
+    fetchCalendars: PropTypes.func.isRequired,
 };
 
 App.defaultProps = {};

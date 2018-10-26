@@ -1,0 +1,143 @@
+@import "../../../../__assets__/styles/sassResources";
+
+.hide {
+    display: none;
+}
+
+.appBar {
+    align-items: center;
+    border-bottom: 1px solid lighten($primaryMain, 10%);
+    box-shadow: none;
+    flex-direction: row;
+    padding: 0 0.25em !important;
+    transition: width $uiTransitionDuration $uiTransitionFunction;
+    width: 100%;
+    z-index: 2;
+}
+
+.toolbar {
+    transition: padding $uiTransitionDuration $uiTransitionFunction;
+    width: 100%;
+}
+
+.appTitle {
+    font-size: 1.2em;
+    margin: 0 0 0 0.1em;
+}
+
+.backHeader {
+    padding: 0 0.25em;
+}
+
+.backWrap {
+    align-items: center;
+    display: flex;
+    justify-content: flex-end;
+    min-height: 56px;
+
+    .logo {
+        flex: 1;
+        max-height: 21px;
+    }
+}
+
+.login {
+    color: #fff;
+    margin-right: 0.5em;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .label {
+        margin-left: 0.3em;
+    }
+
+    .icon {
+        margin-left: -0.25em;
+    }
+}
+
+.name {
+    background-color: transparent !important;
+    color: $primaryMain;
+    cursor: default;
+    font-size: 0.7em;
+    font-weight: 600;
+    padding-bottom: 0.4em;
+    padding-top: 0;
+
+    &:focus,
+    &:hover {
+        background-color: transparent;
+    }
+}
+
+.signUp {
+    @include button($secondaryMain, $baseBackground);
+}
+
+.drawer {
+    position: relative;
+    z-index: 1;
+}
+
+.drawerIsOpen {
+    width: calc(100% - 200px);
+}
+
+.paper {
+    overflow-x: hidden;
+    transition: width $uiTransitionDuration $uiTransitionFunction;
+    width: 56px;
+}
+
+.paperIsOpen {
+    width: 200px;
+}
+
+.leftContainer {
+    align-items: center;
+    display: flex;
+    flex: 1 0 auto;
+}
+
+.appLogo {
+    max-height: 21px;
+}
+
+.homeLogo {
+    max-height: 23px;
+}
+
+.rightContainer {
+    flex: 0 0 auto;
+}
+
+.iconButton {
+    border-color: #fff;
+    color: #fff;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+.list {
+    padding-top: 0;
+}
+
+.listItem {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.listItemText {
+    padding-left: 0;
+}
+
+@include breakpoint(37.5em) {
+    .backWrap {
+        min-height: 64px;
+    }
+}

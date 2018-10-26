@@ -1,0 +1,25 @@
+@import "../../../../__assets__/styles/sassResources";
+
+.appPage {
+    @include scrollingShadows;
+
+    background-color: $primaryLight;
+    margin-left: 56px;
+    margin-top: 56px;
+    min-height: 100%;
+    transition: margin $uiTransitionDuration $uiTransitionFunction;
+}
+
+.appContent {
+    padding: 0.5em 1em 1em;
+}
+
+.narrow {
+    margin-left: 200px;
+}
+
+@include breakpoint(37.5em) {
+    .appPage {
+        margin-top: 64px;
+    }
+}

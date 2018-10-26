@@ -1,0 +1,21 @@
+@import "../../../../__assets__/styles/sassResources";
+
+.chip {
+    @include chipDark;
+}
+
+.chipAvatar {
+    @include chipAvatarDark;
+}
+
+.cardAvatar {
+    background-color: $secondaryMain;
+}
+
+.cardHeader {
+    font-family: $bodyTypeface !important;
+}
+
+.heading {
+    margin: 0.5em 0 1em;
+}

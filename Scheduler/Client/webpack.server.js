@@ -1,5 +1,7 @@
 /* eslint no-console: 0 */
 const express = require("express");
+const fs = require("fs");
+const https = require("https");
 const webpack = require("webpack");
 const webpackDevMiddleWare = require("webpack-dev-middleware");
 const webpackHotMiddleWare = require("webpack-hot-middleware");
@@ -9,7 +11,11 @@ const app = express();
 const compiler = webpack(config);
 const publicPath = config.output.publicPath;
 const devServerPort = publicPath.match(/(?::)(\d{1,5})/)[1];
-let server = "";
+const sslOptions = {
+    key: fs.readFileSync("server.key"),
+    cert: fs.readFileSync("server.crt"),
+};
+const server = "";
 
 app.use(
     webpackDevMiddleWare(compiler, {
@@ -20,21 +26,21 @@ app.use(
         lazy: false,
         stats: {
             colors: true,
-            cached: false
-        }
-    })
+            cached: false,
+        },
+    }),
 );
 
 app.use(webpackHotMiddleWare(compiler));
 
-server = app.listen(devServerPort, "0.0.0.0", err => {
+https.createServer(sslOptions, app).listen(devServerPort, "127.0.0.1", (err) => {
     if (err) {
         console.log(err);
         return;
     }
 
     console.log(
-        `Webpack dev server listening at http://0.0.0.0:${devServerPort}`
+        `Webpack dev server listening at https://127.0.0.1:${devServerPort}`,
     );
     console.log("Performing initial build...");
 });

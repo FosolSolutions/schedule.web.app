@@ -2,3 +2,4 @@
 
 # ignore test coverage report directory
 /coverage
+/build

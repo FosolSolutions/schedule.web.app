@@ -19,6 +19,13 @@ namespace Scheduler
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((webHostBuilderContext, config) =>
+                {
+                    var environment = webHostBuilderContext.HostingEnvironment;
+                    config.AddJsonFile("appsettings.json", optional: false);
+                    config.AddJsonFile("appsettings.{environment}.json", optional: true);
+                    config.AddEnvironmentVariables();
+                })
                 .UseStartup<Startup>();
     }
 }
