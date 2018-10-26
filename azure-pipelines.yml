@@ -1,0 +1,33 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+pool:
+  vmImage: 'Ubuntu 16.04'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- script: cd Scheduler/Client
+  displayName: 'cd Scheduler/Client'
+- script: nvm install
+  displayName: 'nvm install'
+- script: npm install
+  displayName: 'npm install'
+- script: npm run build:prod
+  displayName: 'npm run build:prod'
+- script: dotnet build --configuration $(buildConfiguration)
+  displayName: 'dotnet build $(buildConfiguration)'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: True
+- task: AzureRmWebAppDeployment@3
+  inputs:
+    azureSubscription: '<Azure service connection>'
+    WebAppName: '<Name of web app>'
+    Package: $(System.ArtifactsDirectory)/**/*.zip
