@@ -18,7 +18,6 @@ import {
     FETCH_CALENDARS_ERROR,
     FETCH_CALENDAR,
     FETCH_CALENDAR_SUCCESS,
-    FETCH_CALENDAR_ERROR,
 } from "redux/actionTypes";
 import {
     PATH_DATA_CALENDARS,
@@ -57,9 +56,7 @@ export function fetchCalendars() {
                     withCredentials: true,
                 },
             )
-            .then((response) => {
-                console.log(response);
-
+            .then(() => {
                 dispatch({
                     type: FETCH_CALENDARS_SUCCESS,
                     calendars: getCalendarsFrontendFormat(mockCalendars),
@@ -89,7 +86,7 @@ export function fetchCalendarInRange(startOn = null, endOn) {
         const dateFormat = "YYYY-LL-dd";
         const startParam = (startOn === null) ? "" : `starton=${format(startOn, dateFormat, { awareOfUnicodeTokens: true })}&`;
         const endParam = `endon${format(endOn, dateFormat, { awareOfUnicodeTokens: true })}`;
-        const PATH = `${PATH_DATA_CALENDAR}${calendarId}?${startParam}${endParam}`;
+        const PATH = `${PATH_DATA_CALENDAR}${calendarId}?${startParam}${endParam}`; // eslint-disable-line
 
         // START-- Mock data handling ---
         const octDate = new Date(2018, 9, 1);

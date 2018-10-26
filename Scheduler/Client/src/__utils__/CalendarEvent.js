@@ -3,7 +3,6 @@
 //------------------------------------------------------------------------------
 import { EventActivity } from "utils/EventActivity";
 import { EventCriterion } from "utils/EventCriterion";
-import { parseISOString } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
 

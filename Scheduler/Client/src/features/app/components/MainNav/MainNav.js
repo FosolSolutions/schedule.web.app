@@ -206,7 +206,7 @@ export class MainNav extends React.PureComponent {
                         />
                     </div>
                     {
-                        (true)
+                        (PAGE_ID !== PAGE_ID_HOME)
                             ? authenticatedRightNav
                             : unauthenticatedRightNav
                     }
