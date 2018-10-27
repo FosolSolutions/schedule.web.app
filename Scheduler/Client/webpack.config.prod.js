@@ -48,10 +48,10 @@ module.exports = {
     },
 
     output: {
-        path: path.join(__dirname, "../wwwroot/client"),
+        path: path.join(__dirname, "../wwwroot/client/"),
         // Append .[chunkhash] after [name] for cache-breaking
         filename: "[name].[chunkhash].js",
-        publicPath: "../wwwroot/client",
+        publicPath: "/client/",
     },
 
     plugins: [
