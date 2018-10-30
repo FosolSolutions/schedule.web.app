@@ -23,7 +23,7 @@ namespace Scheduler
                 {
                     var environment = webHostBuilderContext.HostingEnvironment;
                     config.AddJsonFile("appsettings.json", optional: false);
-                    config.AddJsonFile("appsettings.{environment}.json", optional: true);
+                    config.AddJsonFile($"appsettings.{environment.EnvironmentName}.json", optional: true);
                     config.AddEnvironmentVariables();
                 })
                 .UseStartup<Startup>();
