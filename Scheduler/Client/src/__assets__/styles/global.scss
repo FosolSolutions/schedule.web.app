@@ -1,0 +1,13 @@
+@import "sassResources";
+
+.fullHeight {
+    height: 100% !important;
+}
+
+.appHeight {
+    height: calc(100% - #{$headerHeightSmall});
+
+    @include breakpoint(37.5em) {
+        height: calc(100% - #{$headerHeightLarge});
+    }
+}

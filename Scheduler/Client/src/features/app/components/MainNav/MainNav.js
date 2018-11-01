@@ -10,7 +10,10 @@ import classNames from "classnames";
 // Redux Support
 //------------------------------------------------------------------------------
 import { setDrawerIsOpen } from "redux/actions/uiActions";
-import { backdoorLogin } from "redux/actions/userActions";
+import {
+    backdoorLogin,
+    signOff,
+} from "redux/actions/userActions";
 import { selectCalendars } from "redux/reducers/calendarsReducer";
 import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
 import {
@@ -57,7 +60,6 @@ import {
     PAGE_ID,
     PATH_CALENDAR,
     PATH_DASHBOARD,
-    PATH_ROOT,
     PATH_SCHEDULES,
 } from "utils/staticBackendData";
 import { capitalizeFirstLetterOnly } from "utils/generalUtils";
@@ -87,7 +89,7 @@ export class MainNav extends React.PureComponent {
      * Handle user menu logout button click.
      */
     handleLogoutClick() {
-        window.location.href = PATH_ROOT;
+        this.props.signOff();
     }
 
     handleLoginClick() {
@@ -291,33 +293,33 @@ export class MainNav extends React.PureComponent {
                 </List>
             </Drawer>,
         ];
-        /**
-         * Render the main homepage navigation.
-         *
-         * @return {ReactElement[]} Array of navigation elements.
-         */
-        const homeNav = () => [
-            <AppBar
-                className={appBarClassNames}
-                position={"fixed"}
-                key="mainAppBar"
-            >
-                <Toolbar className={styles.toolbar}>
-                    <div className={styles.leftContainer}>
-                        <img
-                            className={styles.homeLogo}
-                            src={coEventLogoWh}
-                            alt=""
-                        />
-                    </div>
-                    {
-                        (PAGE_ID !== PAGE_ID_HOME)
-                            ? authenticatedRightNav
-                            : unauthenticatedRightNav
-                    }
-                </Toolbar>
-            </AppBar>,
-        ];
+        // /**
+        //  * Render the main homepage navigation.
+        //  *
+        //  * @return {ReactElement[]} Array of navigation elements.
+        //  */
+        // const homeNav = () => [
+        //     <AppBar
+        //         className={appBarClassNames}
+        //         position={"fixed"}
+        //         key="mainAppBar"
+        //     >
+        //         <Toolbar className={styles.toolbar}>
+        //             <div className={styles.leftContainer}>
+        //                 <img
+        //                     className={styles.homeLogo}
+        //                     src={coEventLogoWh}
+        //                     alt=""
+        //                 />
+        //             </div>
+        //             {
+        //                 (PAGE_ID !== PAGE_ID_HOME)
+        //                     ? authenticatedRightNav
+        //                     : unauthenticatedRightNav
+        //             }
+        //         </Toolbar>
+        //     </AppBar>,
+        // ];
         /**
          * Conditionally render the appropriate main navigation for the current
          * page.
@@ -329,7 +331,7 @@ export class MainNav extends React.PureComponent {
 
             switch (PAGE_ID) {
                 case PAGE_ID_HOME:
-                    returnVal = homeNav();
+                    returnVal = false;
                     break;
                 default:
                     returnVal = appNav();
@@ -352,6 +354,7 @@ export default connect((state) => ({
 }), {
     backdoorLogin,
     setDrawerIsOpen,
+    signOff,
 })(MainNav);
 
 MainNav.propTypes = {
@@ -378,6 +381,9 @@ MainNav.propTypes = {
 
     // Set the open state of the drawer
     setDrawerIsOpen: PropTypes.func.isRequired,
+
+    // Sign off
+    signOff: PropTypes.func.isRequired,
 };
 
 MainNav.defaultProps = {};

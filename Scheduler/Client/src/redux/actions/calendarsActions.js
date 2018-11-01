@@ -16,6 +16,7 @@ import {
     FETCH_CALENDARS,
     FETCH_CALENDARS_SUCCESS,
     FETCH_CALENDARS_ERROR,
+    FETCH_CALENDARS_FAILURE,
     FETCH_CALENDAR,
     FETCH_CALENDAR_SUCCESS,
 } from "redux/actionTypes";
@@ -24,7 +25,6 @@ import {
     PATH_DATA_CALENDAR,
 } from "utils/backendConstants";
 import {
-    calendars as mockCalendars,
     calendar1RangeOct as calendarOctober,
     calendar1RangeNov as calendarNovember,
     calendar1RangeDec as calendarDecember,
@@ -49,18 +49,22 @@ export function fetchCalendars() {
             type: FETCH_CALENDARS,
         });
 
-        axios
-            .get(
-                PATH_DATA_CALENDARS,
-                {
-                    withCredentials: true,
-                },
-            )
-            .then(() => {
-                dispatch({
-                    type: FETCH_CALENDARS_SUCCESS,
-                    calendars: getCalendarsFrontendFormat(mockCalendars),
-                });
+        axios({
+            method: "get",
+            url: PATH_DATA_CALENDARS,
+            withCredentials: true,
+        })
+            .then((response) => {
+                if (response.status === 200) {
+                    dispatch({
+                        type: FETCH_CALENDARS_SUCCESS,
+                        calendars: getCalendarsFrontendFormat(response.data),
+                    });
+                } else {
+                    dispatch({
+                        type: FETCH_CALENDARS_FAILURE,
+                    });
+                }
             })
             .catch((error) => {
                 dispatch({

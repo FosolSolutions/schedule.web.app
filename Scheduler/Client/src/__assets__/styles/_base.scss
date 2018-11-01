@@ -7,8 +7,6 @@
 }
 
 html {
-    @include appLayout;
-
     /* stylelint-disable */
     -webkit-text-size-adjust: 100%;
     -moz-osx-font-smoothing: grayscale;
@@ -18,6 +16,7 @@ html {
     box-sizing: border-box;
     color: $baseText;
     font-size: 100%;
+    height: 100%;
     overflow-x: hidden;
     text-size-adjust: 100%;
     width: 100%;
@@ -66,31 +65,10 @@ html {
 body {
     font-family: "Open Sans", sans-serif;
     font-weight: 400;
-    height: 100%;
     line-height: 1.45;
     margin: 0;
     padding: 0 !important;
     width: 100%;
-}
-
-// Normalize focus ring styles across browsers
-a,
-button {
-    &:focus {
-        outline: 2px solid rgba($secondaryMain, 0.8);
-    }
-
-    // Remove dotted border inside buttons on Firefox
-    &::-moz-focus-inner {
-        border: 0;
-    }
-}
-
-// Remove inset dotted border inside select elements in Firefox. We should
-// always define our own focus styles for inputs.
-select:-moz-focusring {
-    color: transparent;
-    text-shadow: 0 0 0 #000;
 }
 
 p {

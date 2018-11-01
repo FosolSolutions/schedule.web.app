@@ -10,6 +10,7 @@ import {
     FETCH_CALENDAR,
     FETCH_CALENDARS,
     FETCH_CALENDARS_ERROR,
+    FETCH_CALENDARS_FAILURE,
     FETCH_CALENDARS_SUCCESS,
     FETCH_CALENDAR_ERROR,
     FETCH_CALENDAR_SUCCESS,
@@ -30,7 +31,7 @@ export const initialCalendarsState = {
     calendars: {
         data: [],
         error: false,
-        isLoading: false,
+        isLoading: true,
     },
 };
 
@@ -72,7 +73,15 @@ export default function calendarsReducer(state = initialCalendarsState, action) 
             returnVal = update(state, {
                 calendars: {
                     isLoading: { $set: false },
-                    error: { $set: action.error },
+                    error: { $set: true },
+                },
+            });
+            break;
+        case FETCH_CALENDARS_FAILURE:
+            returnVal = update(state, {
+                calendars: {
+                    isLoading: { $set: false },
+                    error: { $set: true },
                 },
             });
             break;
@@ -80,7 +89,7 @@ export default function calendarsReducer(state = initialCalendarsState, action) 
             returnVal = update(state, {
                 calendar: {
                     isLoading: { $set: false },
-                    error: { $set: null },
+                    error: { $set: false },
                     data: { $set: action.calendar },
                 },
             });
@@ -89,7 +98,7 @@ export default function calendarsReducer(state = initialCalendarsState, action) 
             returnVal = update(state, {
                 calendars: {
                     isLoading: { $set: false },
-                    error: { $set: null },
+                    error: { $set: false },
                     data: { $set: action.calendars },
                 },
             });
@@ -131,7 +140,7 @@ export function selectCalendars(state) {
  * @return {boolean}      Whether the calendars request is in progress
  */
 export function selectCalendarsIsLoading(state) {
-    return state.calendars.isLoading;
+    return state.calendars.calendars.isLoading;
 }
 
 /**
@@ -142,5 +151,5 @@ export function selectCalendarsIsLoading(state) {
  * @return {Object}       The calendars request error
  */
 export function selectCalendarsError(state) {
-    return state.calendars.error;
+    return state.calendars.calendars.error;
 }

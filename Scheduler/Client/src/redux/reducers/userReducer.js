@@ -12,6 +12,7 @@ import {
     LOGIN_FAILURE,
     LOGIN_SUCCESS,
     SET_GIVEN_NAME,
+    SET_IS_AUTHENTICATED,
     SET_SURNAME,
 } from "redux/actionTypes";
 
@@ -73,6 +74,11 @@ export default function userReducer(
         case SET_GIVEN_NAME:
             returnVal = update(state, {
                 givenName: { $set: action.givenName },
+            });
+            break;
+        case SET_IS_AUTHENTICATED:
+            returnVal = update(state, {
+                isAuthenticated: { $set: action.isAuthenticated },
             });
             break;
         case SET_SURNAME:

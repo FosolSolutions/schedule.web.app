@@ -19,6 +19,7 @@ export const PAGE_ID_SCHEDULES = backendConstants.pageIds.schedules;
 
 // API Paths -------------------------------------------------------------------
 export const PATH_API_AUTH_BACKDOOR = `${authPath}backdoor/user`;
+export const PATH_API_AUTH_SIGN_OFF = `${authPath}signoff`;
 
 // Data Paths ------------------------------------------------------------------
 // TODO: Support paging properly

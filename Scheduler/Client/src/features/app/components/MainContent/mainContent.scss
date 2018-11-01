@@ -1,6 +1,7 @@
 @import "../../../../__assets__/styles/sassResources";
 
 .appPage {
+    @include appLayout;
     @include scrollingShadows;
 
     background-color: $primaryLight;
@@ -12,6 +13,10 @@
 
 .appContent {
     padding: 0.5em 1em 1em;
+}
+
+.fullHeight {
+    height: 100%;
 }
 
 .narrow {

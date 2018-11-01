@@ -80,10 +80,18 @@ $headerHeightLarge: 64px;
 }
 
 @mixin appLayout {
-    height: calc(100% - #{$headerHeightSmall});
+    @at-root {
+        body {
+            height: calc(100% - #{$headerHeightSmall});
+        }
+    }
 
     @include breakpoint(37.5em) {
-        height: calc(100% - #{$headerHeightLarge});
+        @at-root {
+            body {
+                height: calc(100% - #{$headerHeightLarge});
+            }
+        }
     }
 }
 
