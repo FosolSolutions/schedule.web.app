@@ -13,6 +13,7 @@ export const FETCH_CALENDAR_ERROR = "FETCH_CALENDAR_ERROR";
 // UI action types
 // -----------------------------------------------------------------------------
 export const SET_DRAWER_IS_OPEN = "SET_DRAWER_IS_OPEN";
+export const SET_PAGE_ID = "SET_PAGE_ID";
 
 // -----------------------------------------------------------------------------
 // User action types

@@ -14,25 +14,30 @@
         </environment>
 
         <script>
-            var rootPath = "@Configuration.GetSection("Scheduler")["PathRoot"]";
-
             window.Scheduler = {
                 constants: {
-                    pageIds: {
-                        calendar: "calendar",
-                        dashboard: "dashboard",
-                        home: "home",
-                        schedules: "schedules",
+                    absoluteRootPath: "@Configuration.GetSection("Scheduler")["PathAbsoluteRoot"]",
+                    pages: {
+                        calendar: {
+                            id: "calendar",
+                            relativePath: "@Configuration.GetSection("Scheduler")["PathRelativeCalendar"]",
+                        },
+                        dashboard: {
+                            id: "dashboard",
+                            relativePath: "@Configuration.GetSection("Scheduler")["PathRelativeDashboard"]",
+                        },
+                        root: {
+                            id: "root",
+                            relativePath: "@Configuration.GetSection("Scheduler")["PathRelativeRoot"]",
+                        },
+                        schedules: {
+                            id: "schedules",
+                            relativePath: "@Configuration.GetSection("Scheduler")["PathRelativeSchedules"]",
+                        },
                     },
                 },
                 staticData: {
                     pageId: "@ViewData["pageId"]",
-                    paths: {
-                        root: rootPath,
-                        calendar: rootPath + "@Configuration.GetSection("Scheduler")["PathCalendar"]",
-                        dashboard: rootPath + "@Configuration.GetSection("Scheduler")["PathDashboard"]",
-                        schedules: rootPath + "@Configuration.GetSection("Scheduler")["PathSchedules"]",
-                    }
                 },
             };
         </script>

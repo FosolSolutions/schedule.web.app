@@ -6,16 +6,21 @@ import update from "immutability-helper";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { SET_DRAWER_IS_OPEN } from "redux/actionTypes";
+import {
+    SET_DRAWER_IS_OPEN,
+    SET_PAGE_ID,
+} from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
+import { PAGE_ID } from "utils/staticBackendData";
 
 //------------------------------------------------------------------------------
 
 export const initialUiState = {
     drawerIsOpen: false,
+    pageId: PAGE_ID,
 };
 
 /**
@@ -38,6 +43,11 @@ export default function uiReducer(
                 drawerIsOpen: { $set: action.drawerIsOpen },
             });
             break;
+        case SET_PAGE_ID:
+            returnVal = update(state, {
+                pageId: { $set: action.pageId },
+            });
+            break;
         default:
             returnVal = state;
     }
@@ -54,4 +64,15 @@ export default function uiReducer(
  */
 export function selectDrawerIsOpen(state) {
     return state.ui.drawerIsOpen;
+}
+
+/**
+ * pageId selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {boolean}      The current page ID.
+ */
+export function selectPageId(state) {
+    return state.ui.pageId;
 }

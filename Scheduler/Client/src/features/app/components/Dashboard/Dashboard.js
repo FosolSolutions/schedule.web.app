@@ -175,13 +175,9 @@ Dashboard.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
-    // The calendars
+    // Redux -------------------------------------------------------------------
     calendars: PropTypes.array.isRequired,
-
-    // User's given name
     givenName: PropTypes.string.isRequired,
-
-    // User's surname
     surname: PropTypes.string.isRequired,
 };
 

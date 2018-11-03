@@ -11,11 +11,15 @@ const dataPath = `${rootRequestPath}data/`;
 //------------------------------------------------------------------------------
 // Public Interface
 //------------------------------------------------------------------------------
+// Pages Data ------------------------------------------------------------------
+export const PAGES_OBJECT_MAP = backendConstants.pages;
+export const PATH_ABSOLUTE_ROOT = backendConstants.absoluteRootPath;
+
 // Page IDs --------------------------------------------------------------------
-export const PAGE_ID_CALENDAR = backendConstants.pageIds.calendar;
-export const PAGE_ID_DASHBOARD = backendConstants.pageIds.dashboard;
-export const PAGE_ID_HOME = backendConstants.pageIds.home;
-export const PAGE_ID_SCHEDULES = backendConstants.pageIds.schedules;
+export const PAGE_ID_CALENDAR = backendConstants.pages.calendar.id;
+export const PAGE_ID_DASHBOARD = backendConstants.pages.dashboard.id;
+export const PAGE_ID_ROOT = backendConstants.pages.root.id;
+export const PAGE_ID_SCHEDULES = backendConstants.pages.schedules.id;
 
 // API Paths -------------------------------------------------------------------
 export const PATH_API_AUTH_BACKDOOR = `${authPath}backdoor/user`;

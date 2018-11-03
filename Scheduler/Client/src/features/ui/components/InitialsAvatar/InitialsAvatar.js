@@ -32,7 +32,9 @@ export class InitialsAvatar extends React.PureComponent {
     render() {
         return (
             <Avatar className={styles.circle}>
-                <span className={styles.initials}>{`${this.props.givenName.charAt(0)}${this.props.surname.charAt(0)}`}</span>
+                <span className={styles.initials}>
+                    {`${this.props.givenName.charAt(0)}${this.props.surname.charAt(0)}`}
+                </span>
             </Avatar>
         );
     }
@@ -59,11 +61,7 @@ InitialsAvatar.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
-    // User's given name
+    // Redux -------------------------------------------------------------------
     givenName: PropTypes.string.isRequired,
-
-    // User's surname
     surname: PropTypes.string.isRequired,
 };
-
-InitialsAvatar.defaultProps = {};

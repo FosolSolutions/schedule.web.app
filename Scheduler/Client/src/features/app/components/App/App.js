@@ -10,6 +10,7 @@ import { connect } from "react-redux";
 //------------------------------------------------------------------------------
 import { fetchCalendars } from "redux/actions/calendarsActions";
 import { initUserFromCache } from "redux/actions/userActions";
+import { setPageId } from "redux/actions/uiActions";
 import { selectIsAuthenticated } from "redux/reducers/userReducer";
 import {
     selectCalendarsIsLoading,
@@ -26,10 +27,10 @@ import MainContent from "features/app/components/MainContent/MainContent";
 // Helpers
 //------------------------------------------------------------------------------
 import {
-    PATH_DASHBOARD,
-    PAGE_ID,
-} from "utils/staticBackendData";
-import { PAGE_ID_HOME } from "utils/backendConstants";
+    PAGE_ID_DASHBOARD,
+    PAGE_ID_ROOT,
+} from "utils/backendConstants";
+import { selectPageId } from "../../../../redux/reducers/uiReducer";
 
 //------------------------------------------------------------------------------
 
@@ -52,44 +53,32 @@ export class App extends React.PureComponent {
     }
 
     componentDidUpdate(prevProps) {
-        if (!this.props.calendarsIsLoading && prevProps.calendarsIsLoading) {
-            if (this.props.calendarsError) {
-                window.setTimeout(() => {
-                    this.setState({ loadingState: false });
-                }, 250);
-            } else if (PAGE_ID === PAGE_ID_HOME) {
-                window.location.href = PATH_DASHBOARD;
-            } else {
-                this.setState({ loadingState: false });
-            }
-        }
-
         if (this.props.userIsAuthenticated && !prevProps.userIsAuthenticated) {
-            this.setState({ loadingState: false });
-
-            if (!this.props.calendarsIsLoading) {
+            if (this.props.calendarsError) {
                 this.props.fetchCalendars();
             }
+
+            if (this.props.pageId === PAGE_ID_ROOT) {
+                this.props.setPageId(PAGE_ID_DASHBOARD, false);
+            }
+
+            this.setState({ loadingState: false });
+        } else if (!this.props.userIsAuthenticated) {
+            this.setState({ loadingState: false });
         }
     }
 
     render() {
         const renderAppContent = () => {
             let returnVal;
-
-            if (this.state.loadingState || this.props.calendarsError) {
+            if (!this.props.userIsAuthenticated) {
                 returnVal = (
-                    <MainContent
-                        authenticationInProgress={this.state.loadingState}
-                    />
+                    <MainContent />
                 );
             } else {
                 returnVal = [
                     <MainNav key="mainNav" />,
-                    <MainContent
-                        authenticationInProgress={this.state.loadingState}
-                        key="mainContent"
-                    />,
+                    <MainContent key="mainContent" />,
                 ];
             }
 
@@ -104,33 +93,29 @@ export class App extends React.PureComponent {
 export default connect((state) => ({
     calendarsError: selectCalendarsError(state),
     calendarsIsLoading: selectCalendarsIsLoading(state),
+    pageId: selectPageId(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
     fetchCalendars,
     initUserFromCache,
+    setPageId,
 })(App);
 
 App.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
-    // The calendars error
     calendarsError: PropTypes.any.isRequired,
-
-    // Whether the calendars endpoint request is in progress
     calendarsIsLoading: PropTypes.bool.isRequired,
-
-    // Whether the user is authenticated
+    pageId: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,
 
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
-    // Set the calendars from the endpoint response
     fetchCalendars: PropTypes.func.isRequired,
-
-    // Initialize anonymouse user properties from the cache
     initUserFromCache: PropTypes.func.isRequired,
+    setPageId: PropTypes.func.isRequired,
 };
 
 App.defaultProps = {};

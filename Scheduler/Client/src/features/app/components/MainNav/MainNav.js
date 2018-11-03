@@ -9,23 +9,28 @@ import classNames from "classnames";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { setDrawerIsOpen } from "redux/actions/uiActions";
 import {
     backdoorLogin,
     signOff,
 } from "redux/actions/userActions";
 import { selectCalendars } from "redux/reducers/calendarsReducer";
-import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
+import {
+    selectDrawerIsOpen,
+    selectPageId,
+} from "redux/reducers/uiReducer";
 import {
     selectGivenName,
     selectIsAuthenticated,
     selectSurname,
 } from "redux/reducers/userReducer";
+import {
+    setDrawerIsOpen,
+    setPageId,
+} from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Components
 //------------------------------------------------------------------------------
-import Button from "@material-ui/core/Button";
 import Divider from "@material-ui/core/Divider";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
@@ -55,13 +60,12 @@ import styles from "features/app/components/MainNav/mainNav.scss";
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { PAGE_ID_HOME } from "utils/backendConstants";
 import {
-    PAGE_ID,
-    PATH_CALENDAR,
-    PATH_DASHBOARD,
-    PATH_SCHEDULES,
-} from "utils/staticBackendData";
+    PAGE_ID_CALENDAR,
+    PAGE_ID_DASHBOARD,
+    PAGE_ID_ROOT,
+    PAGE_ID_SCHEDULES,
+} from "utils/backendConstants";
 import { capitalizeFirstLetterOnly } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
@@ -88,12 +92,8 @@ export class MainNav extends React.PureComponent {
     /**
      * Handle user menu logout button click.
      */
-    handleLogoutClick() {
+    handleSignOutClick() {
         this.props.signOff();
-    }
-
-    handleLoginClick() {
-        this.props.backdoorLogin();
     }
 
     /**
@@ -136,55 +136,6 @@ export class MainNav extends React.PureComponent {
                 <MenuIcon />
             </IconButton>
         );
-        const authenticatedRightNav = (
-            <div className={styles.rightContainer}>
-                <IconButton
-                    className={styles.login}
-                    onClick={(e) => this.handleUserMenuClick(e)}
-                >
-                    <InitialsAvatar />
-                </IconButton>
-                <Menu
-                    id="userMenu"
-                    anchorEl={this.state.userMenuAnchorEl}
-                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                    disableAutoFocusItem={true}
-                    open={Boolean(this.state.userMenuAnchorEl)}
-                    onClose={() => this.handleUserMenuClose()}
-                >
-                    <MenuItem
-                        className={styles.name}
-                        disableRipple={true}
-                    >
-                        {`Hi, ${fullName}`}
-                    </MenuItem>
-                    <Divider />
-                    <MenuItem onClick={() => this.handleUserMenuClose()}>
-                        My account
-                    </MenuItem>
-                    <MenuItem onClick={() => this.handleLogoutClick()}>
-                        Logout
-                    </MenuItem>
-                </Menu>
-            </div>
-        );
-        const unauthenticatedRightNav = (
-            <div className={styles.rightContainer}>
-                <Button
-                    className={styles.login}
-                    href={PATH_DASHBOARD}
-                    variant={"text"}
-                >
-                    Login
-                </Button>
-                <Button
-                    className={styles.signUp}
-                    variant={"contained"}
-                >
-                    Sign Up
-                </Button>
-            </div>
-        );
         /**
          * Render the main app navigation.
          *
@@ -207,11 +158,36 @@ export class MainNav extends React.PureComponent {
                             alt=""
                         />
                     </div>
-                    {
-                        (PAGE_ID !== PAGE_ID_HOME)
-                            ? authenticatedRightNav
-                            : unauthenticatedRightNav
-                    }
+                    <div className={styles.rightContainer}>
+                        <IconButton
+                            className={styles.login}
+                            onClick={(e) => this.handleUserMenuClick(e)}
+                        >
+                            <InitialsAvatar />
+                        </IconButton>
+                        <Menu
+                            id="userMenu"
+                            anchorEl={this.state.userMenuAnchorEl}
+                            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                            disableAutoFocusItem={true}
+                            open={Boolean(this.state.userMenuAnchorEl)}
+                            onClose={() => this.handleUserMenuClose()}
+                        >
+                            <MenuItem
+                                className={styles.name}
+                                disableRipple={true}
+                            >
+                                {`Hi, ${fullName}`}
+                            </MenuItem>
+                            <Divider />
+                            <MenuItem onClick={() => this.handleUserMenuClose()}>
+                                My account
+                            </MenuItem>
+                            <MenuItem onClick={() => this.handleSignOutClick()}>
+                                Sign Out
+                            </MenuItem>
+                        </Menu>
+                    </div>
                 </Toolbar>
             </AppBar>,
             <Drawer
@@ -243,7 +219,7 @@ export class MainNav extends React.PureComponent {
                     <ListItem
                         button
                         className={styles.listItem}
-                        onClick={() => { window.location.href = PATH_DASHBOARD; }}
+                        onClick={() => this.props.setPageId(PAGE_ID_DASHBOARD, true)}
                     >
                         <ListItemIcon color="primary">
                             <Home />
@@ -256,7 +232,7 @@ export class MainNav extends React.PureComponent {
                     <ListItem
                         button
                         className={styles.listItem}
-                        onClick={() => { window.location.href = PATH_SCHEDULES; }}
+                        onClick={() => this.props.setPageId(PAGE_ID_SCHEDULES, true)}
                     >
                         <ListItemIcon color="primary">
                             <Assignment />
@@ -269,7 +245,7 @@ export class MainNav extends React.PureComponent {
                     <ListItem
                         button
                         className={styles.listItem}
-                        onClick={() => { window.location.href = PATH_CALENDAR; }}
+                        onClick={() => this.props.setPageId(PAGE_ID_CALENDAR, true)}
                     >
                         <ListItemIcon color="primary">
                             <Event />
@@ -293,33 +269,6 @@ export class MainNav extends React.PureComponent {
                 </List>
             </Drawer>,
         ];
-        // /**
-        //  * Render the main homepage navigation.
-        //  *
-        //  * @return {ReactElement[]} Array of navigation elements.
-        //  */
-        // const homeNav = () => [
-        //     <AppBar
-        //         className={appBarClassNames}
-        //         position={"fixed"}
-        //         key="mainAppBar"
-        //     >
-        //         <Toolbar className={styles.toolbar}>
-        //             <div className={styles.leftContainer}>
-        //                 <img
-        //                     className={styles.homeLogo}
-        //                     src={coEventLogoWh}
-        //                     alt=""
-        //                 />
-        //             </div>
-        //             {
-        //                 (PAGE_ID !== PAGE_ID_HOME)
-        //                     ? authenticatedRightNav
-        //                     : unauthenticatedRightNav
-        //             }
-        //         </Toolbar>
-        //     </AppBar>,
-        // ];
         /**
          * Conditionally render the appropriate main navigation for the current
          * page.
@@ -329,8 +278,8 @@ export class MainNav extends React.PureComponent {
         const renderMainNav = () => {
             let returnVal = false;
 
-            switch (PAGE_ID) {
-                case PAGE_ID_HOME:
+            switch (this.props.pageId) {
+                case PAGE_ID_ROOT:
                     returnVal = false;
                     break;
                 default:
@@ -350,10 +299,12 @@ export default connect((state) => ({
     drawerIsOpen: selectDrawerIsOpen(state),
     givenName: selectGivenName(state),
     isAuthenticated: selectIsAuthenticated(state),
+    pageId: selectPageId(state),
     surname: selectSurname(state),
 }), {
     backdoorLogin,
     setDrawerIsOpen,
+    setPageId,
     signOff,
 })(MainNav);
 
@@ -361,28 +312,20 @@ MainNav.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
-    // Whether the drawer is open
+    // Redux -------------------------------------------------------------------
     drawerIsOpen: PropTypes.bool.isRequired,
-
-    // User's given name
     givenName: PropTypes.string.isRequired,
-
-    // Whether the user is authenticated
     isAuthenticated: PropTypes.bool.isRequired,
-
-    // User's surname
+    pageId: PropTypes.string.isRequired,
     surname: PropTypes.string.isRequired,
 
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
-    // Login
+    // Redux -------------------------------------------------------------------
     backdoorLogin: PropTypes.func.isRequired,
-
-    // Set the open state of the drawer
     setDrawerIsOpen: PropTypes.func.isRequired,
-
-    // Sign off
+    setPageId: PropTypes.func.isRequired,
     signOff: PropTypes.func.isRequired,
 };
 

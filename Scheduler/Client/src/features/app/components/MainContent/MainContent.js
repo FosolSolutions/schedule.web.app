@@ -9,17 +9,20 @@ import classNames from "classnames";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { setDrawerIsOpen } from "redux/actions/uiActions";
 import {
     selectCalendars,
     selectCalendarsError,
 } from "redux/reducers/calendarsReducer";
-import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
+import {
+    selectDrawerIsOpen,
+    selectPageId,
+} from "redux/reducers/uiReducer";
 import {
     selectGivenName,
     selectSurname,
     selectIsAuthenticated,
 } from "redux/reducers/userReducer";
+import { setDrawerIsOpen } from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Components
@@ -41,7 +44,6 @@ import {
     PAGE_ID_CALENDAR,
     PAGE_ID_SCHEDULES,
 } from "utils/backendConstants";
-import { PAGE_ID } from "utils/staticBackendData";
 
 //------------------------------------------------------------------------------
 
@@ -82,11 +84,8 @@ export class MainContent extends React.Component {
         const renderPageContent = () => {
             let returnVal = false;
 
-            if (
-                (!this.props.authenticationInProgress && !this.props.calendarsError) ||
-                this.props.userIsAuthenticated
-            ) {
-                switch (PAGE_ID) {
+            if (this.props.userIsAuthenticated) {
+                switch (this.props.pageId) {
                     case PAGE_ID_CALENDAR:
                         returnVal = (renderAppContent(<Calendar />));
                         break;
@@ -98,9 +97,7 @@ export class MainContent extends React.Component {
                 }
             } else {
                 returnVal = renderLoginContent(
-                    <Login
-                        authenticationInProgress={this.props.authenticationInProgress}
-                    />,
+                    <Login />,
                 );
             }
 
@@ -117,6 +114,7 @@ export default connect((state) => ({
     calendarsError: selectCalendarsError(state),
     drawerIsOpen: selectDrawerIsOpen(state),
     givenName: selectGivenName(state),
+    pageId: selectPageId(state),
     surname: selectSurname(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
@@ -127,29 +125,17 @@ MainContent.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
-    // Whether authentication is in progress
-    authenticationInProgress: PropTypes.bool.isRequired,
-
+    // Redux -------------------------------------------------------------------
     calendarsError: PropTypes.bool.isRequired,
-    // Whether the drawer is open
     drawerIsOpen: PropTypes.bool.isRequired,
-
-    // User's given name
     givenName: PropTypes.string.isRequired,
-
-    // User's surname
+    pageId: PropTypes.string.isRequired,
     surname: PropTypes.string.isRequired,
-
-    // Whether the user is authenticated
     userIsAuthenticated: PropTypes.bool.isRequired,
 
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
-    // Set the open state of the drawer
+    // Redux -------------------------------------------------------------------
     setDrawerIsOpen: PropTypes.func.isRequired,
-};
-
-MainContent.defaultProps = {
-    authenticationInProgress: true,
 };

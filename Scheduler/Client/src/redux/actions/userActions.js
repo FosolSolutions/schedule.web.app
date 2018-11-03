@@ -4,7 +4,7 @@
 import axios from "axios";
 
 //----------------------------------------------------------------------------
-// Helpers
+// Redux Support
 //----------------------------------------------------------------------------
 import {
     LOGIN,
@@ -19,11 +19,18 @@ import {
     SIGN_OFF_SUCCESS,
     SET_IS_AUTHENTICATED,
 } from "redux/actionTypes";
+import { selectPageId } from "redux/reducers/uiReducer";
+import { setPageId } from "redux/actions/uiActions";
+
+//----------------------------------------------------------------------------
+// Helpers
+//----------------------------------------------------------------------------
 import {
     PATH_API_AUTH_BACKDOOR,
     PATH_API_AUTH_SIGN_OFF,
+    PAGE_ID_DASHBOARD,
+    PAGE_ID_ROOT,
 } from "utils/backendConstants";
-import { PATH_ROOT } from "utils/staticBackendData";
 import {
     deleteFromWebStorage,
     readWebStorage,
@@ -33,6 +40,7 @@ import {
     LOCAL_STORAGE,
     CLIENT_KEY_IS_AUTHENTICATED,
 } from "utils/constants";
+
 //----------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -105,7 +113,7 @@ export function setIsAuthenticated(isAuthenticated) {
  * @return {Function} Action-dispatching thunk.
  */
 export function backdoorLogin() {
-    return (dispatch) => new Promise((resolve, reject) => {
+    return (dispatch, getState) => {
         dispatch({
             type: LOGIN,
         });
@@ -116,13 +124,17 @@ export function backdoorLogin() {
             withCredentials: true,
         })
             .then((response) => {
+                const pageId = selectPageId(getState());
+
                 if (response.status === 200) {
                     dispatch({ type: LOGIN_SUCCESS });
                     writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
-                    resolve();
+
+                    if (pageId === PAGE_ID_ROOT) {
+                        dispatch(setPageId(PAGE_ID_DASHBOARD, false));
+                    }
                 } else {
                     dispatch({ type: LOGIN_FAILURE });
-                    reject();
                 }
             })
             .catch((error) => {
@@ -130,9 +142,8 @@ export function backdoorLogin() {
                     type: LOGIN_ERROR,
                     error,
                 });
-                reject();
             });
-    });
+    };
 }
 
 /**
@@ -157,7 +168,8 @@ export function signOff() {
             .then((response) => {
                 if (response.status === 200) {
                     dispatch({ type: SIGN_OFF_SUCCESS });
-                    window.location.href = PATH_ROOT;
+                    dispatch(setIsAuthenticated(false));
+                    dispatch(setPageId(PAGE_ID_ROOT, false));
                 } else {
                     dispatch({ type: SIGN_OFF_FAILURE });
                 }
@@ -170,7 +182,6 @@ export function signOff() {
             });
     };
 }
-
 
 //------------------------------------------------------------------------------
 // Private Implementation Details

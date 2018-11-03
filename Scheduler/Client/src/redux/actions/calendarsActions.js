@@ -119,7 +119,7 @@ export function fetchCalendarInRange(startOn = null, endOn) {
             calendar: getCalendarFrontendFormat(mockCalendar),
         });
 
-        // Un-comment when API fixed
+        // Un-comment when API ready
         // axios
         //     .get(
         //         PATH,
