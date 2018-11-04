@@ -5,15 +5,21 @@
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
+import {
+    SET_DRAWER_IS_OPEN,
+    SET_PAGE_ID,
+} from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
 import {
-    SET_DRAWER_IS_OPEN,
-    SET_PAGE_ID,
-} from "redux/actionTypes";
+    HISTORY_PUSH,
+    HISTORY_REPLACE,
+    HISTORY_STATE_KEY_PAGE_ID,
+} from "utils/constants";
 import { getRelativePath } from "utils/appDataUtils";
+
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -36,25 +42,23 @@ export function setDrawerIsOpen(drawerIsOpen) {
 /**
  * Set the page ID and update browser history.
  *
- * @param  {string}  pageId      A PAGE_ID_* to set.
- * @param  {boolean} push        Whether to push to browser history. Replace is
- *                               used when false.
- * @param  {Object}  stateObj    See history.[push, replace]State API.
- * @param  {title}   title       See history.[push, replace]State API.
+ * @param  {string}      pageId        A PAGE_ID_* to set.
+ * @param  {string|null} historyMethod Either a HISTORY_* constant or false (in
+ *                                     which case history will not be modified).
  *
- * @return {Object}               Action object.
+ * @return {Object}                    Action object.
  */
-export function setPageId(pageId, push, stateObj = {}, title = "") {
+export function setPageId(pageId, historyMethod = null) {
     const relativePath = getRelativePath(pageId);
     const historyAPIArgs = [
-        stateObj,
-        title,
+        { [HISTORY_STATE_KEY_PAGE_ID]: pageId },
+        "",
         `/${relativePath}`,
     ];
 
-    if (push) {
+    if (historyMethod === HISTORY_PUSH) {
         window.history.pushState(...historyAPIArgs);
-    } else {
+    } else if (historyMethod === HISTORY_REPLACE) {
         window.history.replaceState(...historyAPIArgs);
     }
 

@@ -18,20 +18,15 @@ import {
     FETCH_CALENDARS_ERROR,
     FETCH_CALENDARS_FAILURE,
     FETCH_CALENDAR,
+    FETCH_CALENDAR_ERROR,
     FETCH_CALENDAR_SUCCESS,
 } from "redux/actionTypes";
 import {
     PATH_DATA_CALENDARS,
     PATH_DATA_CALENDAR,
 } from "utils/backendConstants";
-import {
-    calendar1RangeOct as calendarOctober,
-    calendar1RangeNov as calendarNovember,
-    calendar1RangeDec as calendarDecember,
-} from "mocks/mockEndpointResponseData";
 import { Calendar } from "utils/Calendar";
 import { Calendars } from "utils/Calendars";
-import { isSameMonth } from "date-fns/esm";
 
 //------------------------------------------------------------------------------
 
@@ -87,59 +82,34 @@ export function fetchCalendarInRange(startOn = null, endOn) {
     return (dispatch, getState) => {
         const currentCalendar = selectCalendar(getState());
         const calendarId = currentCalendar.id || 1;
-        const dateFormat = "YYYY-LL-dd";
-        const startParam = (startOn === null) ? "" : `starton=${format(startOn, dateFormat, { awareOfUnicodeTokens: true })}&`;
-        const endParam = `endon${format(endOn, dateFormat, { awareOfUnicodeTokens: true })}`;
-        const PATH = `${PATH_DATA_CALENDAR}${calendarId}?${startParam}${endParam}`; // eslint-disable-line
-
-        // START-- Mock data handling ---
-        const octDate = new Date(2018, 9, 1);
-        const novDate = new Date(2018, 10, 1);
-        const decDate = new Date(2018, 11, 1);
-        const IS_OCT = isSameMonth(startOn, octDate);
-        const IS_NOV = isSameMonth(startOn, novDate);
-        const IS_DEC = isSameMonth(startOn, decDate);
-        let mockCalendar;
-
-        if (IS_OCT) {
-            mockCalendar = calendarOctober;
-        } else if (IS_NOV) {
-            mockCalendar = calendarNovember;
-        } else if (IS_DEC) {
-            mockCalendar = calendarDecember;
-        }
-        // END--- Mock data handling ---
+        const dateFormat = "yyyy-MM-dd";
+        const startParam = (startOn === null) ? "" : `starton=${format(startOn, dateFormat)}&`;
+        const endParam = `endon=${format(endOn, dateFormat)}`;
+        const PATH = `${PATH_DATA_CALENDAR}${calendarId}?${startParam}${endParam}`;
 
         dispatch({
             type: FETCH_CALENDAR,
         });
 
-        dispatch({
-            type: FETCH_CALENDAR_SUCCESS,
-            calendar: getCalendarFrontendFormat(mockCalendar),
-        });
-
-        // Un-comment when API ready
-        // axios
-        //     .get(
-        //         PATH,
-        //         {
-        //             withCredentials: true,
-        //         },
-        //     )
-        //     .then((response) => {
-        //         console.log(response);
-        //         dispatch({
-        //             type: FETCH_CALENDAR_SUCCESS,
-        //             calendar: getCalendarFrontendFormat(mockCalendar),
-        //         });
-        //     })
-        //     .catch((error) => {
-        //         dispatch({
-        //             type: FETCH_CALENDAR_ERROR,
-        //             error,
-        //         });
-        //     });
+        axios
+            .get(
+                PATH,
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((response) => {
+                dispatch({
+                    type: FETCH_CALENDAR_SUCCESS,
+                    calendar: getCalendarFrontendFormat(response.data),
+                });
+            })
+            .catch((error) => {
+                dispatch({
+                    type: FETCH_CALENDAR_ERROR,
+                    error,
+                });
+            });
     };
 }
 

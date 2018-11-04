@@ -32,3 +32,6 @@ export const PATH_DATA_CALENDAR = `${dataPath}calendar/`;
 
 // Event Names -----------------------------------------------------------------
 export const EVENT_NAME_MEMORIAL_MEETING = "Memorial Meeting";
+export const EVENT_NAME_BIBLE_CLASS = "Bible Class";
+export const EVENT_NAME_BIBLE_TALK = "Bible Talk";
+export const EVENT_NAME_HALL_CLEANING = "Hall Cleaning";

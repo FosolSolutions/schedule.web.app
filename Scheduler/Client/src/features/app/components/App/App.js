@@ -8,10 +8,11 @@ import { connect } from "react-redux";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
+import { selectPageId } from "redux/reducers/uiReducer";
+import { selectIsAuthenticated } from "redux/reducers/userReducer";
 import { fetchCalendars } from "redux/actions/calendarsActions";
 import { initUserFromCache } from "redux/actions/userActions";
 import { setPageId } from "redux/actions/uiActions";
-import { selectIsAuthenticated } from "redux/reducers/userReducer";
 import {
     selectCalendarsIsLoading,
     selectCalendarsError,
@@ -27,10 +28,13 @@ import MainContent from "features/app/components/MainContent/MainContent";
 // Helpers
 //------------------------------------------------------------------------------
 import {
+    HISTORY_REPLACE,
+    HISTORY_STATE_KEY_PAGE_ID,
+} from "utils/constants";
+import {
     PAGE_ID_DASHBOARD,
     PAGE_ID_ROOT,
 } from "utils/backendConstants";
-import { selectPageId } from "../../../../redux/reducers/uiReducer";
 
 //------------------------------------------------------------------------------
 
@@ -50,6 +54,8 @@ export class App extends React.PureComponent {
     componentDidMount() {
         this.props.fetchCalendars();
         this.props.initUserFromCache();
+
+        window.addEventListener("popstate", this.handlePopState.bind(this));
     }
 
     componentDidUpdate(prevProps) {
@@ -59,12 +65,32 @@ export class App extends React.PureComponent {
             }
 
             if (this.props.pageId === PAGE_ID_ROOT) {
-                this.props.setPageId(PAGE_ID_DASHBOARD, false);
+                this.props.setPageId(PAGE_ID_DASHBOARD, HISTORY_REPLACE);
             }
 
             this.setState({ loadingState: false });
         } else if (!this.props.userIsAuthenticated) {
             this.setState({ loadingState: false });
+        }
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("popstate", this.handlePopState);
+    }
+
+    /**
+     * Handle the popstate event. We use history manipulation in order to speed
+     * state transitions where possible. This restores the native behaviour of
+     * the back button, by detecting navigation to manually pushed history
+     * records and triggering a reload.
+     *
+     * @param {Event} e The native popstate event.
+     */
+    handlePopState(e) {
+        const pageId = e.state[HISTORY_STATE_KEY_PAGE_ID];
+
+        if (typeof pageId !== "undefined") {
+            this.props.setPageId(pageId);
         }
     }
 

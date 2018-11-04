@@ -1,5 +1,7 @@
 ---
-ignoreFiles: build/*
+ignoreFiles:
+  - build/*
+  - "**/*.js"
 extends: stylelint-config-sass-guidelines
 rules:
     at-rule-empty-line-before:

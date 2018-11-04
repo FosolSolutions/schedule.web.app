@@ -60,6 +60,7 @@ import styles from "features/app/components/MainNav/mainNav.scss";
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
+import { HISTORY_PUSH } from "utils/constants";
 import {
     PAGE_ID_CALENDAR,
     PAGE_ID_DASHBOARD,
@@ -67,6 +68,8 @@ import {
     PAGE_ID_SCHEDULES,
 } from "utils/backendConstants";
 import { capitalizeFirstLetterOnly } from "utils/generalUtils";
+import { MenuList } from "@material-ui/core";
+import { TipMenu } from "../TipMenu/TipMenu";
 
 //------------------------------------------------------------------------------
 
@@ -165,28 +168,27 @@ export class MainNav extends React.PureComponent {
                         >
                             <InitialsAvatar />
                         </IconButton>
-                        <Menu
-                            id="userMenu"
+                        <TipMenu
                             anchorEl={this.state.userMenuAnchorEl}
-                            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                            disableAutoFocusItem={true}
                             open={Boolean(this.state.userMenuAnchorEl)}
                             onClose={() => this.handleUserMenuClose()}
                         >
-                            <MenuItem
-                                className={styles.name}
-                                disableRipple={true}
-                            >
-                                {`Hi, ${fullName}`}
-                            </MenuItem>
-                            <Divider />
-                            <MenuItem onClick={() => this.handleUserMenuClose()}>
+                            <MenuList className={styles.menuList}>
+                                <MenuItem
+                                    className={styles.name}
+                                    disableRipple={true}
+                                >
+                                    {`Hi, ${fullName}`}
+                                </MenuItem>
+                                <Divider />
+                                <MenuItem onClick={() => this.handleUserMenuClose()}>
                                 My account
-                            </MenuItem>
-                            <MenuItem onClick={() => this.handleSignOutClick()}>
+                                </MenuItem>
+                                <MenuItem onClick={() => this.handleSignOutClick()}>
                                 Sign Out
-                            </MenuItem>
-                        </Menu>
+                                </MenuItem>
+                            </MenuList>
+                        </TipMenu>
                     </div>
                 </Toolbar>
             </AppBar>,
@@ -219,7 +221,7 @@ export class MainNav extends React.PureComponent {
                     <ListItem
                         button
                         className={styles.listItem}
-                        onClick={() => this.props.setPageId(PAGE_ID_DASHBOARD, true)}
+                        onClick={() => this.props.setPageId(PAGE_ID_DASHBOARD, HISTORY_PUSH)}
                     >
                         <ListItemIcon color="primary">
                             <Home />
@@ -232,7 +234,7 @@ export class MainNav extends React.PureComponent {
                     <ListItem
                         button
                         className={styles.listItem}
-                        onClick={() => this.props.setPageId(PAGE_ID_SCHEDULES, true)}
+                        onClick={() => this.props.setPageId(PAGE_ID_SCHEDULES, HISTORY_PUSH)}
                     >
                         <ListItemIcon color="primary">
                             <Assignment />
@@ -245,7 +247,7 @@ export class MainNav extends React.PureComponent {
                     <ListItem
                         button
                         className={styles.listItem}
-                        onClick={() => this.props.setPageId(PAGE_ID_CALENDAR, true)}
+                        onClick={() => this.props.setPageId(PAGE_ID_CALENDAR, HISTORY_PUSH)}
                     >
                         <ListItemIcon color="primary">
                             <Event />

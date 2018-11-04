@@ -111,6 +111,12 @@
     }
 }
 
+.day.selected .number.singleDigit {
+    &::before {
+        right: -120%;
+    }
+}
+
 .dayRow {
     border-bottom: 1px solid $neutralDark;
     display: flex;
@@ -122,9 +128,10 @@
 
 .event {
     background: darken($secondaryMain, 10%);
+    border-bottom: 1px solid $baseBackground;
     color: $baseBackground;
-    font-size: 70%;
-    padding: 0.1em 0.25em;
+    font-size: 72.5%;
+    padding: 0.15em 0.25em;
     width: 100%;
 }
 

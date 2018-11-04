@@ -37,8 +37,9 @@ import {
     writeWebStorage,
 } from "utils/generalUtils";
 import {
-    LOCAL_STORAGE,
     CLIENT_KEY_IS_AUTHENTICATED,
+    HISTORY_REPLACE,
+    LOCAL_STORAGE,
 } from "utils/constants";
 
 //----------------------------------------------------------------------------
@@ -131,7 +132,7 @@ export function backdoorLogin() {
                     writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
 
                     if (pageId === PAGE_ID_ROOT) {
-                        dispatch(setPageId(PAGE_ID_DASHBOARD, false));
+                        dispatch(setPageId(PAGE_ID_DASHBOARD, HISTORY_REPLACE));
                     }
                 } else {
                     dispatch({ type: LOGIN_FAILURE });
@@ -169,7 +170,7 @@ export function signOff() {
                 if (response.status === 200) {
                     dispatch({ type: SIGN_OFF_SUCCESS });
                     dispatch(setIsAuthenticated(false));
-                    dispatch(setPageId(PAGE_ID_ROOT, false));
+                    dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
                 } else {
                     dispatch({ type: SIGN_OFF_FAILURE });
                 }

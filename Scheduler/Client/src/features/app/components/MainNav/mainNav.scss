@@ -20,6 +20,10 @@
     width: 100%;
 }
 
+.menuList {
+    padding: 0;
+}
+
 .appTitle {
     font-size: 1.2em;
     margin: 0 0 0 0.1em;
@@ -59,17 +63,17 @@
 }
 
 .name {
-    background-color: transparent !important;
-    color: $primaryMain;
+    background-color: $primaryLight;
+    border-radius: 0.3em;
+    color: lighten($primaryMain, 10%);
     cursor: default;
     font-size: 0.7em;
     font-weight: 600;
-    padding-bottom: 0.4em;
-    padding-top: 0;
+    padding: 0.4em 1em;
 
     &:focus,
     &:hover {
-        background-color: transparent;
+        background-color: $primaryLight;
     }
 }
 

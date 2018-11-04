@@ -126,7 +126,7 @@ export class Calendar extends React.PureComponent {
             );
         };
         const renderWeekDays = () => {
-            const dateFormat = "EEE";
+            const dateFormat = "iii";
             const days = [];
             const startDate = startOfWeek(this.state.currentMonth);
             let formattedDate;
@@ -135,7 +135,6 @@ export class Calendar extends React.PureComponent {
                 formattedDate = format(
                     addDays(startDate, i),
                     dateFormat,
-                    { awareOfUnicodeTokens: true },
                 );
                 days.push(
                     <div
@@ -164,28 +163,33 @@ export class Calendar extends React.PureComponent {
             let formattedDate = "";
             let dayEvents;
             let dayClassNames;
+            let numberClassNames;
 
             while (day <= endDate) {
                 for (let i = 0; i < 7; i += 1) {
+                    formattedDate = format(
+                        day,
+                        dateFormat,
+                        { awareOfUnicodeTokens: true },
+                    );
+                    numberClassNames = classNames({
+                        [styles.number]: true,
+                        [styles.singleDigit]: formattedDate.length === 1,
+                    });
                     dayEvents = (!isEmpty(this.props.calendar))
-                        ? this.props.calendar.getEvents().getByDay(day)
+                        ? this.props.calendar.getEvents().getAllByDay(day)
                         : [];
                     dayClassNames = classNames({
                         [styles.day]: true,
                         [styles.disabled]: !isSameMonth(day, monthStart),
                         [styles.selected]: isSameDay(day, this.state.selectedDate),
                     });
-                    formattedDate = format(
-                        day,
-                        dateFormat,
-                        { awareOfUnicodeTokens: true },
-                    );
                     days.push(
                         <div
                             className={dayClassNames}
                             key={day}
                         >
-                            <span className={styles.number}>{formattedDate}</span>
+                            <span className={numberClassNames}>{formattedDate}</span>
                             {renderEvents(dayEvents, day)}
                         </div>,
                     );
