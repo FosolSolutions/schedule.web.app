@@ -11,14 +11,9 @@ steps:
     # Should match version in .nvmrc.
     versionSpec: '8.12.0'
 - task: CmdLine@2
-  displayName: 'Change Directory to Client.'
-  inputs:
-    script: cd $(Build.Repository.LocalPath)/Scheduler/Client
-    failOnStderr: true
-- task: CmdLine@2
   displayName: 'Install node_modules.'
   inputs:
-    script: npm install
+    script: cd $(Build.Repository.LocalPath)/Scheduler/Client; npm install;
     # In an ideal world this would be true. However, node writes to stderr on
     # warnings, and warnings are extremely common on node installs. Also, if the
     # install actually fails critically, the next build step will fail as well
