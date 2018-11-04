@@ -5,24 +5,32 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-# Install and cache specified node version. Should match version in .nvmrc.
 - task: NodeTool@0
+  displayName: 'Install and cache required node/npm version.'
   inputs:
+    # Should match version in .nvmrc.
     versionSpec: '8.12.0'
-# Build the react client.
-- script: cd $(Build.Repository.LocalPath)/Scheduler/Client; npm install; npm run build:prod;
-  displayName: 'Webpack Build'
-# Build the .NET project.
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
-# Publish the .NET project (with references client build).
+- task: CmdLine@2
+  displayName: 'Change Directory to Client.'
+  inputs:
+    script: cd $(Build.Repository.LocalPath)/Scheduler/Client
+    failOnStderr: true
+- task: CmdLine@2
+  displayName: 'Install node_modules.'
+  inputs:
+    script: npm install
+    failOnStderr: true
+- task: CmdLine@2
+  displayName: 'Build react client with webpack.'
+  inputs:
+    script: npm run build:prod
+    failOnStderr: true
 - task: DotNetCoreCLI@2
   inputs:
     command: publish
     publishWebProjects: True
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
-# Publish the zipped application build.
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact'
   inputs:

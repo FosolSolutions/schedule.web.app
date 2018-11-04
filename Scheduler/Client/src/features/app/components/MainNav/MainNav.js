@@ -221,7 +221,9 @@ export class MainNav extends React.PureComponent {
                     <ListItem
                         button
                         className={styles.listItem}
-                        onClick={() => this.props.setPageId(PAGE_ID_DASHBOARD, HISTORY_PUSH)}
+                        onClick={
+                            () => this.props.setPageId(PAGE_ID_DASHBOARD, HISTORY_PUSH)
+                        }
                     >
                         <ListItemIcon color="primary">
                             <Home />
@@ -234,7 +236,9 @@ export class MainNav extends React.PureComponent {
                     <ListItem
                         button
                         className={styles.listItem}
-                        onClick={() => this.props.setPageId(PAGE_ID_SCHEDULES, HISTORY_PUSH)}
+                        onClick={
+                            () => this.props.setPageId(PAGE_ID_SCHEDULES, HISTORY_PUSH)
+                        }
                     >
                         <ListItemIcon color="primary">
                             <Assignment />
@@ -247,7 +251,9 @@ export class MainNav extends React.PureComponent {
                     <ListItem
                         button
                         className={styles.listItem}
-                        onClick={() => this.props.setPageId(PAGE_ID_CALENDAR, HISTORY_PUSH)}
+                        onClick={
+                            () => this.props.setPageId(PAGE_ID_CALENDAR, HISTORY_PUSH)
+                        }
                     >
                         <ListItemIcon color="primary">
                             <Event />
