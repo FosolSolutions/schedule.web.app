@@ -20,17 +20,18 @@ steps:
     # which will result in a failed build.
     failOnStderr: false
 - task: CmdLine@2
-  displayName: 'Build react client with webpack.'
+  displayName: 'Build the react client with webpack.'
   inputs:
-    script: npm run build:prod
+    script: cd $(Build.Repository.LocalPath)/Scheduler/Client; npm run build:prod;
     failOnStderr: true
 - task: DotNetCoreCLI@2
+  displayName: 'Publish the .NET project.'
   inputs:
     command: publish
     publishWebProjects: True
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact'
+  displayName: 'Publish zipped deployment artifact.'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
