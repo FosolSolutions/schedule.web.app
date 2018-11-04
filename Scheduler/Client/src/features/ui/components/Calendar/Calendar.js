@@ -27,17 +27,14 @@ import { selectCalendar } from "redux/reducers/calendarsReducer";
 //------------------------------------------------------------------------------
 // Components
 //------------------------------------------------------------------------------
-import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
-import Chip from "@material-ui/core/Chip";
 import IconButton from "@material-ui/core/IconButton";
 
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
 import styles from "features/ui/components/Calendar/calendar.scss";
-import EventIcon from "@material-ui/icons/Event";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
@@ -232,21 +229,13 @@ export class Calendar extends React.PureComponent {
             return eventsMarkup;
         };
 
-        return [
-            <Chip
-                className={styles.chip}
-                avatar={
-                    <Avatar className={styles.chipAvatar}><EventIcon /></Avatar>
-                }
-                key="dashboardChip"
-                label="Calendar"
-            />,
-            <Card key="calendar">
+        return (
+            <Card >
                 {renderHeader()}
                 {renderWeekDays()}
                 {renderDays()}
-            </Card>,
-        ];
+            </Card>
+        );
     }
 }
 

@@ -1,16 +1,17 @@
 @import "../../../../__assets__/styles/sassResources";
 
-$avatarSize: 1.85rem;
+$avatarSize: 2.25rem;
 
 .circle {
-    background-color: $baseBackground;
+    border: 2px solid;
     height: $avatarSize;
+    margin: -0.3em;
     width: $avatarSize;
 }
 
 .initials {
-    color: $baseText;
+    color: $baseBackground;
     font-size: calc(#{$avatarSize} / 2.25);
-    font-weight: 600;
+    font-weight: 400;
     text-transform: uppercase;
 }

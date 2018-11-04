@@ -1,13 +1,5 @@
 @import "../../../../__assets__/styles/sassResources";
 
-.chip {
-    @include chipDark;
-}
-
-.chipAvatar {
-    @include chipAvatarDark;
-}
-
 .cardAvatar {
     background-color: $secondaryMain;
 }

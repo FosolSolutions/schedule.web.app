@@ -1,13 +1,5 @@
 @import "../../../../__assets__/styles/sassResources";
 
-.chip {
-    @include chipDark;
-}
-
-.chipAvatar {
-    @include chipAvatarDark;
-}
-
 .header {
     @include row;
     @include rowMiddle;
@@ -112,6 +104,8 @@
 }
 
 .day.selected .number.singleDigit {
+    margin-right: 0.2em;
+
     &::before {
         right: -120%;
     }

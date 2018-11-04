@@ -4,6 +4,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
+import { withStyles } from "@material-ui/core/styles";
 
 //------------------------------------------------------------------------------
 // Redux Support
@@ -22,6 +23,7 @@ import Avatar from "@material-ui/core/Avatar";
 // Assets
 //------------------------------------------------------------------------------
 import styles from "features/ui/components/InitialsAvatar/initialsAvatar.scss";
+import { stringToHslColor } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
 
@@ -30,12 +32,19 @@ import styles from "features/ui/components/InitialsAvatar/initialsAvatar.scss";
  */
 export class InitialsAvatar extends React.PureComponent {
     render() {
+        const fullName = `${this.props.givenName} ${this.props.surname}`;
+        const UserAvatar = withStyles({
+            colorDefault: {
+                backgroundColor: stringToHslColor(fullName, 60, 58),
+                borderColor: `${stringToHslColor(fullName, 60, 62)} !important`,
+            },
+        })(Avatar);
         return (
-            <Avatar className={styles.circle}>
+            <UserAvatar className={styles.circle}>
                 <span className={styles.initials}>
                     {`${this.props.givenName.charAt(0)}${this.props.surname.charAt(0)}`}
                 </span>
-            </Avatar>
+            </UserAvatar>
         );
     }
 }

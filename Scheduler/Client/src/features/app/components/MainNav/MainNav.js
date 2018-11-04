@@ -40,13 +40,13 @@ import ListItemText from "@material-ui/core/ListItemText";
 import IconButton from "@material-ui/core/IconButton";
 import AppBar from "@material-ui/core/AppBar";
 import MenuItem from "@material-ui/core/MenuItem";
+import TipMenu from "features/ui/components/TipMenu/TipMenu";
 import Toolbar from "@material-ui/core/Toolbar";
 import InitialsAvatar from "features/ui/components/InitialsAvatar/InitialsAvatar";
 
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
-import AccountCircle from "@material-ui/icons/AccountCircle";
 import ArrowBack from "@material-ui/icons/ArrowBack";
 import Assignment from "@material-ui/icons/Assignment";
 import Event from "@material-ui/icons/Event";
@@ -68,7 +68,6 @@ import {
 } from "utils/backendConstants";
 import { capitalizeFirstLetterOnly } from "utils/generalUtils";
 import { MenuList } from "@material-ui/core";
-import { TipMenu } from "../TipMenu/TipMenu";
 
 //------------------------------------------------------------------------------
 
@@ -128,6 +127,18 @@ export class MainNav extends React.PureComponent {
             [styles.paper]: true,
             [styles.paperIsOpen]: this.props.drawerIsOpen,
         });
+        const homeNavListClassNames = classNames({
+            [styles.listItem]: true,
+            [styles.active]: this.props.pageId === PAGE_ID_DASHBOARD,
+        });
+        const schedulesNavListClassNames = classNames({
+            [styles.listItem]: true,
+            [styles.active]: this.props.pageId === PAGE_ID_SCHEDULES,
+        });
+        const calendarNavListClassNames = classNames({
+            [styles.listItem]: true,
+            [styles.active]: this.props.pageId === PAGE_ID_CALENDAR,
+        });
         const menuButton = this.props.drawerIsOpen ? (
             false
         ) : (
@@ -180,9 +191,6 @@ export class MainNav extends React.PureComponent {
                                     {`Hi, ${fullName}`}
                                 </MenuItem>
                                 <Divider />
-                                <MenuItem onClick={() => this.handleUserMenuClose()}>
-                                My account
-                                </MenuItem>
                                 <MenuItem onClick={() => this.handleSignOutClick()}>
                                 Sign Out
                                 </MenuItem>
@@ -219,58 +227,55 @@ export class MainNav extends React.PureComponent {
                 <List className={styles.list}>
                     <ListItem
                         button
-                        className={styles.listItem}
+                        className={homeNavListClassNames}
                         onClick={
                             () => this.props.setPageId(PAGE_ID_DASHBOARD, HISTORY_PUSH)
                         }
                     >
-                        <ListItemIcon color="primary">
+                        <ListItemIcon className={styles.listItemIcon}>
                             <Home />
                         </ListItemIcon>
-                        <ListItemText className={styles.listItemText}>
+                        <ListItemText
+                            className={styles.listItemText}
+                            disableTypography={true}
+                        >
                             Dashboard
                         </ListItemText>
                     </ListItem>
                     <Divider />
                     <ListItem
                         button
-                        className={styles.listItem}
+                        className={schedulesNavListClassNames}
                         onClick={
                             () => this.props.setPageId(PAGE_ID_SCHEDULES, HISTORY_PUSH)
                         }
                     >
-                        <ListItemIcon color="primary">
+                        <ListItemIcon className={styles.listItemIcon}>
                             <Assignment />
                         </ListItemIcon>
-                        <ListItemText className={styles.listItemText}>
+                        <ListItemText
+                            className={styles.listItemText}
+                            disableTypography={true}
+                        >
                             Schedules
                         </ListItemText>
                     </ListItem>
                     <Divider />
                     <ListItem
                         button
-                        className={styles.listItem}
+                        className={calendarNavListClassNames}
                         onClick={
                             () => this.props.setPageId(PAGE_ID_CALENDAR, HISTORY_PUSH)
                         }
                     >
-                        <ListItemIcon color="primary">
+                        <ListItemIcon className={styles.listItemIcon}>
                             <Event />
                         </ListItemIcon>
-                        <ListItemText className={styles.listItemText}>
+                        <ListItemText
+                            className={styles.listItemText}
+                            disableTypography={true}
+                        >
                             Calendar
-                        </ListItemText>
-                    </ListItem>
-                    <Divider />
-                    <ListItem
-                        button
-                        className={styles.listItem}
-                    >
-                        <ListItemIcon color="primary">
-                            <AccountCircle />
-                        </ListItemIcon>
-                        <ListItemText className={styles.listItemText}>
-                            Account
                         </ListItemText>
                     </ListItem>
                 </List>

@@ -21,7 +21,6 @@ import Avatar from "@material-ui/core/Avatar";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardHeader from "@material-ui/core/CardHeader";
-import Chip from "@material-ui/core/Chip";
 import Divider from "@material-ui/core/Divider";
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
@@ -33,7 +32,6 @@ import { withStyles } from "@material-ui/core/styles";
 // Assets
 //------------------------------------------------------------------------------
 import styles from "features/app/components/Dashboard/dashboard.scss";
-import HomeIcon from "@material-ui/icons/Home";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { stringToHslColor } from "../../../../__utils__/generalUtils";
 
@@ -45,15 +43,9 @@ import { stringToHslColor } from "../../../../__utils__/generalUtils";
 export class Dashboard extends React.PureComponent {
     render() {
         const vcName = "Victoria Christadelphians";
-        const soName = "Some Other Organization";
         const VcAvatar = withStyles({
             colorDefault: {
                 backgroundColor: stringToHslColor(vcName),
-            },
-        })(Avatar);
-        const SoAvatar = withStyles({
-            colorDefault: {
-                backgroundColor: stringToHslColor(soName),
             },
         })(Avatar);
         const renderCalendars = () => {
@@ -72,18 +64,9 @@ export class Dashboard extends React.PureComponent {
             return calendarsMarkup;
         };
 
-        return [
-            <Chip
-                className={styles.chip}
-                avatar={
-                    <Avatar className={styles.chipAvatar}><HomeIcon /></Avatar>
-                }
-                key="dashboardChip"
-                label="Dashboard"
-            />,
+        return (
             <Grid
                 container
-                key="dashboardGrid"
                 spacing={8}
             >
                 <Grid
@@ -133,33 +116,8 @@ export class Dashboard extends React.PureComponent {
                         </List>
                     </Card>
                 </Grid>
-                <Grid
-                    item
-                    xs={12}
-                    md={6}
-                    xl={4}
-                >
-                    <Card>
-                        <CardHeader
-                            avatar={
-                                <SoAvatar>
-                                    SO
-                                </SoAvatar>
-                            }
-                            action={
-                                <IconButton>
-                                    <MoreVertIcon />
-                                </IconButton>
-                            }
-                            className={styles.cardHeader}
-                            title={soName}
-                            subheader="My Calendars"
-                        />
-                        <Divider />
-                    </Card>
-                </Grid>
-            </Grid>,
-        ];
+            </Grid>
+        );
     }
 }
 

@@ -17,7 +17,7 @@ import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 /**
  * Renders the TipMenu.
  */
-export class TipMenu extends React.Component {
+export default class TipMenu extends React.Component {
     render() {
         const composedMenu = ({ TransitionProps, placement }) => (
             <Grow

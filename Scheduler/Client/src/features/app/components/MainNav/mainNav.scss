@@ -134,9 +134,19 @@
 .listItem {
     padding-left: 16px;
     padding-right: 16px;
+
+    &.active {
+        background-color: $secondaryMain;
+        color: $baseBackground;
+    }
+}
+
+.listItemIcon {
+    color: inherit;
 }
 
 .listItemText {
+    color: inherit;
     padding-left: 0;
 }
 
