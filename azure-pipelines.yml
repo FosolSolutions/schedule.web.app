@@ -19,7 +19,11 @@ steps:
   displayName: 'Install node_modules.'
   inputs:
     script: npm install
-    failOnStderr: true
+    # In an ideal world this would be true. However, node writes to stderr on
+    # warnings, and warnings are extremely common on node installs. Also, if the
+    # install actually fails critically, the next build step will fail as well
+    # which will result in a failed build.
+    failOnStderr: false
 - task: CmdLine@2
   displayName: 'Build react client with webpack.'
   inputs:
