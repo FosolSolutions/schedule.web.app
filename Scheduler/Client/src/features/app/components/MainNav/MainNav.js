@@ -39,7 +39,6 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import IconButton from "@material-ui/core/IconButton";
 import AppBar from "@material-ui/core/AppBar";
-import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Toolbar from "@material-ui/core/Toolbar";
 import InitialsAvatar from "features/ui/components/InitialsAvatar/InitialsAvatar";
