@@ -22,7 +22,7 @@ import classNames from "classnames";
 // Redux Support
 //------------------------------------------------------------------------------
 import { fetchCalendarInRange } from "redux/actions/calendarsActions";
-import { selectCalendar } from "redux/reducers/calendarsReducer";
+import { selectCalendar } from "redux/reducers/calendarReducer";
 
 //------------------------------------------------------------------------------
 // Components
@@ -251,7 +251,7 @@ Calendar.propTypes = {
     // Data propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
-    calendar: PropTypes.object.isRequired,
+    calendar: PropTypes.object,
 
     // -------------------------------------------------------------------------
     // Method propTypes

@@ -3,17 +3,18 @@
 //------------------------------------------------------------------------------
 import PropTypes from "prop-types";
 import React from "react";
+import isEmpty from "lodash/isEmpty";
 import { connect } from "react-redux";
 import { withStyles } from "@material-ui/core/styles";
 
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { selectCalendars } from "redux/reducers/calendarsReducer";
 import {
-    selectGivenName,
-    selectSurname,
-} from "redux/reducers/userReducer";
+    selectCalendar,
+    selectCalendarError,
+} from "redux/reducers/calendarReducer";
+import { fetchCalendarInRange } from "redux/actions/calendarsActions";
 
 //------------------------------------------------------------------------------
 // Components
@@ -29,13 +30,19 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 
+import EmptyItem from "features/ui/components/EmptyItem/EmptyItem";
+
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
 import styles from "features/app/components/Schedules/schedules.scss";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import OpenInBrowserIcon from "@material-ui/icons/OpenInBrowser";
-import { stringToHslColor } from "../../../../__utils__/generalUtils";
+
+//------------------------------------------------------------------------------
+// Helpers
+//------------------------------------------------------------------------------
+import { stringToHslColor } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
 
@@ -43,6 +50,17 @@ import { stringToHslColor } from "../../../../__utils__/generalUtils";
  * Renders the schedules content.
  */
 export class Schedules extends React.PureComponent {
+    constructor(props) {
+        super(props);
+
+        if (isEmpty(props.calendar)) {
+            props.fetchCalendarInRange(
+                new Date(2019, 0, 1),
+                new Date(2019, 5, 30),
+            );
+        }
+    }
+
     render() {
         const vcName = "Victoria Christadelphians";
         const VcAvatar = withStyles({
@@ -50,7 +68,46 @@ export class Schedules extends React.PureComponent {
                 backgroundColor: stringToHslColor(vcName),
             },
         })(Avatar);
+        const renderEventTypes = () => {
+            const eventTypes = (!isEmpty(this.props.calendar))
+                ? this.props.calendar.getEvents().getEventTypes()
+                : [];
+            const eventTypeMarkup = [];
+            const emptyText = (this.props.calendarError !== null)
+                ? "We're having trouble loading these schedules."
+                : "No schedules to show.";
 
+            eventTypes.forEach((eventType) => {
+                eventTypeMarkup.push(
+                    <ListItem
+                        className={styles.listItem}
+                        key={eventType}
+                    >
+                        <ListItemText className={styles.listItemText}>
+                            {eventType}
+                        </ListItemText>
+                        <ListItemSecondaryAction>
+                            <IconButton>
+                                <OpenInBrowserIcon />
+                            </IconButton>
+                        </ListItemSecondaryAction>
+                    </ListItem>,
+                );
+            });
+
+            if (eventTypeMarkup.length === 0) {
+                eventTypeMarkup.push(
+                    <EmptyItem
+                        key="emptyCalendarsListItem"
+                        text={emptyText}
+                        isError={this.props.calendarError !== null}
+                        isListItem={true}
+                    />,
+                );
+            }
+
+            return eventTypeMarkup;
+        };
         return (
             <Grid
                 container
@@ -78,56 +135,9 @@ export class Schedules extends React.PureComponent {
                             title={vcName}
                             subheader="My Schedules"
                         />
-                        <Divider />
+                        <Divider style={ { backgroundColor: stringToHslColor(vcName), height: "0.2em" } } />
                         <List>
-                            <ListItem
-                                className={styles.listItem}
-                            >
-                                <ListItemText className={styles.listItemText}>
-                                        Memorial Meeting
-                                </ListItemText>
-                                <ListItemSecondaryAction>
-                                    <IconButton>
-                                        <OpenInBrowserIcon />
-                                    </IconButton>
-                                </ListItemSecondaryAction>
-                            </ListItem>
-                            <ListItem
-                                className={styles.listItem}
-                            >
-                                <ListItemText className={styles.listItemText}>
-                                        Lecture
-                                </ListItemText>
-                                <ListItemSecondaryAction>
-                                    <IconButton>
-                                        <OpenInBrowserIcon />
-                                    </IconButton>
-                                </ListItemSecondaryAction>
-                            </ListItem>
-                            <ListItem
-                                className={styles.listItem}
-                            >
-                                <ListItemText className={styles.listItemText}>
-                                        Bible Class
-                                </ListItemText>
-                                <ListItemSecondaryAction>
-                                    <IconButton>
-                                        <OpenInBrowserIcon />
-                                    </IconButton>
-                                </ListItemSecondaryAction>
-                            </ListItem>
-                            <ListItem
-                                className={styles.listItem}
-                            >
-                                <ListItemText className={styles.listItemText}>
-                                        Hall Cleaning
-                                </ListItemText>
-                                <ListItemSecondaryAction>
-                                    <IconButton>
-                                        <OpenInBrowserIcon />
-                                    </IconButton>
-                                </ListItemSecondaryAction>
-                            </ListItem>
+                            {renderEventTypes()}
                         </List>
                     </Card>
                 </Grid>
@@ -138,20 +148,25 @@ export class Schedules extends React.PureComponent {
 
 // Export the redux-connected component
 export default connect((state) => ({
-    calendars: selectCalendars(state),
-    givenName: selectGivenName(state),
-    surname: selectSurname(state),
-}),
-null)(Schedules);
+    calendar: selectCalendar(state),
+    calendarError: selectCalendarError(state),
+}), {
+    fetchCalendarInRange,
+})(Schedules);
 
 Schedules.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
-    calendars: PropTypes.array.isRequired,
-    givenName: PropTypes.string.isRequired,
-    surname: PropTypes.string.isRequired,
+    calendar: PropTypes.object,
+    calendarError: PropTypes.string,
+
+    // -------------------------------------------------------------------------
+    // Method propTypes
+    // -------------------------------------------------------------------------
+    // Redux -------------------------------------------------------------------
+    fetchCalendarInRange: PropTypes.func.isRequired,
 };
 
 Schedules.defaultProps = {};

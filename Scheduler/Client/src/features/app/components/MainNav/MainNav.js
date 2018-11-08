@@ -13,15 +13,14 @@ import {
     backdoorLogin,
     signOff,
 } from "redux/actions/userActions";
-import { selectCalendars } from "redux/reducers/calendarsReducer";
+import { selectCalendars } from "redux/reducers/calendarReducer";
 import {
     selectDrawerIsOpen,
     selectPageId,
 } from "redux/reducers/uiReducer";
 import {
-    selectGivenName,
     selectIsAuthenticated,
-    selectSurname,
+    selectUser,
 } from "redux/reducers/userReducer";
 import {
     setDrawerIsOpen,
@@ -114,7 +113,8 @@ export class MainNav extends React.PureComponent {
     }
 
     render() {
-        const fullName = `${capitalizeFirstLetterOnly(this.props.givenName)} ${capitalizeFirstLetterOnly(this.props.surname)}`;
+        const user = this.props.user;
+        const fullName = (user === null) ? "" : `${capitalizeFirstLetterOnly(user.getFirstName())} ${capitalizeFirstLetterOnly(user.getLastName())}`;
         const appBarClassNames = classNames({
             [styles.appBar]: true,
             [styles.drawerIsOpen]: this.props.drawerIsOpen,
@@ -309,10 +309,9 @@ export class MainNav extends React.PureComponent {
 export default connect((state) => ({
     calendars: selectCalendars(state),
     drawerIsOpen: selectDrawerIsOpen(state),
-    givenName: selectGivenName(state),
     isAuthenticated: selectIsAuthenticated(state),
     pageId: selectPageId(state),
-    surname: selectSurname(state),
+    user: selectUser(state),
 }), {
     backdoorLogin,
     setDrawerIsOpen,
@@ -326,10 +325,9 @@ MainNav.propTypes = {
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     drawerIsOpen: PropTypes.bool.isRequired,
-    givenName: PropTypes.string.isRequired,
     isAuthenticated: PropTypes.bool.isRequired,
     pageId: PropTypes.string.isRequired,
-    surname: PropTypes.string.isRequired,
+    user: PropTypes.object,
 
     // -------------------------------------------------------------------------
     // Method propTypes

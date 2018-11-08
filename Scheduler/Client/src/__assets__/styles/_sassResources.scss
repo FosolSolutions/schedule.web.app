@@ -21,11 +21,14 @@ $secondaryMid: lighten(desaturate($secondaryMain, 10%), 15%);
 $secondaryLight: lighten(desaturate($secondaryMain, 10%), 20%);
 $secondaryExtraLight: lighten(desaturate($secondaryMain, 10%), 42%);
 $errorMain: #e74c3c;
+$errorLight: lighten($errorMain, 10%);
+$warningMain: #ffc312;
 $neutralLight: #f9f9f9;
 $neutralMid: #eee;
 $neutralDark: #e0e0e0;
 
 $baseText: #051923;
+$baseTextMid: #777;
 $baseTextLight: #aaa;
 $baseTextDisabled: #ccc;
 $baseBackground: #fff;

@@ -1,0 +1,20 @@
+@import "../../../../__assets__/styles/sassResources";
+
+.div,
+.listItem {
+    color: $baseTextMid;
+}
+
+.div {
+    align-items: center;
+    display: flex;
+    margin: 1em auto;
+}
+
+.listItem.error .icon {
+    color: $errorLight;
+}
+
+.icon {
+    margin-right: 0.2em;
+}

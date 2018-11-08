@@ -11,9 +11,16 @@ import {
     LOGIN_ERROR,
     LOGIN_FAILURE,
     LOGIN_SUCCESS,
-    SET_GIVEN_NAME,
+    SIGN_OFF,
+    SIGN_OFF_ERROR,
+    SIGN_OFF_FAILURE,
+    SIGN_OFF_SUCCESS,
+    FETCH_IDENTITY,
+    FETCH_IDENTITY_ERROR,
+    FETCH_IDENTITY_FAILURE,
+    FETCH_IDENTITY_SUCCESS,
     SET_IS_AUTHENTICATED,
-    SET_SURNAME,
+    SET_USER,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
@@ -23,11 +30,15 @@ import {
 //------------------------------------------------------------------------------
 
 export const initialUserState = {
-    givenName: "name",
-    isAuthenticated: false,
+    fetchIdentityError: false,
+    fetchIdentityInProgress: false,
     loginError: null,
     loginInProgress: false,
-    surname: "surname",
+    signOffError: null,
+    signOffInProgress: false,
+
+    isAuthenticated: false,
+    user: null,
 };
 
 /**
@@ -54,26 +65,68 @@ export default function userReducer(
             returnVal = update(state, {
                 isAuthenticated: { $set: false },
                 loginInProgress: { $set: false },
-                error: { $set: action.error },
+                loginError: { $set: action.error },
             });
             break;
         case LOGIN_FAILURE:
             returnVal = update(state, {
                 isAuthenticated: { $set: false },
                 loginInProgress: { $set: false },
-                error: { $set: null },
+                loginError: { $set: null },
             });
             break;
         case LOGIN_SUCCESS:
             returnVal = update(state, {
                 isAuthenticated: { $set: true },
                 loginInProgress: { $set: false },
-                error: { $set: null },
+                loginError: { $set: null },
             });
             break;
-        case SET_GIVEN_NAME:
+        case SIGN_OFF:
             returnVal = update(state, {
-                givenName: { $set: action.givenName },
+                signOffInProgress: { $set: true },
+            });
+            break;
+        case SIGN_OFF_ERROR:
+            returnVal = update(state, {
+                signOffInProgress: { $set: false },
+                signOffError: { $set: action.error },
+            });
+            break;
+        case SIGN_OFF_FAILURE:
+            returnVal = update(state, {
+                signOffInProgress: { $set: false },
+                signOffError: { $set: null },
+            });
+            break;
+        case SIGN_OFF_SUCCESS:
+            returnVal = update(state, {
+                isAuthenticated: { $set: false },
+                signOffInProgress: { $set: false },
+                signOffError: { $set: null },
+            });
+            break;
+        case FETCH_IDENTITY:
+            returnVal = update(state, {
+                fetchIdentityInProgress: { $set: true },
+            });
+            break;
+        case FETCH_IDENTITY_ERROR:
+            returnVal = update(state, {
+                fetchIdentityInProgress: { $set: false },
+                fetchIdentityError: { $set: action.error },
+            });
+            break;
+        case FETCH_IDENTITY_FAILURE:
+            returnVal = update(state, {
+                fetchIdentityInProgress: { $set: false },
+                fetchIdentityError: { $set: null },
+            });
+            break;
+        case FETCH_IDENTITY_SUCCESS:
+            returnVal = update(state, {
+                signOffInProgress: { $set: false },
+                fetchIdentityError: { $set: null },
             });
             break;
         case SET_IS_AUTHENTICATED:
@@ -81,9 +134,9 @@ export default function userReducer(
                 isAuthenticated: { $set: action.isAuthenticated },
             });
             break;
-        case SET_SURNAME:
+        case SET_USER:
             returnVal = update(state, {
-                surname: { $set: action.surname },
+                user: { $set: action.user },
             });
             break;
         default:
@@ -91,17 +144,6 @@ export default function userReducer(
     }
 
     return returnVal;
-}
-
-/**
- * givenName selector
- *
- * @param  {Object} state Store state object
- *
- * @return {string}       The givenName
- */
-export function selectGivenName(state) {
-    return state.user.givenName;
 }
 
 /**
@@ -138,12 +180,12 @@ export function selectLoginInProgress(state) {
 }
 
 /**
- * surname selector
+ * user selector
  *
  * @param  {Object} state Store state object
  *
- * @return {string}       The surname
+ * @return {string}       The user
  */
-export function selectSurname(state) {
-    return state.user.surname;
+export function selectUser(state) {
+    return state.user.user;
 }

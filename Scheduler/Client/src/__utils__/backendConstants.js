@@ -4,8 +4,7 @@ const backendConstants = window.Scheduler.constants;
 // Private implementation details
 //------------------------------------------------------------------------------
 const rootRequestPath = "https://coeventapi.azurewebsites.net/";
-const apiPath = `${rootRequestPath}api/`;
-const authPath = `${apiPath}auth/`;
+const authPath = `${rootRequestPath}auth/`;
 const dataPath = `${rootRequestPath}data/`;
 
 //------------------------------------------------------------------------------
@@ -22,8 +21,9 @@ export const PAGE_ID_ROOT = backendConstants.pages.root.id;
 export const PAGE_ID_SCHEDULES = backendConstants.pages.schedules.id;
 
 // API Paths -------------------------------------------------------------------
-export const PATH_API_AUTH_BACKDOOR = `${authPath}backdoor/user`;
-export const PATH_API_AUTH_SIGN_OFF = `${authPath}signoff`;
+export const PATH_AUTH_BACKDOOR = `${authPath}backdoor/user`;
+export const PATH_AUTH_IDENTITY = `${authPath}current/identity`;
+export const PATH_AUTH_SIGN_OFF = `${authPath}signoff`;
 
 // Data Paths ------------------------------------------------------------------
 // TODO: Support paging properly

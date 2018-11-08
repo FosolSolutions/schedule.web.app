@@ -8,6 +8,18 @@
     font-family: $bodyTypeface !important;
 }
 
+.divider {
+    height: 0.2em;
+}
+
 .heading {
     margin: 0.5em 0 1em;
+}
+
+.empty {
+    color: $baseTextLight;
+}
+
+.emptyIcon {
+    margin-right: 0.25em;
 }

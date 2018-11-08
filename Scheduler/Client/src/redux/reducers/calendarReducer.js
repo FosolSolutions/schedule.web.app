@@ -13,6 +13,7 @@ import {
     FETCH_CALENDARS_FAILURE,
     FETCH_CALENDARS_SUCCESS,
     FETCH_CALENDAR_ERROR,
+    FETCH_CALENDAR_FAILURE,
     FETCH_CALENDAR_SUCCESS,
 } from "redux/actionTypes";
 
@@ -24,13 +25,13 @@ import {
 
 export const initialCalendarsState = {
     calendar: {
-        data: {},
-        error: false,
-        isLoading: false,
+        data: null,
+        error: null,
+        isLoading: true,
     },
     calendars: {
-        data: [],
-        error: false,
+        data: null,
+        error: null,
         isLoading: true,
     },
 };
@@ -43,7 +44,7 @@ export const initialCalendarsState = {
  *
  * @return {Object}        Updated state
  */
-export default function calendarsReducer(state = initialCalendarsState, action) {
+export default function calendarReducer(state = initialCalendarsState, action) {
     let returnVal;
 
     switch (action.type) {
@@ -73,7 +74,15 @@ export default function calendarsReducer(state = initialCalendarsState, action) 
             returnVal = update(state, {
                 calendars: {
                     isLoading: { $set: false },
-                    error: { $set: true },
+                    error: { $set: action.error },
+                },
+            });
+            break;
+        case FETCH_CALENDAR_FAILURE:
+            returnVal = update(state, {
+                calendar: {
+                    isLoading: { $set: false },
+                    error: { $set: null },
                 },
             });
             break;
@@ -81,7 +90,7 @@ export default function calendarsReducer(state = initialCalendarsState, action) 
             returnVal = update(state, {
                 calendars: {
                     isLoading: { $set: false },
-                    error: { $set: true },
+                    error: { $set: null },
                 },
             });
             break;
@@ -89,7 +98,7 @@ export default function calendarsReducer(state = initialCalendarsState, action) 
             returnVal = update(state, {
                 calendar: {
                     isLoading: { $set: false },
-                    error: { $set: false },
+                    error: { $set: null },
                     data: { $set: action.calendar },
                 },
             });
@@ -98,7 +107,7 @@ export default function calendarsReducer(state = initialCalendarsState, action) 
             returnVal = update(state, {
                 calendars: {
                     isLoading: { $set: false },
-                    error: { $set: false },
+                    error: { $set: null },
                     data: { $set: action.calendars },
                 },
             });
@@ -119,6 +128,28 @@ export default function calendarsReducer(state = initialCalendarsState, action) 
  */
 export function selectCalendar(state) {
     return state.calendars.calendar.data;
+}
+
+/**
+ * calendar error selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {boolean}      Whether there is a calendar error.
+ */
+export function selectCalendarError(state) {
+    return state.calendars.calendar.error;
+}
+
+/**
+ * calendar isLoading selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {boolean}      Whether the calendar is loading.
+ */
+export function selectCalendarIsLoading(state) {
+    return state.calendars.calendar.isLoading;
 }
 
 /**

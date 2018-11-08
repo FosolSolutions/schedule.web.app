@@ -7,7 +7,7 @@ import format from "date-fns/format";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { selectCalendar } from "redux/reducers/calendarsReducer";
+import { selectCalendar } from "redux/reducers/calendarReducer";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -19,6 +19,7 @@ import {
     FETCH_CALENDARS_FAILURE,
     FETCH_CALENDAR,
     FETCH_CALENDAR_ERROR,
+    FETCH_CALENDAR_FAILURE,
     FETCH_CALENDAR_SUCCESS,
 } from "redux/actionTypes";
 import {
@@ -53,7 +54,7 @@ export function fetchCalendars() {
                 if (response.status === 200) {
                     dispatch({
                         type: FETCH_CALENDARS_SUCCESS,
-                        calendars: getCalendarsFrontendFormat(response.data),
+                        calendars: new Calendars(response.data),
                     });
                 } else {
                     dispatch({
@@ -64,7 +65,7 @@ export function fetchCalendars() {
             .catch((error) => {
                 dispatch({
                     type: FETCH_CALENDARS_ERROR,
-                    error,
+                    error: error.response.data.message,
                 });
             });
     };
@@ -81,7 +82,7 @@ export function fetchCalendars() {
 export function fetchCalendarInRange(startOn = null, endOn) {
     return (dispatch, getState) => {
         const currentCalendar = selectCalendar(getState());
-        const calendarId = currentCalendar.id || 1;
+        const calendarId = (currentCalendar !== null) ? currentCalendar.id : 1;
         const dateFormat = "yyyy-MM-dd";
         const startParam = (startOn === null) ? "" : `starton=${format(startOn, dateFormat)}&`;
         const endParam = `endon=${format(endOn, dateFormat)}`;
@@ -99,43 +100,22 @@ export function fetchCalendarInRange(startOn = null, endOn) {
                 },
             )
             .then((response) => {
-                dispatch({
-                    type: FETCH_CALENDAR_SUCCESS,
-                    calendar: getCalendarFrontendFormat(response.data),
-                });
+                if (response.status === 200) {
+                    dispatch({
+                        type: FETCH_CALENDAR_SUCCESS,
+                        calendar: new Calendar(response.data),
+                    });
+                } else {
+                    dispatch({
+                        type: FETCH_CALENDAR_FAILURE,
+                    });
+                }
             })
             .catch((error) => {
                 dispatch({
                     type: FETCH_CALENDAR_ERROR,
-                    error,
+                    error: error.response.data.message,
                 });
             });
     };
-}
-
-//------------------------------------------------------------------------------
-// Private Implementation Details
-//------------------------------------------------------------------------------
-/**
- * Get the frontend-formatted calendars array.
- *
- * @param {Object} calendarsResponseData Calendars endpoint response data
- *
- * @return {Calendar[]}                  Array of Calendar instances
- */
-function getCalendarsFrontendFormat(calendarsResponseData) {
-    const calendars = new Calendars(calendarsResponseData);
-
-    return calendars.getAll();
-}
-
-/**
- * Get the frontend-formatted calendars array.
- *
- * @param {Object} calendarResponseData Calendar endpoint response data
- *
- * @return {Calendar}                   A Calendar instance
- */
-function getCalendarFrontendFormat(calendarResponseData) {
-    return new Calendar(calendarResponseData);
 }

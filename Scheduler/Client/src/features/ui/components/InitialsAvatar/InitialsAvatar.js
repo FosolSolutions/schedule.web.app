@@ -9,10 +9,7 @@ import { withStyles } from "@material-ui/core/styles";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import {
-    selectGivenName,
-    selectSurname,
-} from "redux/reducers/userReducer";
+import { selectUser } from "redux/reducers/userReducer";
 
 //------------------------------------------------------------------------------
 // Components
@@ -32,7 +29,10 @@ import { stringToHslColor } from "utils/generalUtils";
  */
 export class InitialsAvatar extends React.PureComponent {
     render() {
-        const fullName = `${this.props.givenName} ${this.props.surname}`;
+        const user = this.props.user;
+        const firstName = (user === null) ? "" : user.getFirstName();
+        const lastName = (user === null) ? "" : user.getLastName();
+        const fullName = `${firstName} ${lastName}`;
         const UserAvatar = withStyles({
             colorDefault: {
                 backgroundColor: stringToHslColor(fullName, 60, 58),
@@ -42,35 +42,23 @@ export class InitialsAvatar extends React.PureComponent {
         return (
             <UserAvatar className={styles.circle}>
                 <span className={styles.initials}>
-                    {`${this.props.givenName.charAt(0)}${this.props.surname.charAt(0)}`}
+                    {`${firstName.charAt(0)}${lastName.charAt(0)}`}
                 </span>
             </UserAvatar>
         );
     }
 }
 
-/**
- * Map values from redux store state to props
- *
- * @param  {Object} state Redux store state
- *
- * @return {Object}       Object map of props
- */
-function mapStateToProps(state) {
-    return {
-        givenName: selectGivenName(state),
-        surname: selectSurname(state),
-    };
-}
-
 // Export the redux-connected component
-export default connect(mapStateToProps, null)(InitialsAvatar);
+export default connect((state) => ({
+    user: selectUser(state),
+}),
+null)(InitialsAvatar);
 
 InitialsAvatar.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
-    givenName: PropTypes.string.isRequired,
-    surname: PropTypes.string.isRequired,
+    user: PropTypes.object,
 };

@@ -9,19 +9,12 @@ import classNames from "classnames";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import {
-    selectCalendars,
-    selectCalendarsError,
-} from "redux/reducers/calendarsReducer";
+import { selectCalendars } from "redux/reducers/calendarReducer";
 import {
     selectDrawerIsOpen,
     selectPageId,
 } from "redux/reducers/uiReducer";
-import {
-    selectGivenName,
-    selectSurname,
-    selectIsAuthenticated,
-} from "redux/reducers/userReducer";
+import { selectIsAuthenticated } from "redux/reducers/userReducer";
 import { setDrawerIsOpen } from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
@@ -111,11 +104,8 @@ export class MainContent extends React.Component {
 // Export the redux-connected component
 export default connect((state) => ({
     calendars: selectCalendars(state),
-    calendarsError: selectCalendarsError(state),
     drawerIsOpen: selectDrawerIsOpen(state),
-    givenName: selectGivenName(state),
     pageId: selectPageId(state),
-    surname: selectSurname(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
     setDrawerIsOpen,
@@ -126,11 +116,8 @@ MainContent.propTypes = {
     // Data propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
-    calendarsError: PropTypes.bool.isRequired,
     drawerIsOpen: PropTypes.bool.isRequired,
-    givenName: PropTypes.string.isRequired,
     pageId: PropTypes.string.isRequired,
-    surname: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,
 
     // -------------------------------------------------------------------------

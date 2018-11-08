@@ -7,12 +7,15 @@ import axios from "axios";
 // Redux Support
 //----------------------------------------------------------------------------
 import {
+    FETCH_IDENTITY,
+    FETCH_IDENTITY_ERROR,
+    FETCH_IDENTITY_FAILURE,
+    FETCH_IDENTITY_SUCCESS,
     LOGIN,
     LOGIN_ERROR,
     LOGIN_FAILURE,
     LOGIN_SUCCESS,
-    SET_GIVEN_NAME,
-    SET_SURNAME,
+    SET_USER,
     SIGN_OFF,
     SIGN_OFF_ERROR,
     SIGN_OFF_FAILURE,
@@ -25,9 +28,11 @@ import { setPageId } from "redux/actions/uiActions";
 //----------------------------------------------------------------------------
 // Helpers
 //----------------------------------------------------------------------------
+import { User } from "utils/User";
 import {
-    PATH_API_AUTH_BACKDOOR,
-    PATH_API_AUTH_SIGN_OFF,
+    PATH_AUTH_BACKDOOR,
+    PATH_AUTH_IDENTITY,
+    PATH_AUTH_SIGN_OFF,
     PAGE_ID_DASHBOARD,
     PAGE_ID_ROOT,
 } from "utils/backendConstants";
@@ -61,36 +66,23 @@ export function initUserFromCache() {
         );
 
         if (cachedIsAuthenticated) {
+            dispatch(fetchIdentity());
             dispatch(setIsAuthenticated(cachedIsAuthenticated));
         }
     };
 }
 
 /**
- * Set the user's given name.
+ * Set the user in the store.
  *
- * @param  {string} givenName The user's given name.
+ * @param  {User} user The user.
  *
- * @return {Object}           Action object.
+ * @return {Object}    Action object.
  */
-export function setGivenName(givenName) {
+export function setUser(user) {
     return {
-        type: SET_GIVEN_NAME,
-        givenName,
-    };
-}
-
-/**
- * Set the user's surname.
- *
- * @param  {string} surname The user's surname.
- *
- * @return {Object}         Action object.
- */
-export function setSurname(surname) {
-    return {
-        type: SET_SURNAME,
-        surname,
+        type: SET_USER,
+        user,
     };
 }
 
@@ -121,7 +113,7 @@ export function backdoorLogin() {
 
         axios({
             method: "get",
-            url: PATH_API_AUTH_BACKDOOR,
+            url: PATH_AUTH_BACKDOOR,
             withCredentials: true,
         })
             .then((response) => {
@@ -129,6 +121,7 @@ export function backdoorLogin() {
 
                 if (response.status === 200) {
                     dispatch({ type: LOGIN_SUCCESS });
+                    dispatch(setUser(new User(response.data)));
                     writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
 
                     if (pageId === PAGE_ID_ROOT) {
@@ -141,7 +134,42 @@ export function backdoorLogin() {
             .catch((error) => {
                 dispatch({
                     type: LOGIN_ERROR,
-                    error,
+                    error: error.response.data.message,
+                });
+            });
+    };
+}
+
+/**
+ * Get the current user.
+ *
+ * @return {Function} Action-dispatching thunk.
+ */
+export function fetchIdentity() {
+    return (dispatch) => {
+        dispatch({
+            type: FETCH_IDENTITY,
+        });
+
+        axios
+            .get(
+                PATH_AUTH_IDENTITY,
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((response) => {
+                if (response.status === 200) {
+                    dispatch({ type: FETCH_IDENTITY_SUCCESS });
+                    dispatch(setUser(new User(response.data)));
+                } else {
+                    dispatch({ type: FETCH_IDENTITY_FAILURE });
+                }
+            })
+            .catch((error) => {
+                dispatch({
+                    type: FETCH_IDENTITY_ERROR,
+                    error: error.response.data.message,
                 });
             });
     };
@@ -161,7 +189,7 @@ export function signOff() {
 
         axios
             .get(
-                PATH_API_AUTH_SIGN_OFF,
+                PATH_AUTH_SIGN_OFF,
                 {
                     withCredentials: true,
                 },
@@ -169,7 +197,6 @@ export function signOff() {
             .then((response) => {
                 if (response.status === 200) {
                     dispatch({ type: SIGN_OFF_SUCCESS });
-                    dispatch(setIsAuthenticated(false));
                     dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
                 } else {
                     dispatch({ type: SIGN_OFF_FAILURE });
@@ -178,7 +205,7 @@ export function signOff() {
             .catch((error) => {
                 dispatch({
                     type: SIGN_OFF_ERROR,
-                    error,
+                    error: error.response.data.message,
                 });
             });
     };

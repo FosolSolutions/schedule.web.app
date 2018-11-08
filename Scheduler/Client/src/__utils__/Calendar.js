@@ -25,6 +25,9 @@ export class Calendar {
         data.criteria.forEach((criterionDatum) => {
             this.criteria.push(new EventCriterion(criterionDatum));
         });
+
+        // Hardcoded properties
+        this.accountName = "Victoria Christadelphians";
     }
 
     getId() {
@@ -37,6 +40,10 @@ export class Calendar {
 
     getAccountId() {
         return this.accountId;
+    }
+
+    getAccountName() {
+        return this.accountName;
     }
 
     getName() {

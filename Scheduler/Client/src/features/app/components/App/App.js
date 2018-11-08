@@ -16,7 +16,7 @@ import { setPageId } from "redux/actions/uiActions";
 import {
     selectCalendarsIsLoading,
     selectCalendarsError,
-} from "redux/reducers/calendarsReducer";
+} from "redux/reducers/calendarReducer";
 
 //------------------------------------------------------------------------------
 // Components
@@ -60,7 +60,7 @@ export class App extends React.PureComponent {
 
     componentDidUpdate(prevProps) {
         if (this.props.userIsAuthenticated && !prevProps.userIsAuthenticated) {
-            if (this.props.calendarsError) {
+            if (this.props.calendarsError !== null) {
                 this.props.fetchCalendars();
             }
 
@@ -131,7 +131,7 @@ App.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
-    calendarsError: PropTypes.any.isRequired,
+    calendarsError: PropTypes.string,
     calendarsIsLoading: PropTypes.bool.isRequired,
     pageId: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,
