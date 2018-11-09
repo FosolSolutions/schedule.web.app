@@ -6,15 +6,33 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Remove="Views\Shared\_CookieConsentPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Areas\Admin\Controllers\" />
+    <Folder Include="Areas\Admin\Models\" />
+    <Folder Include="Areas\Admin\" />
+    <Folder Include="Areas\Admin\Views\" />
     <Folder Include="wwwroot\client\" />
     <Folder Include="wwwroot\client\__assets__\" />
     <Folder Include="wwwroot\client\__assets__\fonts\" />
     <Folder Include="wwwroot\client\__assets__\images\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="Views\Error\403-Forbidden.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Error\Index.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Error\404-NotFound.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
   </ItemGroup>
 </Project>
