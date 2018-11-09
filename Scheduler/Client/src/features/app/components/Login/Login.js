@@ -29,7 +29,6 @@ import LinkIcon from "@material-ui/icons/Link";
 // Assets
 //------------------------------------------------------------------------------
 import styles from "features/app/components/Login/login.scss";
-import globalStyles from "assets/styles/global.scss";
 import coEventLogoWh from "assets/images/logos/coEventLogoWh.svg";
 
 //------------------------------------------------------------------------------
@@ -38,19 +37,6 @@ import coEventLogoWh from "assets/images/logos/coEventLogoWh.svg";
  * Renders the Login page content.
  */
 export class Login extends React.Component {
-    componentDidMount() {
-        // We need to do this for as the login page requires 100% height on the
-        // body element, whereas the rest of the app does not. React has no
-        // governance over parent elements, and it shouldn't be rendereed into
-        // the body element directly.
-        document.body.className += ` ${globalStyles.fullHeight}`;
-    }
-
-    componentWillUnmount() {
-        // Undo what we did in componentDidMount.
-        document.body.className = `${globalStyles.appHeight}`;
-    }
-
     /**
      * Handle login button clicks (currently backdoor user login).
      */

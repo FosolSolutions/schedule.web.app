@@ -14,7 +14,7 @@
 
 // Color
 $primaryMain: #34495e;
-$primaryMid: lighten(desaturate($primaryMain, 10%), 20%);
+$primaryMid: lighten(desaturate($primaryMain, 10%), 15%);
 $primaryLight: lighten(desaturate($primaryMain, 10%), 67%);
 $secondaryMain: #2196f3;
 $secondaryMid: lighten(desaturate($secondaryMain, 10%), 15%);
@@ -82,20 +82,9 @@ $headerHeightLarge: 64px;
     margin-bottom: 1em;
 }
 
-@mixin appLayout {
-    @at-root {
-        body {
-            height: calc(100% - #{$headerHeightSmall});
-        }
-    }
-
-    @include breakpoint(37.5em) {
-        @at-root {
-            body {
-                height: calc(100% - #{$headerHeightLarge});
-            }
-        }
-    }
+@mixin dropdownListItem {
+    font-size: 0.9em;
+    height: 18px;
 }
 
 // -----------------------------------------------------------------------------

@@ -76,8 +76,12 @@ export class Schedules extends React.PureComponent {
             const emptyText = (this.props.calendarError !== null)
                 ? "We're having trouble loading these schedules."
                 : "No schedules to show.";
+            let index = 0;
 
             eventTypes.forEach((eventType) => {
+                const divider = ((index + 1) === eventTypes.size)
+                    ? <React.Fragment key={`${eventType}Divider`} />
+                    : <Divider key={`${eventType}Divider`} />;
                 eventTypeMarkup.push(
                     <ListItem
                         className={styles.listItem}
@@ -92,7 +96,9 @@ export class Schedules extends React.PureComponent {
                             </IconButton>
                         </ListItemSecondaryAction>
                     </ListItem>,
+                    divider,
                 );
+                index += 1;
             });
 
             if (eventTypeMarkup.length === 0) {
@@ -135,7 +141,7 @@ export class Schedules extends React.PureComponent {
                             title={vcName}
                             subheader="My Schedules"
                         />
-                        <Divider style={ { backgroundColor: stringToHslColor(vcName), height: "0.2em" } } />
+                        <Divider style={{ backgroundColor: stringToHslColor(vcName) }} />
                         <List>
                             {renderEventTypes()}
                         </List>

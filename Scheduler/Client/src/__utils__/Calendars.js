@@ -15,7 +15,7 @@ export class Calendars {
         data.forEach((calendarDatum) => {
             const calendar = new Calendar(calendarDatum);
             const accountId = calendar.getAccountId();
-            const accountName = calendar.getAccountId();
+            const accountName = calendar.getAccountName();
             let account;
 
             this.calendars.push(calendar);

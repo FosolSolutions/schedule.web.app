@@ -19,7 +19,7 @@ import { PAGE_ID } from "utils/staticBackendData";
 //------------------------------------------------------------------------------
 
 export const initialUiState = {
-    drawerIsOpen: false,
+    drawerIsOpen: true,
     pageId: PAGE_ID,
 };
 

@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
 import classNames from "classnames";
+import format from "date-fns/format";
 
 //------------------------------------------------------------------------------
 // Redux Support
@@ -30,28 +31,28 @@ import {
 //------------------------------------------------------------------------------
 // Components
 //------------------------------------------------------------------------------
-import Divider from "@material-ui/core/Divider";
 import Drawer from "@material-ui/core/Drawer";
+import ExpansionPanel from "@material-ui/core/ExpansionPanel";
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import IconButton from "@material-ui/core/IconButton";
-import AppBar from "@material-ui/core/AppBar";
+import Button from "@material-ui/core/Button";
+import MenuList from "@material-ui/core/MenuList";
 import MenuItem from "@material-ui/core/MenuItem";
 import TipMenu from "features/ui/components/TipMenu/TipMenu";
-import Toolbar from "@material-ui/core/Toolbar";
 import InitialsAvatar from "features/ui/components/InitialsAvatar/InitialsAvatar";
 
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
-import ArrowBack from "@material-ui/icons/ArrowBack";
-import Assignment from "@material-ui/icons/Assignment";
-import Event from "@material-ui/icons/Event";
-import Home from "@material-ui/icons/Home";
-import MenuIcon from "@material-ui/icons/Menu";
-import coEventLogoBl from "assets/images/logos/coEventLogoBl.svg";
+import Assignment from "@material-ui/icons/AssignmentOutlined";
+import AssignmentFilled from "@material-ui/icons/Assignment";
+import Event from "@material-ui/icons/EventOutlined";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import Home from "@material-ui/icons/HomeOutlined";
 import coEventLogoWh from "assets/images/logos/coEventLogoWh.svg";
 import styles from "features/app/components/MainNav/mainNav.scss";
 
@@ -65,8 +66,7 @@ import {
     PAGE_ID_ROOT,
     PAGE_ID_SCHEDULES,
 } from "utils/backendConstants";
-import { capitalizeFirstLetterOnly } from "utils/generalUtils";
-import { MenuList } from "@material-ui/core";
+import { stringToHslColor } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
 
@@ -114,17 +114,14 @@ export class MainNav extends React.PureComponent {
 
     render() {
         const user = this.props.user;
-        const fullName = (user === null) ? "" : `${capitalizeFirstLetterOnly(user.getFirstName())} ${capitalizeFirstLetterOnly(user.getLastName())}`;
-        const appBarClassNames = classNames({
-            [styles.appBar]: true,
-            [styles.drawerIsOpen]: this.props.drawerIsOpen,
-        });
-        const appLogoClassNames = classNames({
-            [styles.appLogo]: true,
-            [styles.hide]: this.props.drawerIsOpen,
-        });
+        const firstName = (user === null) ? "." : user.getFirstName();
+        const lastName = (user === null) ? "." : user.getLastName();
+        const fullName = (user === null) ? "Loading..." : user.getFullName();
+        const displayName = (user === null) ? "Loading..." : user.getDisplayName();
+        const nameColor = stringToHslColor(fullName, 60, 60);
         const drawerPaperClassNames = classNames({
             [styles.paper]: true,
+            [styles.noOverflowVert]: true,
             [styles.paperIsOpen]: this.props.drawerIsOpen,
         });
         const homeNavListClassNames = classNames({
@@ -139,66 +136,12 @@ export class MainNav extends React.PureComponent {
             [styles.listItem]: true,
             [styles.active]: this.props.pageId === PAGE_ID_CALENDAR,
         });
-        const menuButton = this.props.drawerIsOpen ? (
-            false
-        ) : (
-            <IconButton
-                className={styles.iconButton}
-                onClick={() => this.handleMenuButtonClick()}
-            >
-                <MenuIcon />
-            </IconButton>
-        );
         /**
          * Render the main app navigation.
          *
          * @return {ReactElement[]} Array of navigation elements.
          */
         const appNav = () => [
-            <AppBar
-                className={appBarClassNames}
-                position={"fixed"}
-                key="mainAppBar"
-            >
-                <Toolbar
-                    className={styles.toolbar}
-                    disableGutters={true}>
-                    <div className={styles.leftContainer}>
-                        {menuButton}
-                        <img
-                            className={appLogoClassNames}
-                            src={coEventLogoWh}
-                            alt=""
-                        />
-                    </div>
-                    <div className={styles.rightContainer}>
-                        <IconButton
-                            className={styles.login}
-                            onClick={(e) => this.handleUserMenuClick(e)}
-                        >
-                            <InitialsAvatar />
-                        </IconButton>
-                        <TipMenu
-                            anchorEl={this.state.userMenuAnchorEl}
-                            open={Boolean(this.state.userMenuAnchorEl)}
-                            onClose={() => this.handleUserMenuClose()}
-                        >
-                            <MenuList className={styles.menuList}>
-                                <MenuItem
-                                    className={styles.name}
-                                    disableRipple={true}
-                                >
-                                    {`Hi, ${fullName}`}
-                                </MenuItem>
-                                <Divider />
-                                <MenuItem onClick={() => this.handleSignOutClick()}>
-                                Sign Out
-                                </MenuItem>
-                            </MenuList>
-                        </TipMenu>
-                    </div>
-                </Toolbar>
-            </AppBar>,
             <Drawer
                 className={styles.drawer}
                 classes={{
@@ -206,24 +149,48 @@ export class MainNav extends React.PureComponent {
                 }}
                 key="navDrawer"
                 open={this.props.drawerIsOpen}
-                onClose={() => this.handleMenuButtonClick()}
+
                 variant="permanent"
+                onClose={() => this.handleMenuButtonClick()}
             >
                 <div className={styles.backHeader}>
-                    <div className={styles.backWrap}>
-                        <img
-                            className={styles.logo}
-                            src={coEventLogoBl}
-                            alt=""
+                    <Button
+                        className={styles.account}
+                        disableRipple
+                        fullWidth={true}
+                        onClick={(e) => this.handleUserMenuClick(e)}
+                    >
+                        <InitialsAvatar
+                            firstName={firstName}
+                            lastName={lastName}
                         />
-                        <IconButton
-                            onClick={() => this.handleMenuButtonClick()}
-                        >
-                            <ArrowBack />
-                        </IconButton>
-                    </div>
+                        <span className={styles.displayName}>
+                            {displayName}
+                            <ExpandMoreIcon fontSize="small"/>
+                        </span>
+                    </Button>
+                    <TipMenu
+                        anchorEl={this.state.userMenuAnchorEl}
+                        open={Boolean(this.state.userMenuAnchorEl)}
+                        onClose={() => this.handleUserMenuClose()}
+                    >
+                        <MenuList className={styles.menuList}>
+                            <MenuItem
+                                className={styles.name}
+                                disableRipple={true}
+                                style={{ backgroundColor: nameColor }}
+                            >
+                                {`Hi, ${fullName}`}
+                            </MenuItem>
+                            <MenuItem
+                                className={styles.menuListItem}
+                                onClick={() => this.handleSignOutClick()}
+                            >
+                                Sign Out
+                            </MenuItem>
+                        </MenuList>
+                    </TipMenu>
                 </div>
-                <Divider />
                 <List className={styles.list}>
                     <ListItem
                         button
@@ -242,25 +209,6 @@ export class MainNav extends React.PureComponent {
                             Dashboard
                         </ListItemText>
                     </ListItem>
-                    <Divider />
-                    <ListItem
-                        button
-                        className={schedulesNavListClassNames}
-                        onClick={
-                            () => this.props.setPageId(PAGE_ID_SCHEDULES, HISTORY_PUSH)
-                        }
-                    >
-                        <ListItemIcon className={styles.listItemIcon}>
-                            <Assignment />
-                        </ListItemIcon>
-                        <ListItemText
-                            className={styles.listItemText}
-                            disableTypography={true}
-                        >
-                            Schedules
-                        </ListItemText>
-                    </ListItem>
-                    <Divider />
                     <ListItem
                         button
                         className={calendarNavListClassNames}
@@ -278,7 +226,104 @@ export class MainNav extends React.PureComponent {
                             Calendar
                         </ListItemText>
                     </ListItem>
+                    <h4 className={styles.orgHeading}>Victoria Christadelphians</h4>
+                    <ExpansionPanel
+                        className={styles.expansionPanel}
+                        expanded={true}
+                    >
+                        <ExpansionPanelSummary
+                            classes={{ expanded: styles.expanded }}
+                            className={styles.expansionPanelSummary}
+                        >
+                            <ListItem
+                                button
+                                className={schedulesNavListClassNames}
+                                onClick={
+                                    () => this.props.setPageId(
+                                        PAGE_ID_SCHEDULES,
+                                        HISTORY_PUSH,
+                                    )
+                                }
+                            >
+                                <ListItemIcon className={styles.listItemIcon}>
+                                    <Assignment />
+                                </ListItemIcon>
+                                <ListItemText
+                                    className={styles.listItemText}
+                                    disableTypography={true}
+                                >
+                                Ecclesial Schedule
+                                </ListItemText>
+                            </ListItem>
+                        </ExpansionPanelSummary>
+                        <ExpansionPanelDetails className={styles.expansionPanelDetails}>
+                            <ListItem
+                                button
+                                className={styles.expansionListItem}
+                            >
+                                <ListItemIcon className={styles.listItemIcon}>
+                                    <AssignmentFilled fontSize="small"/>
+                                </ListItemIcon>
+                                <ListItemText
+                                    className={styles.listItemText}
+                                    disableTypography={true}
+                                >
+                                    Bible Talk
+                                </ListItemText>
+                            </ListItem>
+                            <ListItem
+                                button
+                                className={styles.expansionListItem}
+                            >
+                                <ListItemIcon className={styles.listItemIcon}>
+                                    <AssignmentFilled fontSize="small"/>
+                                </ListItemIcon>
+                                <ListItemText
+                                    className={styles.listItemText}
+                                    disableTypography={true}
+                                >
+                                    Bible Class
+                                </ListItemText>
+                            </ListItem>
+                            <ListItem
+                                button
+                                className={styles.expansionListItem}
+                            >
+                                <ListItemIcon className={styles.listItemIcon}>
+                                    <AssignmentFilled fontSize="small"/>
+                                </ListItemIcon>
+                                <ListItemText
+                                    className={styles.listItemText}
+                                    disableTypography={true}
+                                >
+                                    Memorial Meeting
+                                </ListItemText>
+                            </ListItem>
+                            <ListItem
+                                button
+                                className={styles.expansionListItem}
+                            >
+                                <ListItemIcon className={styles.listItemIcon}>
+                                    <AssignmentFilled fontSize="small"/>
+                                </ListItemIcon>
+                                <ListItemText
+                                    className={styles.listItemText}
+                                    disableTypography={true}
+                                >
+                                    Hall Cleaning
+                                </ListItemText>
+                            </ListItem>
+                        </ExpansionPanelDetails>
+                    </ExpansionPanel>
                 </List>
+                <div className={styles.logoWrap}>
+                    <img
+                        className={styles.logo}
+                        src={coEventLogoWh}
+                        alt="CoEvent"
+                    />
+                    <span className={styles.copy}>{`© ${format(new Date(), "yyyy")}`}</span>
+                </div>
             </Drawer>,
         ];
         /**
