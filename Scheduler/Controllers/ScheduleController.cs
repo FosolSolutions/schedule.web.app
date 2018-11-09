@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Scheduler.Models;
 
 namespace Scheduler.Controllers
 {
-    public class SchedulesController : Controller
+    public class ScheduleController : Controller
     {
         [Route("schedules")]
         public IActionResult Schedules()
