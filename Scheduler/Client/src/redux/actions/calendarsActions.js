@@ -8,6 +8,8 @@ import format from "date-fns/format";
 // Redux Support
 //------------------------------------------------------------------------------
 import { selectCalendar } from "redux/reducers/calendarReducer";
+import { selectPageId } from "redux/reducers/uiReducer";
+import { setPageId } from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -23,9 +25,11 @@ import {
     FETCH_CALENDAR_SUCCESS,
 } from "redux/actionTypes";
 import {
+    PAGE_ID_ROOT,
     PATH_DATA_CALENDARS,
     PATH_DATA_CALENDAR,
 } from "utils/backendConstants";
+import { HISTORY_REPLACE } from "utils/constants";
 import { Calendar } from "utils/Calendar";
 import { Calendars } from "utils/Calendars";
 
@@ -40,7 +44,7 @@ import { Calendars } from "utils/Calendars";
  * @return {Function} Action-dispatching thunk.
  */
 export function fetchCalendars() {
-    return (dispatch) => {
+    return (dispatch, getState) => {
         dispatch({
             type: FETCH_CALENDARS,
         });
@@ -51,7 +55,9 @@ export function fetchCalendars() {
             withCredentials: true,
         })
             .then((response) => {
-                if (response.status === 200) {
+                const status = response.status;
+
+                if (status === 200) {
                     dispatch({
                         type: FETCH_CALENDARS_SUCCESS,
                         calendars: new Calendars(response.data),
@@ -63,10 +69,7 @@ export function fetchCalendars() {
                 }
             })
             .catch((error) => {
-                dispatch({
-                    type: FETCH_CALENDARS_ERROR,
-                    error: error.response.data.message,
-                });
+                handleErrorResponse(FETCH_CALENDARS_ERROR, dispatch, getState, error);
             });
     };
 }
@@ -112,10 +115,31 @@ export function fetchCalendarInRange(startOn = null, endOn) {
                 }
             })
             .catch((error) => {
-                dispatch({
-                    type: FETCH_CALENDAR_ERROR,
-                    error: error.response.data.message,
-                });
+                handleErrorResponse(FETCH_CALENDAR_ERROR, dispatch, getState, error);
             });
     };
+}
+
+//------------------------------------------------------------------------------
+// Private Implementation Details
+//------------------------------------------------------------------------------
+/**
+ * Handle calendar-related endpoint error responses.
+ *
+ * @param {string}   errorActionType The action type of the error.
+ * @param {Function} dispatch        Redux dispatch method.
+ * @param {Function} getState        Redux getState method.
+ * @param {Object}   error           The returned error object.
+ */
+function handleErrorResponse(errorActionType, dispatch, getState, error) {
+    const pageId = selectPageId(getState());
+
+    if (pageId !== PAGE_ID_ROOT) {
+        dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
+    }
+
+    dispatch({
+        type: errorActionType,
+        error: `${error.response.status}: ${error.response.statusText}`,
+    });
 }

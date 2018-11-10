@@ -33,7 +33,7 @@
     align-items: center;
     border-bottom: 1px solid lighten($primaryMain, 10%);
     display: flex;
-    height: 5em;
+    height: 4em;
     justify-content: flex-start;
     z-index: 1;
 }
@@ -152,44 +152,6 @@
 .listItemText {
     color: inherit;
     padding-left: 0;
-}
-
-.orgHeading {
-    color: lighten($primaryMid, 25%);
-    font-size: 0.75em;
-    font-weight: 400;
-    margin: 1.5em 0.2em 0.5em 1.5em;
-    text-transform: uppercase;
-}
-
-.expansionPanel {
-    background-color: $primaryMain;
-    box-shadow: none !important;
-    color: $baseBackground;
-    margin: 0;
-
-    &::before {
-        display: none;
-    }
-}
-
-.expansionPanelSummary {
-    min-height: unset !important;
-    padding: 0;
-}
-
-.expanded {
-    margin: 0 !important;
-}
-
-.expansionPanelDetails {
-    flex-wrap: wrap;
-    padding: 0;
-}
-
-.expansionListItem {
-    font-size: 0.9em;
-    padding-left: 3em;
 }
 
 .logoWrap {

@@ -32,9 +32,6 @@ import {
 // Components
 //------------------------------------------------------------------------------
 import Drawer from "@material-ui/core/Drawer";
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -42,14 +39,13 @@ import ListItemText from "@material-ui/core/ListItemText";
 import Button from "@material-ui/core/Button";
 import MenuList from "@material-ui/core/MenuList";
 import MenuItem from "@material-ui/core/MenuItem";
+import ScheduleList from "features/app/components/ScheduleList/ScheduleList";
 import TipMenu from "features/ui/components/TipMenu/TipMenu";
 import InitialsAvatar from "features/ui/components/InitialsAvatar/InitialsAvatar";
 
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
-import Assignment from "@material-ui/icons/AssignmentOutlined";
-import AssignmentFilled from "@material-ui/icons/Assignment";
 import Event from "@material-ui/icons/EventOutlined";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Home from "@material-ui/icons/HomeOutlined";
@@ -64,7 +60,6 @@ import {
     PAGE_ID_CALENDAR,
     PAGE_ID_DASHBOARD,
     PAGE_ID_ROOT,
-    PAGE_ID_SCHEDULES,
 } from "utils/backendConstants";
 import { stringToHslColor } from "utils/generalUtils";
 
@@ -127,10 +122,6 @@ export class MainNav extends React.PureComponent {
         const homeNavListClassNames = classNames({
             [styles.listItem]: true,
             [styles.active]: this.props.pageId === PAGE_ID_DASHBOARD,
-        });
-        const schedulesNavListClassNames = classNames({
-            [styles.listItem]: true,
-            [styles.active]: this.props.pageId === PAGE_ID_SCHEDULES,
         });
         const calendarNavListClassNames = classNames({
             [styles.listItem]: true,
@@ -226,95 +217,7 @@ export class MainNav extends React.PureComponent {
                             Calendar
                         </ListItemText>
                     </ListItem>
-                    <h4 className={styles.orgHeading}>Victoria Christadelphians</h4>
-                    <ExpansionPanel
-                        className={styles.expansionPanel}
-                        expanded={true}
-                    >
-                        <ExpansionPanelSummary
-                            classes={{ expanded: styles.expanded }}
-                            className={styles.expansionPanelSummary}
-                        >
-                            <ListItem
-                                button
-                                className={schedulesNavListClassNames}
-                                onClick={
-                                    () => this.props.setPageId(
-                                        PAGE_ID_SCHEDULES,
-                                        HISTORY_PUSH,
-                                    )
-                                }
-                            >
-                                <ListItemIcon className={styles.listItemIcon}>
-                                    <Assignment />
-                                </ListItemIcon>
-                                <ListItemText
-                                    className={styles.listItemText}
-                                    disableTypography={true}
-                                >
-                                Ecclesial Schedule
-                                </ListItemText>
-                            </ListItem>
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails className={styles.expansionPanelDetails}>
-                            <ListItem
-                                button
-                                className={styles.expansionListItem}
-                            >
-                                <ListItemIcon className={styles.listItemIcon}>
-                                    <AssignmentFilled fontSize="small"/>
-                                </ListItemIcon>
-                                <ListItemText
-                                    className={styles.listItemText}
-                                    disableTypography={true}
-                                >
-                                    Bible Talk
-                                </ListItemText>
-                            </ListItem>
-                            <ListItem
-                                button
-                                className={styles.expansionListItem}
-                            >
-                                <ListItemIcon className={styles.listItemIcon}>
-                                    <AssignmentFilled fontSize="small"/>
-                                </ListItemIcon>
-                                <ListItemText
-                                    className={styles.listItemText}
-                                    disableTypography={true}
-                                >
-                                    Bible Class
-                                </ListItemText>
-                            </ListItem>
-                            <ListItem
-                                button
-                                className={styles.expansionListItem}
-                            >
-                                <ListItemIcon className={styles.listItemIcon}>
-                                    <AssignmentFilled fontSize="small"/>
-                                </ListItemIcon>
-                                <ListItemText
-                                    className={styles.listItemText}
-                                    disableTypography={true}
-                                >
-                                    Memorial Meeting
-                                </ListItemText>
-                            </ListItem>
-                            <ListItem
-                                button
-                                className={styles.expansionListItem}
-                            >
-                                <ListItemIcon className={styles.listItemIcon}>
-                                    <AssignmentFilled fontSize="small"/>
-                                </ListItemIcon>
-                                <ListItemText
-                                    className={styles.listItemText}
-                                    disableTypography={true}
-                                >
-                                    Hall Cleaning
-                                </ListItemText>
-                            </ListItem>
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
+                    <ScheduleList />
                 </List>
                 <div className={styles.logoWrap}>
                     <img

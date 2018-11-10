@@ -31,6 +31,8 @@ import { setPageId } from "redux/actions/uiActions";
 import { User } from "utils/User";
 import {
     PATH_AUTH_BACKDOOR,
+    PATH_AUTH_GOOGLE,
+    PATH_AUTH_MICROSOFT,
     PATH_AUTH_IDENTITY,
     PATH_AUTH_SIGN_OFF,
     PAGE_ID_DASHBOARD,
@@ -67,7 +69,6 @@ export function initUserFromCache() {
 
         if (cachedIsAuthenticated) {
             dispatch(fetchIdentity());
-            dispatch(setIsAuthenticated(cachedIsAuthenticated));
         }
     };
 }
@@ -123,7 +124,6 @@ export function backdoorLogin() {
                     dispatch({ type: LOGIN_SUCCESS });
                     dispatch(setUser(new User(response.data)));
                     writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
-
                     if (pageId === PAGE_ID_ROOT) {
                         dispatch(setPageId(PAGE_ID_DASHBOARD, HISTORY_REPLACE));
                     }
@@ -132,10 +132,57 @@ export function backdoorLogin() {
                 }
             })
             .catch((error) => {
-                dispatch({
-                    type: LOGIN_ERROR,
-                    error: error.response.data.message,
-                });
+                handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
+            });
+    };
+}
+
+/**
+ * Login the user using the authentication back door.
+ *
+ * @return {Function} Action-dispatching thunk.
+ */
+export function googleLogin() {
+    return (dispatch, getState) => {
+        dispatch({
+            type: LOGIN,
+        });
+
+        axios({
+            method: "get",
+            url: PATH_AUTH_GOOGLE,
+            withCredentials: true,
+        })
+            .then((response) => {
+                console.log(response.status);
+            })
+            .catch((error) => {
+                handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
+            });
+    };
+}
+
+/**
+ * Login the user using the authentication back door.
+ *
+ * @return {Function} Action-dispatching thunk.
+ */
+export function microsoftLogin() {
+    return (dispatch, getState) => {
+        dispatch({
+            type: LOGIN,
+        });
+
+        axios({
+            method: "get",
+            url: PATH_AUTH_MICROSOFT,
+            withCredentials: true,
+        })
+            .then((response) => {
+                console.log(response.status);
+            })
+            .catch((error) => {
+                handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
             });
     };
 }
@@ -146,7 +193,7 @@ export function backdoorLogin() {
  * @return {Function} Action-dispatching thunk.
  */
 export function fetchIdentity() {
-    return (dispatch) => {
+    return (dispatch, getState) => {
         dispatch({
             type: FETCH_IDENTITY,
         });
@@ -167,10 +214,7 @@ export function fetchIdentity() {
                 }
             })
             .catch((error) => {
-                dispatch({
-                    type: FETCH_IDENTITY_ERROR,
-                    error: error.response.data.message,
-                });
+                handleErrorResponse(FETCH_IDENTITY_ERROR, dispatch, getState, error);
             });
     };
 }
@@ -214,3 +258,29 @@ export function signOff() {
 //------------------------------------------------------------------------------
 // Private Implementation Details
 //------------------------------------------------------------------------------
+/**
+ * Handle login-related endpoint error responses.
+ *
+ * @param {string}   errorActionType The action type of the error.
+ * @param {Function} dispatch        Redux dispatch method.
+ * @param {Function} getState        Redux getState method.
+ * @param {Object}   error           The returned error object.
+ */
+function handleErrorResponse(errorActionType, dispatch, getState, error) {
+    const pageId = selectPageId(getState());
+
+    // Send the user to the login page.
+    if (pageId !== PAGE_ID_ROOT) {
+        dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
+    }
+
+    // Dispatch the error into the redux store, and let the rest of the app
+    // know that the user is not authenticated. Update the cached authenticated
+    // flag.
+    dispatch({
+        type: errorActionType,
+        error: `${error.response.status}: ${error.response.statusText}`,
+    });
+    dispatch(setIsAuthenticated(false));
+    writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, false);
+}

@@ -22,6 +22,8 @@ export const PAGE_ID_SCHEDULES = backendConstants.pages.schedules.id;
 
 // API Paths -------------------------------------------------------------------
 export const PATH_AUTH_BACKDOOR = `${authPath}backdoor/user`;
+export const PATH_AUTH_GOOGLE = `${authPath}signin?authScheme=Google&redirectUrl=https://coevent.azurewebsites.net`;
+export const PATH_AUTH_MICROSOFT = `${authPath}signin?authScheme=Microsoft&redirectUrl=https://coevent.azurewebsites.net`;
 export const PATH_AUTH_IDENTITY = `${authPath}current/identity`;
 export const PATH_AUTH_SIGN_OFF = `${authPath}signoff`;
 

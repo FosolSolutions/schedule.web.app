@@ -8,28 +8,41 @@ import { connect } from "react-redux";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { selectIsAuthenticated } from "redux/reducers/userReducer";
+import {
+    selectIsAuthenticated,
+    selectLoginInProgress,
+} from "redux/reducers/userReducer";
 import { selectPageId } from "redux/reducers/uiReducer";
 import { setPageId } from "redux/actions/uiActions";
-import { backdoorLogin } from "redux/actions/userActions";
+import {
+    backdoorLogin,
+    googleLogin,
+    microsoftLogin,
+} from "redux/actions/userActions";
 import { fetchCalendars } from "redux/actions/calendarsActions";
 
 //------------------------------------------------------------------------------
 // Components
 //------------------------------------------------------------------------------
+import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
-import Grid from "@material-ui/core/Grid";
-import IconButton from "@material-ui/core/IconButton";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import TextField from "@material-ui/core/TextField";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import LinkIcon from "@material-ui/icons/Link";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import SvgIcon from "@material-ui/core/SvgIcon";
 
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
 import styles from "features/app/components/Login/login.scss";
 import coEventLogoWh from "assets/images/logos/coEventLogoWh.svg";
+import LinkIcon from "@material-ui/icons/Link";
+
+//------------------------------------------------------------------------------
+// Helpers
+//------------------------------------------------------------------------------
+import {
+    SVG_PATH_GOOGLE,
+    SVG_PATH_MICROSOFT,
+} from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -37,14 +50,24 @@ import coEventLogoWh from "assets/images/logos/coEventLogoWh.svg";
  * Renders the Login page content.
  */
 export class Login extends React.Component {
-    /**
-     * Handle login button clicks (currently backdoor user login).
-     */
-    handleLoginClick() {
-        this.props.backdoorLogin();
-    }
-
     render() {
+        const renderProgress = () => {
+            let returnVal = false;
+
+            if (this.props.loginInProgress) {
+                returnVal = (
+                    <LinearProgress
+                        className={styles.progress}
+                        color="secondary"
+                    />
+                );
+            } else {
+                returnVal = <span className={styles.progressPlaceholder} />;
+            }
+
+            return returnVal;
+        };
+
         return (
             <section
                 className={styles.background}
@@ -62,43 +85,34 @@ export class Login extends React.Component {
                     <section className={styles.panel}>
                         <h2 className={styles.signInHeading}>To sign in:</h2>
                         <div className={styles.linkInstructionWrap}>
-                            <LinkIcon />
+                            <LinkIcon onClick={() => this.props.backdoorLogin()}/>
                             <span className={styles.linkInstructionText}>
-                            Click the sign-in link in your email
+                                Click the sign-in link in your email
                             </span>
                         </div>
                     </section>
                     <section className={`${styles.panel} ${styles.lowEm}`}>
-                        <h2 className={styles.signInHeading}>
-                        Or, paste and submit your participant ID:
-                        </h2>
-                        <Grid
-                            container
-                            alignItems="center"
+                        <h2 className={styles.signInHeading}>Or use another service:</h2>
+                        <Button
+                            className={`${styles.loginButton} ${styles.google}`}
+                            onClick={() => this.props.googleLogin()}
                         >
-                            <Grid
-                                className={styles.fullWidth}
-                                item
-                            >
-                                <TextField
-                                    className={styles.textField}
-                                    label="Participant ID"
-                                    margin="normal"
-                                    variant="outlined"
-                                    InputProps={{
-                                        className: styles.input,
-                                        endAdornment: <InputAdornment position="end">
-                                            <IconButton
-                                                onClick={() => this.handleLoginClick()}
-                                            >
-                                                <ExitToAppIcon />
-                                            </IconButton>
-                                        </InputAdornment>,
-                                    }}
-                                />
-                            </Grid>
-                        </Grid>
+                            <SvgIcon className={styles.socialIcon}>
+                                <path d={SVG_PATH_GOOGLE} />
+                            </SvgIcon>
+                            Sign in with Google
+                        </Button>
+                        <Button
+                            className={`${styles.loginButton} ${styles.microsoft}`}
+                            onClick={() => this.props.microsoftLogin()}
+                        >
+                            <SvgIcon className={styles.socialIcon}>
+                                <path d={SVG_PATH_MICROSOFT} />
+                            </SvgIcon>
+                            Sign in with Microsoft
+                        </Button>
                     </section>
+                    {renderProgress()}
                 </Card>
             </section>
         );
@@ -107,11 +121,14 @@ export class Login extends React.Component {
 
 // Export the redux-connected component
 export default connect((state) => ({
+    loginInProgress: selectLoginInProgress(state),
     pageId: selectPageId(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
     backdoorLogin,
     fetchCalendars,
+    googleLogin,
+    microsoftLogin,
     setPageId,
 })(Login);
 
@@ -120,6 +137,7 @@ Login.propTypes = {
     // Data propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
+    loginInProgress: PropTypes.bool.isRequired,
     pageId: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,
 
@@ -128,5 +146,7 @@ Login.propTypes = {
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     backdoorLogin: PropTypes.func.isRequired,
+    googleLogin: PropTypes.func.isRequired,
     setPageId: PropTypes.func.isRequired,
+    microsoftLogin: PropTypes.func.isRequired,
 };

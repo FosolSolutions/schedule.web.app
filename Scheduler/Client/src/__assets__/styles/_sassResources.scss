@@ -26,6 +26,8 @@ $warningMain: #ffc312;
 $neutralLight: #f9f9f9;
 $neutralMid: #eee;
 $neutralDark: #e0e0e0;
+$google: lighten(#db4437, 7.5%);
+$microsoft: lighten(#00a1f1, 2%);
 
 $baseText: #051923;
 $baseTextMid: #777;
@@ -63,7 +65,7 @@ $headerHeightLarge: 64px;
     color: $color;
 
     &:hover {
-        background-color: darken($background, 7%);
+        background-color: darken($background, 5%);
     }
 }
 
