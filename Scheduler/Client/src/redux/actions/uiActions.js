@@ -8,6 +8,7 @@
 import {
     SET_DRAWER_IS_OPEN,
     SET_PAGE_ID,
+    SET_SNACKBAR_CONTENT_KEY,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
@@ -67,6 +68,21 @@ export function setPageId(pageId, historyMethod = null) {
         pageId,
     };
 }
+
+/**
+ * Set the snackbar content key.
+ *
+ * @param  {string} snackbarContentKey A SNACKBAR_* constant.
+ *
+ * @return {Object}                    Action object.
+ */
+export function setSnackbarContentKey(snackbarContentKey = "") {
+    return {
+        type: SET_SNACKBAR_CONTENT_KEY,
+        snackbarContentKey,
+    };
+}
+
 
 //------------------------------------------------------------------------------
 // Private Implementation Details

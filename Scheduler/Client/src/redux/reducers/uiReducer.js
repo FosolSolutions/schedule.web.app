@@ -9,6 +9,7 @@ import update from "immutability-helper";
 import {
     SET_DRAWER_IS_OPEN,
     SET_PAGE_ID,
+    SET_SNACKBAR_CONTENT_KEY,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
@@ -20,6 +21,7 @@ import { PAGE_ID } from "utils/staticBackendData";
 
 export const initialUiState = {
     drawerIsOpen: true,
+    snackbarContentKey: "",
     pageId: PAGE_ID,
 };
 
@@ -46,6 +48,11 @@ export default function uiReducer(
         case SET_PAGE_ID:
             returnVal = update(state, {
                 pageId: { $set: action.pageId },
+            });
+            break;
+        case SET_SNACKBAR_CONTENT_KEY:
+            returnVal = update(state, {
+                snackbarContentKey: { $set: action.snackbarContentKey },
             });
             break;
         default:
@@ -75,4 +82,15 @@ export function selectDrawerIsOpen(state) {
  */
 export function selectPageId(state) {
     return state.ui.pageId;
+}
+
+/**
+ * snackbarContentKey selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {boolean}      The current snackbar content key.
+ */
+export function selectSnackbarContentKey(state) {
+    return state.ui.snackbarContentKey;
 }

@@ -9,7 +9,10 @@ import format from "date-fns/format";
 //------------------------------------------------------------------------------
 import { selectCalendar } from "redux/reducers/calendarReducer";
 import { selectPageId } from "redux/reducers/uiReducer";
-import { setPageId } from "redux/actions/uiActions";
+import {
+    setPageId,
+    setSnackbarContentKey,
+} from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -29,7 +32,10 @@ import {
     PATH_DATA_CALENDARS,
     PATH_DATA_CALENDAR,
 } from "utils/backendConstants";
-import { HISTORY_REPLACE } from "utils/constants";
+import {
+    HISTORY_REPLACE,
+    SNACKBAR_NETWORK_ERROR,
+} from "utils/constants";
 import { Calendar } from "utils/Calendar";
 import { Calendars } from "utils/Calendars";
 
@@ -133,13 +139,37 @@ export function fetchCalendarInRange(startOn = null, endOn) {
  */
 function handleErrorResponse(errorActionType, dispatch, getState, error) {
     const pageId = selectPageId(getState());
+    let showSnackbar = false;
+    let errorMsg;
 
     if (pageId !== PAGE_ID_ROOT) {
         dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
     }
 
+    if (
+        typeof error.response !== "undefined" &&
+        typeof error.response.status !== "undefined" &&
+        typeof error.response.statusText !== "undefined"
+    ) {
+        if (error.response.status !== 401) {
+            showSnackbar = true;
+        }
+
+        errorMsg = `${error.response.status}: ${error.response.statusText}`;
+    } else if (typeof error.message !== "undefined") {
+        errorMsg = error.message;
+        showSnackbar = true;
+    } else {
+        errorMsg = "Unknown Error";
+        showSnackbar = true;
+    }
+
     dispatch({
         type: errorActionType,
-        error: `${error.response.status}: ${error.response.statusText}`,
+        error: errorMsg,
     });
+
+    if (showSnackbar) {
+        dispatch(setSnackbarContentKey(SNACKBAR_NETWORK_ERROR));
+    }
 }

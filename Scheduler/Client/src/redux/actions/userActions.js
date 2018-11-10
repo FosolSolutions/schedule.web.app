@@ -23,7 +23,10 @@ import {
     SET_IS_AUTHENTICATED,
 } from "redux/actionTypes";
 import { selectPageId } from "redux/reducers/uiReducer";
-import { setPageId } from "redux/actions/uiActions";
+import {
+    setPageId,
+    setSnackbarContentKey,
+} from "redux/actions/uiActions";
 
 //----------------------------------------------------------------------------
 // Helpers
@@ -47,6 +50,7 @@ import {
     CLIENT_KEY_IS_AUTHENTICATED,
     HISTORY_REPLACE,
     LOCAL_STORAGE,
+    SNACKBAR_NETWORK_ERROR,
 } from "utils/constants";
 
 //----------------------------------------------------------------------------
@@ -153,8 +157,8 @@ export function googleLogin() {
             url: PATH_AUTH_GOOGLE,
             withCredentials: true,
         })
-            .then((response) => {
-                console.log(response.status);
+            .then(() => {
+                // Note sure what response to expect here yet due to CORS issues
             })
             .catch((error) => {
                 handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
@@ -178,8 +182,8 @@ export function microsoftLogin() {
             url: PATH_AUTH_MICROSOFT,
             withCredentials: true,
         })
-            .then((response) => {
-                console.log(response.status);
+            .then(() => {
+                // Note sure what response to expect here yet due to CORS issues
             })
             .catch((error) => {
                 handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
@@ -268,10 +272,30 @@ export function signOff() {
  */
 function handleErrorResponse(errorActionType, dispatch, getState, error) {
     const pageId = selectPageId(getState());
+    let showSnackbar = false;
+    let errorMsg;
 
     // Send the user to the login page.
     if (pageId !== PAGE_ID_ROOT) {
         dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
+    }
+
+    if (
+        typeof error.response !== "undefined" &&
+        typeof error.response.status !== "undefined" &&
+        typeof error.response.statusText !== "undefined"
+    ) {
+        if (error.response.status !== 401) {
+            showSnackbar = true;
+        }
+
+        errorMsg = `${error.response.status}: ${error.response.statusText}`;
+    } else if (typeof error.message !== "undefined") {
+        errorMsg = error.message;
+        showSnackbar = true;
+    } else {
+        errorMsg = "Unknown Error";
+        showSnackbar = true;
     }
 
     // Dispatch the error into the redux store, and let the rest of the app
@@ -279,8 +303,12 @@ function handleErrorResponse(errorActionType, dispatch, getState, error) {
     // flag.
     dispatch({
         type: errorActionType,
-        error: `${error.response.status}: ${error.response.statusText}`,
+        error: errorMsg,
     });
     dispatch(setIsAuthenticated(false));
     writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, false);
+
+    if (showSnackbar) {
+        dispatch(setSnackbarContentKey(SNACKBAR_NETWORK_ERROR));
+    }
 }
