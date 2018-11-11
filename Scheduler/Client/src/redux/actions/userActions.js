@@ -3,9 +3,9 @@
 //------------------------------------------------------------------------------
 import axios from "axios";
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Redux Support
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 import {
     FETCH_IDENTITY,
     FETCH_IDENTITY_ERROR,
@@ -28,9 +28,9 @@ import {
     setSnackbarContentKey,
 } from "redux/actions/uiActions";
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helpers
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 import { User } from "utils/User";
 import {
     PATH_AUTH_BACKDOOR,
@@ -53,7 +53,7 @@ import {
     SNACKBAR_NETWORK_ERROR,
 } from "utils/constants";
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Public Interface
@@ -99,6 +99,8 @@ export function setUser(user) {
  * @return {Object}                 Action object.
  */
 export function setIsAuthenticated(isAuthenticated) {
+    writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, isAuthenticated);
+
     return {
         type: SET_IS_AUTHENTICATED,
         isAuthenticated,
@@ -229,7 +231,7 @@ export function fetchIdentity() {
  * @return {Function} Action-dispatching thunk.
  */
 export function signOff() {
-    return (dispatch) => {
+    return (dispatch, getState) => {
         deleteFromWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED);
         dispatch({
             type: SIGN_OFF,
@@ -251,10 +253,7 @@ export function signOff() {
                 }
             })
             .catch((error) => {
-                dispatch({
-                    type: SIGN_OFF_ERROR,
-                    error: error.response.data.message,
-                });
+                handleErrorResponse(SIGN_OFF_ERROR, dispatch, getState, error);
             });
     };
 }
@@ -306,7 +305,6 @@ function handleErrorResponse(errorActionType, dispatch, getState, error) {
         error: errorMsg,
     });
     dispatch(setIsAuthenticated(false));
-    writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, false);
 
     if (showSnackbar) {
         dispatch(setSnackbarContentKey(SNACKBAR_NETWORK_ERROR));

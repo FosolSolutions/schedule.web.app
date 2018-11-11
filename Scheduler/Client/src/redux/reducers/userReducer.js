@@ -125,7 +125,8 @@ export default function userReducer(
             break;
         case FETCH_IDENTITY_SUCCESS:
             returnVal = update(state, {
-                signOffInProgress: { $set: false },
+                isAuthenticated: { $set: true },
+                fetchIdentityInProgress: { $set: false },
                 fetchIdentityError: { $set: null },
             });
             break;
@@ -145,6 +146,18 @@ export default function userReducer(
 
     return returnVal;
 }
+
+/**
+ * fetchIdentityInProgress selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {boolean}      Whether the fetch identity request is in progress
+ */
+export function selectFetchIdentityInProgress(state) {
+    return state.user.fetchIdentityInProgress;
+}
+
 
 /**
  * isAuthenticated selector
@@ -177,6 +190,17 @@ export function selectLoginError(state) {
  */
 export function selectLoginInProgress(state) {
     return state.user.loginInProgress;
+}
+
+/**
+ * signOffInProgress selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {boolean}      Whether the sign off request is in progress
+ */
+export function selectSignOffInProgress(state) {
+    return state.user.signOffInProgress;
 }
 
 /**

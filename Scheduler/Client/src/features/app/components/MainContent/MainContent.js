@@ -16,7 +16,10 @@ import {
     selectPageId,
     selectSnackbarContentKey,
 } from "redux/reducers/uiReducer";
-import { selectIsAuthenticated } from "redux/reducers/userReducer";
+import {
+    selectFetchIdentityInProgress,
+    selectIsAuthenticated,
+} from "redux/reducers/userReducer";
 import {
     setDrawerIsOpen,
     setSnackbarContentKey,
@@ -27,7 +30,7 @@ import {
 //------------------------------------------------------------------------------
 import Calendar from "features/ui/components/Calendar/Calendar";
 import Dashboard from "features/app/components/Dashboard/Dashboard";
-import Login from "features/app/components/Login/Login";
+import Authentication from "features/app/components/Authentication/Authentication";
 import Schedules from "features/app/components/Schedules/Schedules";
 import Snackbar from "@material-ui/core/Snackbar";
 
@@ -73,12 +76,13 @@ export class MainContent extends React.Component {
             </div>
         );
         /**
-         * Render the main login content.
+         * Render the main authentication content.
          *
-         * @param  {ReactElement[]} child Login page content
+         * @param  {ReactElement[]} child Authentication page content
+         *
          * @return {ReactElement[]}       Array of content elements.
          */
-        const renderLoginContent = (child) => (
+        const renderAuthContent = (child) => (
             <div className={styles.fullHeight}>
                 {child}
                 {renderSnackbar()}
@@ -137,9 +141,11 @@ export class MainContent extends React.Component {
                     default:
                         returnVal = (renderAppContent(<Dashboard />));
                 }
+            } else if (this.props.fetchIdentityInProgress) {
+                returnVal = renderAppContent();
             } else {
-                returnVal = renderLoginContent(
-                    <Login />,
+                returnVal = renderAuthContent(
+                    <Authentication />,
                 );
             }
 
@@ -154,6 +160,7 @@ export class MainContent extends React.Component {
 export default connect((state) => ({
     calendars: selectCalendars(state),
     drawerIsOpen: selectDrawerIsOpen(state),
+    fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     pageId: selectPageId(state),
     snackbarContentKey: selectSnackbarContentKey(state),
     userIsAuthenticated: selectIsAuthenticated(state),
@@ -168,6 +175,7 @@ MainContent.propTypes = {
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     drawerIsOpen: PropTypes.bool.isRequired,
+    fetchIdentityInProgress: PropTypes.bool.isRequired,
     pageId: PropTypes.string.isRequired,
     snackbarContentKey: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,

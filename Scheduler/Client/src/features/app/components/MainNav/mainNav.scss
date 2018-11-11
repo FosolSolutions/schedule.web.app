@@ -21,7 +21,7 @@
 }
 
 .menuList {
-    padding: 0;
+    padding-top: 0;
 }
 
 .appTitle {
@@ -33,7 +33,7 @@
     align-items: center;
     border-bottom: 1px solid lighten($primaryMain, 10%);
     display: flex;
-    height: 4em;
+    height: 4.7em;
     justify-content: flex-start;
     z-index: 1;
 }
@@ -88,6 +88,29 @@
     @include dropdownListItem;
 }
 
+.emptyListItem {
+    padding: 1em;
+}
+
+.emptyListItemContent {
+    height: 24px;
+    width: 100%;
+}
+
+.emptyProgress {
+    background-color: lighten($primaryMain, 5%);
+    border-radius: 5px;
+    height: 100%;
+}
+
+.emptyProgressBar {
+    background-color: lighten($primaryMain, 7%);
+}
+
+.progress {
+    margin-left: 0.5em;
+}
+
 .signUp {
     @include button($secondaryMain, $baseBackground);
 }
@@ -98,16 +121,9 @@
     z-index: 1;
 }
 
-.drawerIsOpen {
-    width: calc(100% - 250px);
-}
-
 .paper {
     background-color: $primaryMain;
     transition: width $uiTransitionDuration $uiTransitionFunction;
-}
-
-.paperIsOpen {
     width: 250px;
 }
 

@@ -9,14 +9,21 @@
     padding: 65px 0;
 }
 
-.progressWrap {
+.authProgress {
+    color: $baseBackground;
+    margin-left: calc(50% - 20px);
+    margin-top: 20%;
+}
+
+.loginProgress {
+    color: darken($primaryLight, 2.5%);
+    display: block;
+    margin: 0 auto;
     width: 100%;
 }
 
-.progress {
-    color: $secondaryMain;
-    display: block;
-    margin: 0 auto;
+.loginProgressBar {
+    background-color: $secondaryMain;
 }
 
 .loginWindow {

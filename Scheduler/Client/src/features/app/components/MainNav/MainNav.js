@@ -20,7 +20,9 @@ import {
     selectPageId,
 } from "redux/reducers/uiReducer";
 import {
+    selectFetchIdentityInProgress,
     selectIsAuthenticated,
+    selectSignOffInProgress,
     selectUser,
 } from "redux/reducers/userReducer";
 import {
@@ -46,6 +48,8 @@ import InitialsAvatar from "features/ui/components/InitialsAvatar/InitialsAvatar
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
+import CircularProgress from "@material-ui/core/CircularProgress";
+import LinearProgress from "@material-ui/core/LinearProgress";
 import Event from "@material-ui/icons/EventOutlined";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Home from "@material-ui/icons/HomeOutlined";
@@ -114,11 +118,6 @@ export class MainNav extends React.PureComponent {
         const fullName = (user === null) ? "Loading..." : user.getFullName();
         const displayName = (user === null) ? "Loading..." : user.getDisplayName();
         const nameColor = stringToHslColor(fullName, 60, 60);
-        const drawerPaperClassNames = classNames({
-            [styles.paper]: true,
-            [styles.noOverflowVert]: true,
-            [styles.paperIsOpen]: this.props.drawerIsOpen,
-        });
         const homeNavListClassNames = classNames({
             [styles.listItem]: true,
             [styles.active]: this.props.pageId === PAGE_ID_DASHBOARD,
@@ -136,13 +135,11 @@ export class MainNav extends React.PureComponent {
             <Drawer
                 className={styles.drawer}
                 classes={{
-                    paper: drawerPaperClassNames,
+                    paper: classNames(styles.paper, styles.noOverflowVert),
                 }}
                 key="navDrawer"
                 open={this.props.drawerIsOpen}
-
-                variant="permanent"
-                onClose={() => this.handleMenuButtonClick()}
+                variant="persistent"
             >
                 <div className={styles.backHeader}>
                     <Button
@@ -178,6 +175,17 @@ export class MainNav extends React.PureComponent {
                                 onClick={() => this.handleSignOutClick()}
                             >
                                 Sign Out
+                                {
+                                    (this.props.signOffInProgress)
+                                        ? (
+                                            <CircularProgress
+                                                className={styles.progress}
+                                                color="primary"
+                                                size={12}
+                                                thickness={6}
+                                            />
+                                        ) : false
+                                }
                             </MenuItem>
                         </MenuList>
                     </TipMenu>
@@ -230,6 +238,68 @@ export class MainNav extends React.PureComponent {
             </Drawer>,
         ];
         /**
+         * Render the main app navigation.
+         *
+         * @return {ReactElement[]} Array of navigation elements.
+         */
+        const appNavEmpty = () => [
+            <Drawer
+                className={styles.drawer}
+                classes={{
+                    paper: classNames(styles.paper, styles.noOverflowVert),
+                }}
+                key="navDrawer"
+                open={this.props.drawerIsOpen}
+                variant="permanent"
+            >
+                <div className={styles.backHeader}>
+                    <Button
+                        className={styles.account}
+                        disableRipple
+                        fullWidth={true}
+                    >
+                        <InitialsAvatar
+                            firstName={firstName}
+                            lastName={lastName}
+                        />
+                        <span className={styles.displayName}>
+                            {displayName}
+                            <ExpandMoreIcon fontSize="small"/>
+                        </span>
+                    </Button>
+                </div>
+                <List className={styles.list}>
+                    {emptyListItem()}
+                    {emptyListItem()}
+                    {emptyListItem()}
+                    {emptyListItem()}
+                </List>
+                <div className={styles.logoWrap}>
+                    <img
+                        className={styles.logo}
+                        src={coEventLogoWh}
+                        alt="CoEvent"
+                    />
+                    <span className={styles.copy}>{`© ${format(new Date(), "yyyy")}`}</span>
+                </div>
+            </Drawer>,
+        ];
+        const emptyListItem = () => (
+            <ListItem
+                button
+                className={styles.emptyListItem}
+            >
+                <div className={styles.emptyListItemContent}>
+                    <LinearProgress
+                        className={styles.emptyProgress}
+                        classes={{
+                            barColorPrimary: styles.emptyProgressBar,
+                        }}
+                    />
+                </div>
+            </ListItem>
+        );
+        /**
          * Conditionally render the appropriate main navigation for the current
          * page.
          *
@@ -243,7 +313,11 @@ export class MainNav extends React.PureComponent {
                     returnVal = false;
                     break;
                 default:
-                    returnVal = appNav();
+                    if (this.props.fetchIdentityInProgress) {
+                        returnVal = appNavEmpty();
+                    } else {
+                        returnVal = appNav();
+                    }
             }
 
             return returnVal;
@@ -257,8 +331,10 @@ export class MainNav extends React.PureComponent {
 export default connect((state) => ({
     calendars: selectCalendars(state),
     drawerIsOpen: selectDrawerIsOpen(state),
+    fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     isAuthenticated: selectIsAuthenticated(state),
     pageId: selectPageId(state),
+    signOffInProgress: selectSignOffInProgress(state),
     user: selectUser(state),
 }), {
     backdoorLogin,
@@ -273,8 +349,10 @@ MainNav.propTypes = {
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     drawerIsOpen: PropTypes.bool.isRequired,
+    fetchIdentityInProgress: PropTypes.bool.isRequired,
     isAuthenticated: PropTypes.bool.isRequired,
     pageId: PropTypes.string.isRequired,
+    signOffInProgress: PropTypes.bool.isRequired,
     user: PropTypes.object,
 
     // -------------------------------------------------------------------------

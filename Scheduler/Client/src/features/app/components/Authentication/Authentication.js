@@ -10,6 +10,7 @@ import { connect } from "react-redux";
 //------------------------------------------------------------------------------
 import {
     selectIsAuthenticated,
+    selectFetchIdentityInProgress,
     selectLoginInProgress,
 } from "redux/reducers/userReducer";
 import { selectPageId } from "redux/reducers/uiReducer";
@@ -32,7 +33,7 @@ import SvgIcon from "@material-ui/core/SvgIcon";
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
-import styles from "features/app/components/Login/login.scss";
+import styles from "features/app/components/Authentication/authentication.scss";
 import coEventLogoWh from "assets/images/logos/coEventLogoWh.svg";
 import LinkIcon from "@material-ui/icons/Link";
 
@@ -47,18 +48,20 @@ import {
 //------------------------------------------------------------------------------
 
 /**
- * Renders the Login page content.
+ * Renders the Authentication page content.
  */
-export class Login extends React.Component {
+export class Authentication extends React.Component {
     render() {
-        const renderProgress = () => {
+        const renderLoginProgress = () => {
             let returnVal = false;
 
             if (this.props.loginInProgress) {
                 returnVal = (
                     <LinearProgress
-                        className={styles.progress}
-                        color="secondary"
+                        className={styles.loginProgress}
+                        classes={{
+                            barColorPrimary: styles.loginProgressBar,
+                        }}
                     />
                 );
             } else {
@@ -73,47 +76,51 @@ export class Login extends React.Component {
                 className={styles.background}
                 key="splashScreen"
             >
-                <img
-                    className={styles.logo}
-                    src={coEventLogoWh}
-                    alt=""
-                />
-                <h1 className={styles.valueProp}>
+                <div>
+                    <img
+                        className={styles.logo}
+                        src={coEventLogoWh}
+                        alt=""
+                    />
+                    <h1 className={styles.valueProp}>
                     Flexible scheduling for teams and organizations.
-                </h1>
-                <Card className={styles.loginWindow}>
-                    <section className={styles.panel}>
-                        <h2 className={styles.signInHeading}>To sign in:</h2>
-                        <div className={styles.linkInstructionWrap}>
-                            <LinkIcon onClick={() => this.props.backdoorLogin()}/>
-                            <span className={styles.linkInstructionText}>
-                                Click the sign-in link in your email
-                            </span>
-                        </div>
-                    </section>
-                    <section className={`${styles.panel} ${styles.lowEm}`}>
-                        <h2 className={styles.signInHeading}>Or use another service:</h2>
-                        <Button
-                            className={`${styles.loginButton} ${styles.google}`}
-                            onClick={() => this.props.googleLogin()}
-                        >
-                            <SvgIcon className={styles.socialIcon}>
-                                <path d={SVG_PATH_GOOGLE} />
-                            </SvgIcon>
-                            Sign in with Google
-                        </Button>
-                        <Button
-                            className={`${styles.loginButton} ${styles.microsoft}`}
-                            onClick={() => this.props.microsoftLogin()}
-                        >
-                            <SvgIcon className={styles.socialIcon}>
-                                <path d={SVG_PATH_MICROSOFT} />
-                            </SvgIcon>
-                            Sign in with Microsoft
-                        </Button>
-                    </section>
-                    {renderProgress()}
-                </Card>
+                    </h1>
+                    <Card className={styles.loginWindow}>
+                        <section className={styles.panel}>
+                            <h2 className={styles.signInHeading}>To sign in:</h2>
+                            <div className={styles.linkInstructionWrap}>
+                                <LinkIcon onClick={() => this.props.backdoorLogin()}/>
+                                <span className={styles.linkInstructionText}>
+                                    Click the sign-in link in your email
+                                </span>
+                            </div>
+                        </section>
+                        <section className={`${styles.panel} ${styles.lowEm}`}>
+                            <h2 className={styles.signInHeading}>
+                                Or use another service:
+                            </h2>
+                            <Button
+                                className={`${styles.loginButton} ${styles.google}`}
+                                onClick={() => this.props.googleLogin()}
+                            >
+                                <SvgIcon className={styles.socialIcon}>
+                                    <path d={SVG_PATH_GOOGLE} />
+                                </SvgIcon>
+                                Sign in with Google
+                            </Button>
+                            <Button
+                                className={`${styles.loginButton} ${styles.microsoft}`}
+                                onClick={() => this.props.microsoftLogin()}
+                            >
+                                <SvgIcon className={styles.socialIcon}>
+                                    <path d={SVG_PATH_MICROSOFT} />
+                                </SvgIcon>
+                                Sign in with Microsoft
+                            </Button>
+                        </section>
+                        {renderLoginProgress()}
+                    </Card>
+                </div>
             </section>
         );
     }
@@ -121,6 +128,7 @@ export class Login extends React.Component {
 
 // Export the redux-connected component
 export default connect((state) => ({
+    fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     loginInProgress: selectLoginInProgress(state),
     pageId: selectPageId(state),
     userIsAuthenticated: selectIsAuthenticated(state),
@@ -130,13 +138,14 @@ export default connect((state) => ({
     googleLogin,
     microsoftLogin,
     setPageId,
-})(Login);
+})(Authentication);
 
-Login.propTypes = {
+Authentication.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
+    fetchIdentityInProgress: PropTypes.bool.isRequired,
     loginInProgress: PropTypes.bool.isRequired,
     pageId: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,
