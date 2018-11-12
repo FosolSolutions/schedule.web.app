@@ -98,6 +98,10 @@
     "react-router-dom": "4.3.1",
     "redux": "4.0.0",
     "redux-thunk": "2.3.0"
+  },
+  "-vs-binding": {
+    "ProjectOpened": [
+      "webpack:dev"
+    ]
   }
-, "-vs-binding":{"ProjectOpened":["webpack:dev"]}
 }
