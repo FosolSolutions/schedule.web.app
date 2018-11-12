@@ -71,4 +71,5 @@ bld/
 project.lock.json
 project.fragment.lock.json
 artifacts/
-**/Properties/PublishProfiles**
+**/Properties/PublishProfiles/**
+/Properites/launchSettings.json
