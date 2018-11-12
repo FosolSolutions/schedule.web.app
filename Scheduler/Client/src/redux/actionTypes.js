@@ -15,6 +15,7 @@ export const FETCH_CALENDAR_ERROR = "FETCH_CALENDAR_ERROR";
 // -----------------------------------------------------------------------------
 export const SET_DRAWER_IS_OPEN = "SET_DRAWER_IS_OPEN";
 export const SET_PAGE_ID = "SET_PAGE_ID";
+export const SET_SNACKBAR_CONTENT_KEY = "SET_SNACKBAR_CONTENT_KEY";
 
 // -----------------------------------------------------------------------------
 // User action types

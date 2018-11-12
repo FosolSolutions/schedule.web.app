@@ -3,9 +3,9 @@
 //------------------------------------------------------------------------------
 import axios from "axios";
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Redux Support
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 import {
     FETCH_IDENTITY,
     FETCH_IDENTITY_ERROR,
@@ -23,14 +23,19 @@ import {
     SET_IS_AUTHENTICATED,
 } from "redux/actionTypes";
 import { selectPageId } from "redux/reducers/uiReducer";
-import { setPageId } from "redux/actions/uiActions";
+import {
+    setPageId,
+    setSnackbarContentKey,
+} from "redux/actions/uiActions";
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Helpers
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 import { User } from "utils/User";
 import {
     PATH_AUTH_BACKDOOR,
+    PATH_AUTH_GOOGLE,
+    PATH_AUTH_MICROSOFT,
     PATH_AUTH_IDENTITY,
     PATH_AUTH_SIGN_OFF,
     PAGE_ID_DASHBOARD,
@@ -45,9 +50,10 @@ import {
     CLIENT_KEY_IS_AUTHENTICATED,
     HISTORY_REPLACE,
     LOCAL_STORAGE,
+    SNACKBAR_NETWORK_ERROR,
 } from "utils/constants";
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Public Interface
@@ -67,7 +73,6 @@ export function initUserFromCache() {
 
         if (cachedIsAuthenticated) {
             dispatch(fetchIdentity());
-            dispatch(setIsAuthenticated(cachedIsAuthenticated));
         }
     };
 }
@@ -94,6 +99,8 @@ export function setUser(user) {
  * @return {Object}                 Action object.
  */
 export function setIsAuthenticated(isAuthenticated) {
+    writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, isAuthenticated);
+
     return {
         type: SET_IS_AUTHENTICATED,
         isAuthenticated,
@@ -123,7 +130,6 @@ export function backdoorLogin() {
                     dispatch({ type: LOGIN_SUCCESS });
                     dispatch(setUser(new User(response.data)));
                     writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
-
                     if (pageId === PAGE_ID_ROOT) {
                         dispatch(setPageId(PAGE_ID_DASHBOARD, HISTORY_REPLACE));
                     }
@@ -132,10 +138,57 @@ export function backdoorLogin() {
                 }
             })
             .catch((error) => {
-                dispatch({
-                    type: LOGIN_ERROR,
-                    error: error.response.data.message,
-                });
+                handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
+            });
+    };
+}
+
+/**
+ * Login the user using the authentication back door.
+ *
+ * @return {Function} Action-dispatching thunk.
+ */
+export function googleLogin() {
+    return (dispatch, getState) => {
+        dispatch({
+            type: LOGIN,
+        });
+
+        axios({
+            method: "get",
+            url: PATH_AUTH_GOOGLE,
+            withCredentials: true,
+        })
+            .then(() => {
+                // Note sure what response to expect here yet due to CORS issues
+            })
+            .catch((error) => {
+                handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
+            });
+    };
+}
+
+/**
+ * Login the user using the authentication back door.
+ *
+ * @return {Function} Action-dispatching thunk.
+ */
+export function microsoftLogin() {
+    return (dispatch, getState) => {
+        dispatch({
+            type: LOGIN,
+        });
+
+        axios({
+            method: "get",
+            url: PATH_AUTH_MICROSOFT,
+            withCredentials: true,
+        })
+            .then(() => {
+                // Note sure what response to expect here yet due to CORS issues
+            })
+            .catch((error) => {
+                handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
             });
     };
 }
@@ -146,7 +199,7 @@ export function backdoorLogin() {
  * @return {Function} Action-dispatching thunk.
  */
 export function fetchIdentity() {
-    return (dispatch) => {
+    return (dispatch, getState) => {
         dispatch({
             type: FETCH_IDENTITY,
         });
@@ -167,10 +220,7 @@ export function fetchIdentity() {
                 }
             })
             .catch((error) => {
-                dispatch({
-                    type: FETCH_IDENTITY_ERROR,
-                    error: error.response.data.message,
-                });
+                handleErrorResponse(FETCH_IDENTITY_ERROR, dispatch, getState, error);
             });
     };
 }
@@ -181,7 +231,7 @@ export function fetchIdentity() {
  * @return {Function} Action-dispatching thunk.
  */
 export function signOff() {
-    return (dispatch) => {
+    return (dispatch, getState) => {
         deleteFromWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED);
         dispatch({
             type: SIGN_OFF,
@@ -203,10 +253,7 @@ export function signOff() {
                 }
             })
             .catch((error) => {
-                dispatch({
-                    type: SIGN_OFF_ERROR,
-                    error: error.response.data.message,
-                });
+                handleErrorResponse(SIGN_OFF_ERROR, dispatch, getState, error);
             });
     };
 }
@@ -214,3 +261,52 @@ export function signOff() {
 //------------------------------------------------------------------------------
 // Private Implementation Details
 //------------------------------------------------------------------------------
+/**
+ * Handle login-related endpoint error responses.
+ *
+ * @param {string}   errorActionType The action type of the error.
+ * @param {Function} dispatch        Redux dispatch method.
+ * @param {Function} getState        Redux getState method.
+ * @param {Object}   error           The returned error object.
+ */
+function handleErrorResponse(errorActionType, dispatch, getState, error) {
+    const pageId = selectPageId(getState());
+    let showSnackbar = false;
+    let errorMsg;
+
+    // Send the user to the login page.
+    if (pageId !== PAGE_ID_ROOT) {
+        dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
+    }
+
+    if (
+        typeof error.response !== "undefined" &&
+        typeof error.response.status !== "undefined" &&
+        typeof error.response.statusText !== "undefined"
+    ) {
+        if (error.response.status !== 401) {
+            showSnackbar = true;
+        }
+
+        errorMsg = `${error.response.status}: ${error.response.statusText}`;
+    } else if (typeof error.message !== "undefined") {
+        errorMsg = error.message;
+        showSnackbar = true;
+    } else {
+        errorMsg = "Unknown Error";
+        showSnackbar = true;
+    }
+
+    // Dispatch the error into the redux store, and let the rest of the app
+    // know that the user is not authenticated. Update the cached authenticated
+    // flag.
+    dispatch({
+        type: errorActionType,
+        error: errorMsg,
+    });
+    dispatch(setIsAuthenticated(false));
+
+    if (showSnackbar) {
+        dispatch(setSnackbarContentKey(SNACKBAR_NETWORK_ERROR));
+    }
+}

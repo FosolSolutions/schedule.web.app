@@ -23,13 +23,13 @@ module.exports = {
     entry: [
         "react-hot-loader/patch",
         `webpack-hot-middleware/client?path=${devServerPath}/__webpack_hmr`,
-        "./src/entry",
+        "./Client/src/entry",
     ],
 
     mode: "development",
 
     output: {
-        path: path.join(__dirname, "../wwwroot/client"),
+        path: path.join(__dirname, "./wwwroot/client"),
         filename: "bundle.js",
         publicPath: `${devServerPath}/`,
     },
@@ -41,7 +41,7 @@ module.exports = {
 
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".json"],
-        modules: [path.resolve(__dirname, "src/"), "node_modules"],
+        modules: [path.resolve(__dirname, "Client/src/"), "node_modules"],
     },
 
     module: {

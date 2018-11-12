@@ -9,7 +9,11 @@ import { connect } from "react-redux";
 // Redux Support
 //------------------------------------------------------------------------------
 import { selectPageId } from "redux/reducers/uiReducer";
-import { selectIsAuthenticated } from "redux/reducers/userReducer";
+import {
+    selectIsAuthenticated,
+    selectFetchIdentityInProgress,
+    selectLoginInProgress,
+} from "redux/reducers/userReducer";
 import { fetchCalendars } from "redux/actions/calendarsActions";
 import { initUserFromCache } from "redux/actions/userActions";
 import { setPageId } from "redux/actions/uiActions";
@@ -97,7 +101,11 @@ export class App extends React.PureComponent {
     render() {
         const renderAppContent = () => {
             let returnVal;
-            if (!this.props.userIsAuthenticated) {
+            if (
+                !this.props.userIsAuthenticated &&
+                !this.props.loginInProgress &&
+                !this.props.fetchIdentityInProgress
+            ) {
                 returnVal = (
                     <MainContent />
                 );
@@ -119,6 +127,8 @@ export class App extends React.PureComponent {
 export default connect((state) => ({
     calendarsError: selectCalendarsError(state),
     calendarsIsLoading: selectCalendarsIsLoading(state),
+    fetchIdentityInProgress: selectFetchIdentityInProgress(state),
+    loginInProgress: selectLoginInProgress(state),
     pageId: selectPageId(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
@@ -133,6 +143,8 @@ App.propTypes = {
     // -------------------------------------------------------------------------
     calendarsError: PropTypes.string,
     calendarsIsLoading: PropTypes.bool.isRequired,
+    fetchIdentityInProgress: PropTypes.bool.isRequired,
+    loginInProgress: PropTypes.bool.isRequired,
     pageId: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,
 

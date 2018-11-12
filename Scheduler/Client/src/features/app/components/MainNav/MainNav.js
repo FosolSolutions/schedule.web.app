@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
 import classNames from "classnames";
+import format from "date-fns/format";
 
 //------------------------------------------------------------------------------
 // Redux Support
@@ -19,7 +20,9 @@ import {
     selectPageId,
 } from "redux/reducers/uiReducer";
 import {
+    selectFetchIdentityInProgress,
     selectIsAuthenticated,
+    selectSignOffInProgress,
     selectUser,
 } from "redux/reducers/userReducer";
 import {
@@ -30,28 +33,26 @@ import {
 //------------------------------------------------------------------------------
 // Components
 //------------------------------------------------------------------------------
-import Divider from "@material-ui/core/Divider";
 import Drawer from "@material-ui/core/Drawer";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import IconButton from "@material-ui/core/IconButton";
-import AppBar from "@material-ui/core/AppBar";
+import Button from "@material-ui/core/Button";
+import MenuList from "@material-ui/core/MenuList";
 import MenuItem from "@material-ui/core/MenuItem";
+import ScheduleList from "features/app/components/ScheduleList/ScheduleList";
 import TipMenu from "features/ui/components/TipMenu/TipMenu";
-import Toolbar from "@material-ui/core/Toolbar";
 import InitialsAvatar from "features/ui/components/InitialsAvatar/InitialsAvatar";
 
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
-import ArrowBack from "@material-ui/icons/ArrowBack";
-import Assignment from "@material-ui/icons/Assignment";
-import Event from "@material-ui/icons/Event";
-import Home from "@material-ui/icons/Home";
-import MenuIcon from "@material-ui/icons/Menu";
-import coEventLogoBl from "assets/images/logos/coEventLogoBl.svg";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import Event from "@material-ui/icons/EventOutlined";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import Home from "@material-ui/icons/HomeOutlined";
 import coEventLogoWh from "assets/images/logos/coEventLogoWh.svg";
 import styles from "features/app/components/MainNav/mainNav.scss";
 
@@ -63,10 +64,8 @@ import {
     PAGE_ID_CALENDAR,
     PAGE_ID_DASHBOARD,
     PAGE_ID_ROOT,
-    PAGE_ID_SCHEDULES,
 } from "utils/backendConstants";
-import { capitalizeFirstLetterOnly } from "utils/generalUtils";
-import { MenuList } from "@material-ui/core";
+import { stringToHslColor } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
 
@@ -114,116 +113,83 @@ export class MainNav extends React.PureComponent {
 
     render() {
         const user = this.props.user;
-        const fullName = (user === null) ? "" : `${capitalizeFirstLetterOnly(user.getFirstName())} ${capitalizeFirstLetterOnly(user.getLastName())}`;
-        const appBarClassNames = classNames({
-            [styles.appBar]: true,
-            [styles.drawerIsOpen]: this.props.drawerIsOpen,
-        });
-        const appLogoClassNames = classNames({
-            [styles.appLogo]: true,
-            [styles.hide]: this.props.drawerIsOpen,
-        });
-        const drawerPaperClassNames = classNames({
-            [styles.paper]: true,
-            [styles.paperIsOpen]: this.props.drawerIsOpen,
-        });
+        const firstName = (user === null) ? "." : user.getFirstName();
+        const lastName = (user === null) ? "." : user.getLastName();
+        const fullName = (user === null) ? "Loading..." : user.getFullName();
+        const displayName = (user === null) ? "Loading..." : user.getDisplayName();
+        const nameColor = stringToHslColor(fullName, 60, 60);
         const homeNavListClassNames = classNames({
             [styles.listItem]: true,
             [styles.active]: this.props.pageId === PAGE_ID_DASHBOARD,
-        });
-        const schedulesNavListClassNames = classNames({
-            [styles.listItem]: true,
-            [styles.active]: this.props.pageId === PAGE_ID_SCHEDULES,
         });
         const calendarNavListClassNames = classNames({
             [styles.listItem]: true,
             [styles.active]: this.props.pageId === PAGE_ID_CALENDAR,
         });
-        const menuButton = this.props.drawerIsOpen ? (
-            false
-        ) : (
-            <IconButton
-                className={styles.iconButton}
-                onClick={() => this.handleMenuButtonClick()}
-            >
-                <MenuIcon />
-            </IconButton>
-        );
         /**
          * Render the main app navigation.
          *
          * @return {ReactElement[]} Array of navigation elements.
          */
         const appNav = () => [
-            <AppBar
-                className={appBarClassNames}
-                position={"fixed"}
-                key="mainAppBar"
-            >
-                <Toolbar
-                    className={styles.toolbar}
-                    disableGutters={true}>
-                    <div className={styles.leftContainer}>
-                        {menuButton}
-                        <img
-                            className={appLogoClassNames}
-                            src={coEventLogoWh}
-                            alt=""
-                        />
-                    </div>
-                    <div className={styles.rightContainer}>
-                        <IconButton
-                            className={styles.login}
-                            onClick={(e) => this.handleUserMenuClick(e)}
-                        >
-                            <InitialsAvatar />
-                        </IconButton>
-                        <TipMenu
-                            anchorEl={this.state.userMenuAnchorEl}
-                            open={Boolean(this.state.userMenuAnchorEl)}
-                            onClose={() => this.handleUserMenuClose()}
-                        >
-                            <MenuList className={styles.menuList}>
-                                <MenuItem
-                                    className={styles.name}
-                                    disableRipple={true}
-                                >
-                                    {`Hi, ${fullName}`}
-                                </MenuItem>
-                                <Divider />
-                                <MenuItem onClick={() => this.handleSignOutClick()}>
-                                Sign Out
-                                </MenuItem>
-                            </MenuList>
-                        </TipMenu>
-                    </div>
-                </Toolbar>
-            </AppBar>,
             <Drawer
                 className={styles.drawer}
                 classes={{
-                    paper: drawerPaperClassNames,
+                    paper: classNames(styles.paper, styles.noOverflowVert),
                 }}
                 key="navDrawer"
                 open={this.props.drawerIsOpen}
-                onClose={() => this.handleMenuButtonClick()}
-                variant="permanent"
+                variant="persistent"
             >
                 <div className={styles.backHeader}>
-                    <div className={styles.backWrap}>
-                        <img
-                            className={styles.logo}
-                            src={coEventLogoBl}
-                            alt=""
+                    <Button
+                        className={styles.account}
+                        disableRipple
+                        fullWidth={true}
+                        onClick={(e) => this.handleUserMenuClick(e)}
+                    >
+                        <InitialsAvatar
+                            firstName={firstName}
+                            lastName={lastName}
                         />
-                        <IconButton
-                            onClick={() => this.handleMenuButtonClick()}
-                        >
-                            <ArrowBack />
-                        </IconButton>
-                    </div>
+                        <span className={styles.displayName}>
+                            {displayName}
+                            <ExpandMoreIcon fontSize="small"/>
+                        </span>
+                    </Button>
+                    <TipMenu
+                        anchorEl={this.state.userMenuAnchorEl}
+                        open={Boolean(this.state.userMenuAnchorEl)}
+                        onClose={() => this.handleUserMenuClose()}
+                    >
+                        <MenuList className={styles.menuList}>
+                            <MenuItem
+                                className={styles.name}
+                                disableRipple={true}
+                                style={{ backgroundColor: nameColor }}
+                            >
+                                {`Hi, ${fullName}`}
+                            </MenuItem>
+                            <MenuItem
+                                className={styles.menuListItem}
+                                onClick={() => this.handleSignOutClick()}
+                            >
+                                Sign Out
+                                {
+                                    (this.props.signOffInProgress)
+                                        ? (
+                                            <CircularProgress
+                                                className={styles.progress}
+                                                color="primary"
+                                                size={12}
+                                                thickness={6}
+                                            />
+                                        ) : false
+                                }
+                            </MenuItem>
+                        </MenuList>
+                    </TipMenu>
                 </div>
-                <Divider />
                 <List className={styles.list}>
                     <ListItem
                         button
@@ -242,25 +208,6 @@ export class MainNav extends React.PureComponent {
                             Dashboard
                         </ListItemText>
                     </ListItem>
-                    <Divider />
-                    <ListItem
-                        button
-                        className={schedulesNavListClassNames}
-                        onClick={
-                            () => this.props.setPageId(PAGE_ID_SCHEDULES, HISTORY_PUSH)
-                        }
-                    >
-                        <ListItemIcon className={styles.listItemIcon}>
-                            <Assignment />
-                        </ListItemIcon>
-                        <ListItemText
-                            className={styles.listItemText}
-                            disableTypography={true}
-                        >
-                            Schedules
-                        </ListItemText>
-                    </ListItem>
-                    <Divider />
                     <ListItem
                         button
                         className={calendarNavListClassNames}
@@ -278,9 +225,80 @@ export class MainNav extends React.PureComponent {
                             Calendar
                         </ListItemText>
                     </ListItem>
+                    <ScheduleList />
                 </List>
+                <div className={styles.logoWrap}>
+                    <img
+                        className={styles.logo}
+                        src={coEventLogoWh}
+                        alt="CoEvent"
+                    />
+                    <span className={styles.copy}>{`© ${format(new Date(), "yyyy")}`}</span>
+                </div>
             </Drawer>,
         ];
+        /**
+         * Render the main app navigation.
+         *
+         * @return {ReactElement[]} Array of navigation elements.
+         */
+        const appNavEmpty = () => [
+            <Drawer
+                className={styles.drawer}
+                classes={{
+                    paper: classNames(styles.paper, styles.noOverflowVert),
+                }}
+                key="navDrawer"
+                open={this.props.drawerIsOpen}
+                variant="permanent"
+            >
+                <div className={styles.backHeader}>
+                    <Button
+                        className={styles.account}
+                        disableRipple
+                        fullWidth={true}
+                    >
+                        <InitialsAvatar
+                            firstName={firstName}
+                            lastName={lastName}
+                        />
+                        <span className={styles.displayName}>
+                            {displayName}
+                            <ExpandMoreIcon fontSize="small"/>
+                        </span>
+                    </Button>
+                </div>
+                <List className={styles.list}>
+                    {emptyListItem()}
+                    {emptyListItem()}
+                    {emptyListItem()}
+                    {emptyListItem()}
+                </List>
+                <div className={styles.logoWrap}>
+                    <img
+                        className={styles.logo}
+                        src={coEventLogoWh}
+                        alt="CoEvent"
+                    />
+                    <span className={styles.copy}>{`© ${format(new Date(), "yyyy")}`}</span>
+                </div>
+            </Drawer>,
+        ];
+        const emptyListItem = () => (
+            <ListItem
+                button
+                className={styles.emptyListItem}
+            >
+                <div className={styles.emptyListItemContent}>
+                    <LinearProgress
+                        className={styles.emptyProgress}
+                        classes={{
+                            barColorPrimary: styles.emptyProgressBar,
+                        }}
+                    />
+                </div>
+            </ListItem>
+        );
         /**
          * Conditionally render the appropriate main navigation for the current
          * page.
@@ -295,7 +313,11 @@ export class MainNav extends React.PureComponent {
                     returnVal = false;
                     break;
                 default:
-                    returnVal = appNav();
+                    if (this.props.fetchIdentityInProgress) {
+                        returnVal = appNavEmpty();
+                    } else {
+                        returnVal = appNav();
+                    }
             }
 
             return returnVal;
@@ -309,8 +331,10 @@ export class MainNav extends React.PureComponent {
 export default connect((state) => ({
     calendars: selectCalendars(state),
     drawerIsOpen: selectDrawerIsOpen(state),
+    fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     isAuthenticated: selectIsAuthenticated(state),
     pageId: selectPageId(state),
+    signOffInProgress: selectSignOffInProgress(state),
     user: selectUser(state),
 }), {
     backdoorLogin,
@@ -325,8 +349,10 @@ MainNav.propTypes = {
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     drawerIsOpen: PropTypes.bool.isRequired,
+    fetchIdentityInProgress: PropTypes.bool.isRequired,
     isAuthenticated: PropTypes.bool.isRequired,
     pageId: PropTypes.string.isRequired,
+    signOffInProgress: PropTypes.bool.isRequired,
     user: PropTypes.object,
 
     // -------------------------------------------------------------------------

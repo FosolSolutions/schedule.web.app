@@ -55,7 +55,7 @@ export class Dashboard extends React.PureComponent {
 
             this.props.calendars.getAccounts().forEach((account) => {
                 const accountName = account.getName();
-                const accountWords = accountName.split(" ", accountName);
+                const accountWords = accountName.split(" ");
                 const accountColor = stringToHslColor(accountName);
                 const AccountAvatar = withStyles({
                     colorDefault: {
@@ -67,12 +67,13 @@ export class Dashboard extends React.PureComponent {
                 if (accountWords.length > 1) {
                     accountInitials = `${accountWords[0].charAt(0).toUpperCase()}${accountWords[1].charAt(0).toUpperCase()}`;
                 } else {
-                    accountInitials = accountWords.substring(0, 2).toUpperCase();
+                    accountInitials = accountWords.substring(0, 1).toUpperCase();
                 }
 
                 accountsMarkup.push(
                     <Grid
                         item
+                        key={accountName}
                         xs={12}
                         md={6}
                         xl={4}
@@ -93,10 +94,7 @@ export class Dashboard extends React.PureComponent {
                                 title={account.getName()}
                                 subheader="My Calendars"
                             />
-                            <Divider
-                                className={styles.divider}
-                                style={{ color: accountColor }}
-                            />
+                            <Divider style={{ backgroundColor: accountColor }} />
                             <List className={styles.list}>
                                 {renderCalendars()}
                             </List>
@@ -144,14 +142,14 @@ export class Dashboard extends React.PureComponent {
             return calendarsMarkup;
         };
         const renderCalendarsError = () => (
-            <ListItem className={styles.error}>
+            <div className={styles.center}>
                 <ErrorIcon /> Hmm, something's not working.
-            </ListItem>
+            </div>
         );
         const renderCalendarsLoader = () => (
-            <ListItem className={styles.error}>
+            <div className={styles.center}>
                 <CircularProgress />
-            </ListItem>
+            </div>
         );
         const renderAccounts = () => {
             let returnVal;

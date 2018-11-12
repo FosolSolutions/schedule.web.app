@@ -9,21 +9,28 @@
     padding: 65px 0;
 }
 
-.progressWrap {
+.authProgress {
+    color: $baseBackground;
+    margin-left: calc(50% - 20px);
+    margin-top: 20%;
+}
+
+.loginProgress {
+    color: darken($primaryLight, 2.5%);
+    display: block;
+    margin: 0 auto;
     width: 100%;
 }
 
-.progress {
-    color: $secondaryMain;
-    display: block;
-    margin: 0 auto;
+.loginProgressBar {
+    background-color: $secondaryMain;
 }
 
 .loginWindow {
     display: flex;
     flex-wrap: wrap;
     margin: 0 auto;
-    max-width: 375px;
+    max-width: 320px;
 }
 
 .panel {
@@ -32,7 +39,40 @@
 }
 
 .lowEm {
-    background-color: darken($primaryLight, 10%);
+    background-color: darken($primaryLight, 2.5%);
+    padding-bottom: calc(1.25em - 5px);
+}
+
+.loginButton {
+    font-weight: 400;
+    width: 100%;
+
+    &.google {
+        @include button($google, $baseBackground);
+    }
+
+    &.microsoft {
+        @include button($microsoft, $baseBackground);
+    }
+}
+
+.loginButton:first-of-type {
+    margin-bottom: 0.75em;
+}
+
+.socialIcon {
+    font-size: 1.1em;
+    margin-right: 0.5em;
+}
+
+.progressPlaceholder {
+    height: 5px;
+    width: 100%;
+}
+
+.progress {
+    background-color: darken($primaryLight, 2.5%);
+    width: 100%;
 }
 
 .splash {
@@ -61,16 +101,18 @@
 }
 
 .signInHeading {
+    color: $primaryMain;
     font-size: 0.85em;
+    margin-bottom: 1em;
     margin-top: 0;
 }
 
 .linkInstructionWrap {
     display: flex;
-    margin-top: 1em;
 }
 
 .linkInstructionText {
+    font-size: 0.95em;
     margin-left: 0.25em;
 }
 

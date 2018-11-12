@@ -7,8 +7,13 @@
     border-bottom: 1px solid $neutralDark;
     font-size: 115%;
     font-weight: 700;
-    padding: 1em 0;
+    padding: 0.5em 0;
     text-transform: uppercase;
+}
+
+.header .preWrap {
+    padding-left: 0.5em;
+    position: absolute;
 }
 
 .header .leftWrap {

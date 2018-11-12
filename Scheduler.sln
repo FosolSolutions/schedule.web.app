@@ -1,16 +1,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.28010.2048
+VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scheduler", "Scheduler\Scheduler.csproj", "{99A39D34-77CE-4E6A-AC5F-498BD44A4B2B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{66655A24-2ACF-4833-A462-708A5024DE1F}"
-	ProjectSection(SolutionItems) = preProject
-		.gitignore = .gitignore
-		azure-pipelines.yml = azure-pipelines.yml
-		LICENSE = LICENSE
-		README.md = README.md
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +19,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {4B8AD8B0-1D58-47E2-A3BC-4A1BA47D990E}
+		SolutionGuid = {D2EB9845-E13C-47A6-8F4A-F81510856DF1}
 	EndGlobalSection
 EndGlobal

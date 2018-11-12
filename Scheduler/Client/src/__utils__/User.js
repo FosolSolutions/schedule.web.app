@@ -1,3 +1,10 @@
+//------------------------------------------------------------------------------
+// Helpers
+//------------------------------------------------------------------------------
+import { capitalizeFirstLetterOnly } from "utils/generalUtils";
+
+//------------------------------------------------------------------------------
+
 export class User {
     constructor(data) {
         this.id = data.id;
@@ -31,6 +38,14 @@ export class User {
 
     getLastName() {
         return this.lastName;
+    }
+
+    getDisplayName() {
+        return `${capitalizeFirstLetterOnly(this.firstName)} ${capitalizeFirstLetterOnly(this.lastName).charAt(0)}.`;
+    }
+
+    getFullName() {
+        return `${capitalizeFirstLetterOnly(this.firstName)} ${capitalizeFirstLetterOnly(this.lastName)}`;
     }
 
     getOwnedAccounts() {

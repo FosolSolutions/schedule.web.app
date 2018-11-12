@@ -42,29 +42,12 @@ html {
     input:-webkit-autofill {
         border-color: rgb(250, 255, 189) !important;
     }
-
-    @include breakpoint($largeBreakpoint) {
-        font-size: 105%;
-
-        input,
-        textarea,
-        select {
-            font-size: inherit;
-        }
-    }
-
-    @include breakpoint($xlargeBreakpoint) {
-        font-size: 110%;
-    }
-
-    @include breakpoint($xxlargeBreakpoint) {
-        font-size: 120%;
-    }
 }
 
 body {
     font-family: "Open Sans", sans-serif;
     font-weight: 400;
+    height: 100%;
     line-height: 1.45;
     margin: 0;
     padding: 0 !important;

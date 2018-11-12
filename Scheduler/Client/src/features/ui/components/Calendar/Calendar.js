@@ -21,8 +21,10 @@ import classNames from "classnames";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { fetchCalendarInRange } from "redux/actions/calendarsActions";
 import { selectCalendar } from "redux/reducers/calendarReducer";
+import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
+import { setDrawerIsOpen } from "redux/actions/uiActions";
+import { fetchCalendarInRange } from "redux/actions/calendarsActions";
 
 //------------------------------------------------------------------------------
 // Components
@@ -37,6 +39,8 @@ import IconButton from "@material-ui/core/IconButton";
 import styles from "features/ui/components/Calendar/calendar.scss";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
+import FullscreenExitIcon from "@material-ui/icons/FullscreenExit";
+import FullscreenIcon from "@material-ui/icons/Fullscreen";
 
 //------------------------------------------------------------------------------
 
@@ -93,10 +97,20 @@ export class Calendar extends React.PureComponent {
     }
 
     render() {
+        const fullScreenIcon = (this.props.drawerIsOpen)
+            ? <FullscreenIcon />
+            : <FullscreenExitIcon color="secondary" />;
         const renderHeader = () => {
             const dateFormat = "MMMM yyyy";
             return (
                 <div className={styles.header}>
+                    <div className={styles.preWrap}>
+                        <IconButton onClick={
+                            () => this.props.setDrawerIsOpen(!this.props.drawerIsOpen)
+                        }>
+                            {fullScreenIcon}
+                        </IconButton>
+                    </div>
                     <div className={styles.leftWrap}>
                         <Button
                             className={styles.today}
@@ -242,8 +256,10 @@ export class Calendar extends React.PureComponent {
 // Export the redux-connected component
 export default connect((state) => ({
     calendar: selectCalendar(state),
+    drawerIsOpen: selectDrawerIsOpen(state),
 }), {
     fetchCalendarInRange,
+    setDrawerIsOpen,
 })(Calendar);
 
 Calendar.propTypes = {
@@ -252,12 +268,14 @@ Calendar.propTypes = {
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     calendar: PropTypes.object,
+    drawerIsOpen: PropTypes.bool.isRequired,
 
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     fetchCalendarInRange: PropTypes.func.isRequired,
+    setDrawerIsOpen: PropTypes.func.isRequired,
 };
 
 Calendar.defaultProps = {};
