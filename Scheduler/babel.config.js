@@ -17,11 +17,11 @@ module.exports = function babelConfig(api) {
         [
             "module-resolver",
             {
-                root: ["./src"],
+                root: ["./Client/src"],
                 alias: {
-                    assets: "./src/__assets__",
-                    mocks: "./src/__mocks__",
-                    utils: "./src/__utils__",
+                    assets: "./Client/src/__assets__",
+                    mocks: "./Client/src/__mocks__",
+                    utils: "./Client/src/__utils__",
                     modernizr: "./.modernizrrc",
                 },
             },

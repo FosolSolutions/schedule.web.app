@@ -5,13 +5,13 @@
   "main": "index.js",
   "scripts": {
     "webpack:dev": "cross-env NODE_ENV=DEV node webpack.server.js",
-    "app:dev": "cross-env && cd .. && dotnet run",
+    "app:dev": "cross-env dotnet run",
     "build:dev": "concurrently \"npm run webpack:dev\" \"npm run app:dev\"",
     "build:prod": "cross-env npm run lintJS || exit 0 && npm run lintSCSS || exit 0 && npm run bundle",
-    "bundle": "shx rm -rf ../wwwroot/client/* && webpack --config webpack.config.prod.js --mode production || exit 0",
+    "bundle": "shx rm -rf ./wwwroot/client/* && webpack --config webpack.config.prod.js --mode production || exit 0",
     "checkTypes": "tsc",
-    "lintJS": "cross-env eslint --color './src/**/*.js'",
-    "lintSCSS": "cross-env stylelint 'src/**/*.scss' --syntax scss",
+    "lintJS": "cross-env eslint --color './Client/src/**/*.js'",
+    "lintSCSS": "cross-env stylelint './Client/src/**/*.scss' --syntax scss",
     "test": "cross-env NODE_ENV=TEST jest --config jest.config.js",
     "testCoverage": "cross-env NODE_ENV=TEST jest --config jest.config.js --coverage"
   },
