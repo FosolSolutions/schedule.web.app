@@ -12,8 +12,8 @@ const compiler = webpack(config);
 const publicPath = config.output.publicPath;
 const devServerPort = publicPath.match(/(?::)(\d{1,5})/)[1];
 const sslOptions = {
-    key: fs.readFileSync("server.key"),
-    cert: fs.readFileSync("server.crt"),
+    key: fs.readFileSync("Client/server.key"),
+    cert: fs.readFileSync("Client/server.crt"),
 };
 const server = "";
 
