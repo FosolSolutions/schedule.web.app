@@ -4,7 +4,9 @@
   "description": "Scheduling/Calendar Application",
   "main": "index.js",
   "scripts": {
-    "build:dev": "cross-env NODE_ENV=DEV node webpack.server.js & cd .. & dotnet run & cd Client",
+    "webpack:dev": "cross-env NODE_ENV=DEV node webpack.server.js",
+    "app:dev": "cross-env && cd .. && dotnet run && cd Client",
+    "build:dev": "concurrently \"npm run webpack:dev\" \"npm run app:dev\"",
     "build:prod": "cross-env npm run lintJS || exit 0 & npm run lintSCSS || exit 0 & npm run bundle",
     "bundle": "shx rm -rf ../wwwroot/client/* & webpack --config webpack.config.prod.js --mode production || exit 0",
     "checkTypes": "tsc",
@@ -32,6 +34,7 @@
     "babel-plugin-module-resolver": "3.1.1",
     "breakpoint-sass": "2.7.1",
     "compression-webpack-plugin": "2.0.0",
+    "concurrently": "4.0.1",
     "cross-env": "5.2.0",
     "css-loader": "1.0.0",
     "cssnano": "4.1.4",
