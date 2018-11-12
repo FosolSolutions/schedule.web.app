@@ -13,7 +13,7 @@ steps:
 - task: CmdLine@2
   displayName: 'Install node_modules.'
   inputs:
-    script: cd $(Build.Repository.LocalPath)/Scheduler/Client; npm install;
+    script: cd $(Build.Repository.LocalPath)/Scheduler; npm install;
     # In an ideal world this would be true. However, node writes to stderr on
     # warnings, and warnings are extremely common on node installs. Also, if the
     # install actually fails critically, the next build step will fail as well
@@ -22,7 +22,7 @@ steps:
 - task: CmdLine@2
   displayName: 'Build the react client with webpack.'
   inputs:
-    script: cd $(Build.Repository.LocalPath)/Scheduler/Client; npm run build:prod;
+    script: cd $(Build.Repository.LocalPath)/Scheduler; npm run build:prod;
     failOnStderr: true
 - task: DotNetCoreCLI@2
   displayName: 'Publish the .NET project.'
