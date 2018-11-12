@@ -15,7 +15,7 @@ module.exports = {
     // devtool: "source-map",
 
     entry: {
-        app: "./src/entry",
+        app: "./Client/src/entry",
     },
 
     mode: "production",
@@ -48,7 +48,7 @@ module.exports = {
     },
 
     output: {
-        path: path.join(__dirname, "../wwwroot/client/"),
+        path: path.join(__dirname, "./wwwroot/client/"),
         // Append .[chunkhash] after [name] for cache-breaking
         filename: "[name].[chunkhash].js",
         publicPath: "/client/",
@@ -78,7 +78,7 @@ module.exports = {
 
     resolve: {
         extensions: [".js", ".ts", ".scss"],
-        modules: [path.resolve(__dirname, "src/"), "node_modules"],
+        modules: [path.resolve(__dirname, "Client/src/"), "node_modules"],
     },
 
     module: {

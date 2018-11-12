@@ -8,8 +8,8 @@
     "build:prod": "cross-env npm run lintJS || exit 0 && npm run lintSCSS || exit 0 && npm run bundle",
     "bundle": "shx rm -rf ./wwwroot/client/* && webpack --config webpack.config.prod.js --mode production || exit 0",
     "checkTypes": "tsc",
-    "lintJS": "eslint --color './Client/src/**/*.js'",
-    "lintSCSS": "stylelint 'Client/src/**/*.scss' --syntax scss",
+    "lintJS": "cross-env eslint --color './Client/src/**/*.js'",
+    "lintSCSS": "cross-env stylelint './Client/src/**/*.scss' --syntax scss",
     "test": "cross-env NODE_ENV=TEST jest --config jest.config.js",
     "testCoverage": "cross-env NODE_ENV=TEST jest --config jest.config.js --coverage"
   },
@@ -95,5 +95,10 @@
     "react-router-dom": "4.3.1",
     "redux": "4.0.0",
     "redux-thunk": "2.3.0"
+  },
+  "-vs-binding": {
+    "ProjectOpened": [
+      "build:dev"
+    ]
   }
 }

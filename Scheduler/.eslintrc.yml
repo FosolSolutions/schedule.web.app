@@ -227,7 +227,7 @@ rules:
 settings:
   import/resolver:
       babel-module:
-        utils: ./src/__utils__
+        utils: ./Client/src/__utils__
       webpack:
           # Must make ESLint aware of our webpack configuration for base path
           # of imports (import/no-unresolved)
