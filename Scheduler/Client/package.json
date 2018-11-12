@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "webpack:dev": "cross-env NODE_ENV=DEV node webpack.server.js",
-    "app:dev": "cross-env && cd .. && dotnet run && cd Client",
+    "app:dev": "cross-env && cd .. && dotnet run",
     "build:dev": "concurrently \"npm run webpack:dev\" \"npm run app:dev\"",
     "build:prod": "cross-env npm run lintJS || exit 0 && npm run lintSCSS || exit 0 && npm run bundle",
     "bundle": "shx rm -rf ../wwwroot/client/* && webpack --config webpack.config.prod.js --mode production || exit 0",
