@@ -78,7 +78,7 @@ module.exports = {
 
     resolve: {
         extensions: [".js", ".ts", ".scss"],
-        modules: [path.resolve(__dirname, "src/"), "node_modules"],
+        modules: [path.resolve(__dirname, "Client/src/"), "node_modules"],
     },
 
     module: {

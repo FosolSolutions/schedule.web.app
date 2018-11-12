@@ -2,8 +2,6 @@
 *~
 
 # build
-[Oo]bj/
-[Bb]in/
 packages/
 TestResults/
 **/wwwroot/client/**
@@ -12,18 +10,14 @@ TestResults/
 Makefile.in
 *.DS_Store
 *.sln.cache
-*.suo
 *.cache
 *.pidb
-*.userprefs
-*.usertasks
 config.log
 config.make
 config.status
 aclocal.m4
 install-sh
 autom4te.cache/
-*.user
 *.tar.gz
 tarballs/
 test-results/
@@ -45,3 +39,37 @@ jsconfig.json
 # dotCover
 *.dotCover
 **/coverage
+
+
+# Configuration
+connectionstrings.json
+connectionstrings.*.json
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific files (MonoDevelop/Xamarin Studio)
+*.userprefs
+*.usertasks
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json
+**/Properties/**

@@ -1,7 +1,11 @@
 # schedule.web.app
+
 Online schedule web application.
 
 ## Running the application locally
-- Follow instructions in `/Scheduler/Client/README.md` to setup React client and start development server with `npm run build:dev`.
+
+- Follow instructions in `/Scheduler/README.md` to setup `dotnet` project and React client.
+
+- Start development servers (one for `webpack` HMR, one for `dotnet`) by running `npm run build:dev` from `/Scheduler`.
 
 - Visit `https://localhost:5001`.
