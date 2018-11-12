@@ -19,6 +19,7 @@
     <Folder Include="Areas\Admin\Models\" />
     <Folder Include="Areas\Admin\" />
     <Folder Include="Areas\Admin\Views\" />
+    <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="wwwroot\client\" />
     <Folder Include="wwwroot\client\__assets__\" />
     <Folder Include="wwwroot\client\__assets__\fonts\" />
