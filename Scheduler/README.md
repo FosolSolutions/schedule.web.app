@@ -1,6 +1,6 @@
 # Webpack bundling
 
-`%ClientRoot%` = "schedule.web.app/Scheduler/Client"
+`%ClientRoot%` = "schedule.web.app/Scheduler"
 
 ## 1) Install `node`
 Install [`nvm`](https://github.com/creationix/nvm) (Linux/OSX) *OR*
