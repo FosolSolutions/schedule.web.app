@@ -12,23 +12,29 @@ import {
     selectIsAuthenticated,
     selectFetchIdentityInProgress,
     selectLoginInProgress,
+    selectParticipantId,
 } from "redux/reducers/userReducer";
 import { selectPageId } from "redux/reducers/uiReducer";
 import { setPageId } from "redux/actions/uiActions";
 import {
     backdoorLogin,
-    googleLogin,
-    microsoftLogin,
+    participantLogin,
+    setParticipantId,
 } from "redux/actions/userActions";
-import { fetchCalendars } from "redux/actions/calendarsActions";
+import { fetchCalendars } from "redux/actions/calendarActions";
 
 //------------------------------------------------------------------------------
 // Components
 //------------------------------------------------------------------------------
-import Button from "@material-ui/core/Button";
+// OAuth login
+// import Button from "@material-ui/core/Button";
+// import SvgIcon from "@material-ui/core/SvgIcon";
+
 import Card from "@material-ui/core/Card";
 import LinearProgress from "@material-ui/core/LinearProgress";
-import SvgIcon from "@material-ui/core/SvgIcon";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import ValidatedTextField from "features/ui/components/ValidatedTextField/ValidatedTextField";
+
 
 //------------------------------------------------------------------------------
 // Assets
@@ -40,10 +46,16 @@ import LinkIcon from "@material-ui/icons/Link";
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import {
-    SVG_PATH_GOOGLE,
-    SVG_PATH_MICROSOFT,
-} from "utils/constants";
+import { participantKeyValid } from "utils/validatorRules";
+// OAuth login
+// import {
+//     SVG_PATH_GOOGLE,
+//     SVG_PATH_MICROSOFT,
+// } from "utils/constants";
+// import {
+//     PATH_AUTH_GOOGLE,
+//     PATH_AUTH_MICROSOFT,
+// } from "utils/backendConstants";
 
 //------------------------------------------------------------------------------
 
@@ -51,6 +63,16 @@ import {
  * Renders the Authentication page content.
  */
 export class Authentication extends React.Component {
+    constructor(props) {
+        super(props);
+
+        const participantIdInputName = "Participant ID";
+
+        this.participantIdValidatorRules = [
+            participantKeyValid(participantIdInputName),
+        ];
+    }
+
     render() {
         const renderLoginProgress = () => {
             let returnVal = false;
@@ -83,7 +105,7 @@ export class Authentication extends React.Component {
                         alt=""
                     />
                     <h1 className={styles.valueProp}>
-                    Flexible scheduling for teams and organizations.
+                        Flexible scheduling for teams and organizations.
                     </h1>
                     <Card className={styles.loginWindow}>
                         <section className={styles.panel}>
@@ -97,11 +119,22 @@ export class Authentication extends React.Component {
                         </section>
                         <section className={`${styles.panel} ${styles.lowEm}`}>
                             <h2 className={styles.signInHeading}>
-                                Or use another service:
+                                Or, paste and submit your participant ID:
+                                {/* Or use another service: */}
                             </h2>
-                            <Button
+                            <ValidatedTextField
+                                adornmentIcon={<ExitToAppIcon />}
+                                adornmentPosition="end"
+                                adornmentIsButton={true}
+                                label="Participant ID"
+                                syncValidatorRules={this.participantIdValidatorRules}
+                                value={this.props.participantId}
+                                onEnter={this.props.participantLogin}
+                                storeValueSetter={this.props.setParticipantId}
+                            />
+                            {/* <Button
                                 className={`${styles.loginButton} ${styles.google}`}
-                                onClick={() => this.props.googleLogin()}
+                                href={PATH_AUTH_GOOGLE}
                             >
                                 <SvgIcon className={styles.socialIcon}>
                                     <path d={SVG_PATH_GOOGLE} />
@@ -110,13 +143,13 @@ export class Authentication extends React.Component {
                             </Button>
                             <Button
                                 className={`${styles.loginButton} ${styles.microsoft}`}
-                                onClick={() => this.props.microsoftLogin()}
+                                href={PATH_AUTH_MICROSOFT}
                             >
                                 <SvgIcon className={styles.socialIcon}>
                                     <path d={SVG_PATH_MICROSOFT} />
                                 </SvgIcon>
                                 Sign in with Microsoft
-                            </Button>
+                            </Button> */}
                         </section>
                         {renderLoginProgress()}
                     </Card>
@@ -131,13 +164,14 @@ export default connect((state) => ({
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     loginInProgress: selectLoginInProgress(state),
     pageId: selectPageId(state),
+    participantId: selectParticipantId(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
     backdoorLogin,
     fetchCalendars,
-    googleLogin,
-    microsoftLogin,
+    participantLogin,
     setPageId,
+    setParticipantId,
 })(Authentication);
 
 Authentication.propTypes = {
@@ -147,6 +181,7 @@ Authentication.propTypes = {
     // Redux -------------------------------------------------------------------
     fetchIdentityInProgress: PropTypes.bool.isRequired,
     loginInProgress: PropTypes.bool.isRequired,
+    participantId: PropTypes.string.isRequired,
     pageId: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,
 
@@ -155,7 +190,7 @@ Authentication.propTypes = {
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     backdoorLogin: PropTypes.func.isRequired,
-    googleLogin: PropTypes.func.isRequired,
+    participantLogin: PropTypes.func.isRequired,
     setPageId: PropTypes.func.isRequired,
-    microsoftLogin: PropTypes.func.isRequired,
+    setParticipantId: PropTypes.func.isRequired,
 };

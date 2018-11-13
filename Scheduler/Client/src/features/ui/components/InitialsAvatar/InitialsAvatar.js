@@ -23,10 +23,9 @@ import { stringToHslColor } from "utils/generalUtils";
  */
 export default class InitialsAvatar extends React.PureComponent {
     render() {
-        const fullName = `${this.props.firstName} ${this.props.lastName}`;
         const UserAvatar = withStyles({
             colorDefault: {
-                backgroundColor: stringToHslColor(fullName, 60, 60),
+                backgroundColor: this.props.avatarColor,
             },
         })(Avatar);
         return (
@@ -43,11 +42,13 @@ InitialsAvatar.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
+    avatarColor: PropTypes.string,
     firstName: PropTypes.string,
     lastName: PropTypes.string,
 };
 
 InitialsAvatar.defaultProps = {
+    avatarColor: stringToHslColor("AnonymousUser", 60, 70),
     firstName: "Anonymous",
     lastName: "User",
 };

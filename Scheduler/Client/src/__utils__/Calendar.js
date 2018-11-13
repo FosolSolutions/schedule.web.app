@@ -3,6 +3,7 @@
 //------------------------------------------------------------------------------
 import { CalendarEvents } from "utils/CalendarEvents";
 import { EventCriterion } from "utils/EventCriterion";
+import { stringToHslColor } from "./generalUtils";
 
 //------------------------------------------------------------------------------
 
@@ -28,6 +29,7 @@ export class Calendar {
 
         // Hardcoded properties
         this.accountName = "Victoria Christadelphians";
+        this.accountColor = stringToHslColor(this.accountName);
     }
 
     getId() {
@@ -36,6 +38,10 @@ export class Calendar {
 
     getKey() {
         return this.key;
+    }
+
+    getAccountColor() {
+        return this.accountColor;
     }
 
     getAccountId() {

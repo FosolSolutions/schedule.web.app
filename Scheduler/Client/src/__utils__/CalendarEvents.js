@@ -2,6 +2,7 @@
 // Helpers
 //------------------------------------------------------------------------------
 import isSameDay from "date-fns/isSameDay";
+import isWithinInterval from "date-fns/isWithinInterval";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -18,6 +19,8 @@ import { CalendarEvent } from "utils/CalendarEvent";
 
 export class CalendarEvents {
     constructor(data) {
+        const eventTypesArray = [];
+
         this.all = [];
         this.bibleClassEvents = [];
         this.bibleTalkEvents = [];
@@ -32,23 +35,33 @@ export class CalendarEvents {
 
             switch (event.getName()) {
                 case EVENT_NAME_BIBLE_CLASS:
-                    this.eventTypes.add(EVENT_NAME_BIBLE_CLASS);
+                    eventTypesArray.push(EVENT_NAME_BIBLE_CLASS);
                     this.bibleClassEvents.push(event);
                     break;
                 case EVENT_NAME_BIBLE_TALK:
-                    this.eventTypes.add(EVENT_NAME_BIBLE_TALK);
+                    eventTypesArray.push(EVENT_NAME_BIBLE_TALK);
                     this.bibleTalkEvents.push(event);
                     break;
                 case EVENT_NAME_HALL_CLEANING:
-                    this.eventTypes.add(EVENT_NAME_HALL_CLEANING);
+                    eventTypesArray.push(EVENT_NAME_HALL_CLEANING);
                     this.hallCleaningEvents.push(event);
                     break;
                 case EVENT_NAME_MEMORIAL_MEETING:
-                    this.eventTypes.add(EVENT_NAME_MEMORIAL_MEETING);
+                    eventTypesArray.push(EVENT_NAME_MEMORIAL_MEETING);
                     this.memorialMeetingEvents.push(event);
                     break;
                 default:
             }
+        });
+
+        eventTypesArray.sort((a, b) => {
+            if (a < b) { return -1; }
+            if (a > b) { return 1; }
+            return 0;
+        });
+
+        eventTypesArray.forEach((eventType) => {
+            this.eventTypes.add(eventType);
         });
     }
 
@@ -88,7 +101,7 @@ export class CalendarEvents {
     }
 
     /**
-     * @return {Set} Memorial meeting events.
+     * @return {Array} Memorial meeting events.
      */
     getMemorialMeetingEvents() {
         return this.memorialMeetingEvents;
@@ -96,9 +109,26 @@ export class CalendarEvents {
 
     /**
      * @param  {Date} date The date to get events for.
-     * @return {Set}       All events for the .
+     * @return {Array}     All events for the passed date.
      */
     getAllByDay(date) {
         return this.all.filter((event) => isSameDay(date, event.getStartDate()));
+    }
+
+    /**
+     * @param  {Date} startOn The start date to get events for.
+     * @param  {Date} endOn   The end date to get events for.
+     * @return {Set}          All events for the passed date range.
+     */
+    getAllByRange(startOn, endOn) {
+        return this.all.filter(
+            (event) => isWithinInterval(
+                event.getStartDate(),
+                {
+                    start: startOn,
+                    end: endOn,
+                },
+            ),
+        );
     }
 }

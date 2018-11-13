@@ -117,7 +117,9 @@ export class MainNav extends React.PureComponent {
         const lastName = (user === null) ? "." : user.getLastName();
         const fullName = (user === null) ? "Loading..." : user.getFullName();
         const displayName = (user === null) ? "Loading..." : user.getDisplayName();
-        const nameColor = stringToHslColor(fullName, 60, 60);
+        const nameColor = (user === null)
+            ? stringToHslColor(fullName, 60, 70)
+            : user.getAvatarColor();
         const homeNavListClassNames = classNames({
             [styles.listItem]: true,
             [styles.active]: this.props.pageId === PAGE_ID_DASHBOARD,
@@ -149,6 +151,7 @@ export class MainNav extends React.PureComponent {
                         onClick={(e) => this.handleUserMenuClick(e)}
                     >
                         <InitialsAvatar
+                            avatarColor={nameColor}
                             firstName={firstName}
                             lastName={lastName}
                         />
@@ -161,6 +164,7 @@ export class MainNav extends React.PureComponent {
                         anchorEl={this.state.userMenuAnchorEl}
                         open={Boolean(this.state.userMenuAnchorEl)}
                         onClose={() => this.handleUserMenuClose()}
+                        placement="bottom-start"
                     >
                         <MenuList className={styles.menuList}>
                             <MenuItem
@@ -259,6 +263,7 @@ export class MainNav extends React.PureComponent {
                         fullWidth={true}
                     >
                         <InitialsAvatar
+                            avatarColor={nameColor}
                             firstName={firstName}
                             lastName={lastName}
                         />

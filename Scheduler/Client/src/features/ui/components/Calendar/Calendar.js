@@ -24,7 +24,6 @@ import classNames from "classnames";
 import { selectCalendar } from "redux/reducers/calendarReducer";
 import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
 import { setDrawerIsOpen } from "redux/actions/uiActions";
-import { fetchCalendarInRange } from "redux/actions/calendarsActions";
 
 //------------------------------------------------------------------------------
 // Components
@@ -55,20 +54,6 @@ export class Calendar extends React.PureComponent {
             currentMonth: new Date(),
             selectedDate: new Date(),
         };
-
-        props.fetchCalendarInRange(
-            startOfMonth(this.state.currentMonth),
-            endOfMonth(this.state.currentMonth),
-        );
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (!isSameMonth(this.state.currentMonth, prevState.currentMonth)) {
-            this.props.fetchCalendarInRange(
-                startOfMonth(this.state.currentMonth),
-                endOfMonth(this.state.currentMonth),
-            );
-        }
     }
 
     onDateClick(day) {
@@ -228,16 +213,25 @@ export class Calendar extends React.PureComponent {
                     [styles.past]: isBefore(day, this.state.selectedDate),
                 });
 
-                eventsMarkup.push(
-                    (
-                        <div
-                            className={eventClassNames}
-                            key={eventName}
-                        >
-                            {eventName}
-                        </div>
-                    ),
-                );
+                if (isSameMonth(this.state.currentMonth, event.getStartDate())) {
+                    eventsMarkup.push(
+                        (
+                            <div
+                                className={eventClassNames}
+                                key={eventName}
+                            >
+                                <i
+                                    className={styles.accountDot}
+                                    style={{
+                                        backgroundColor:
+                                            this.props.calendar.getAccountColor(),
+                                    }}
+                                />
+                                {eventName}
+                            </div>
+                        ),
+                    );
+                }
             });
 
             return eventsMarkup;
@@ -258,7 +252,6 @@ export default connect((state) => ({
     calendar: selectCalendar(state),
     drawerIsOpen: selectDrawerIsOpen(state),
 }), {
-    fetchCalendarInRange,
     setDrawerIsOpen,
 })(Calendar);
 
@@ -274,7 +267,6 @@ Calendar.propTypes = {
     // Method propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
-    fetchCalendarInRange: PropTypes.func.isRequired,
     setDrawerIsOpen: PropTypes.func.isRequired,
 };
 

@@ -1,0 +1,22 @@
+@import "../../../../__assets__/styles/sassResources";
+
+.textField {
+    margin-bottom: 0;
+    margin-top: 0;
+    width: 100%;
+}
+
+.textField.error {
+    border-color: $errorMain;
+}
+
+.input {
+    padding-right: 0.25em;
+}
+
+.validationError {
+    color: $errorMain;
+    display: block;
+    font-size: 0.8em;
+    margin-top: 0.2em;
+}

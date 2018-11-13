@@ -56,7 +56,7 @@
     cursor: pointer;
     flex-basis: calc(100% / 7);
     flex-grow: 0;
-    height: 8em;
+    height: 10em;
     overflow: hidden;
     padding-top: 2em;
     position: relative;
@@ -126,15 +126,25 @@
 }
 
 .event {
-    background: darken($secondaryMain, 10%);
-    border-bottom: 1px solid $baseBackground;
-    color: $baseBackground;
-    font-size: 72.5%;
+    font-size: 80%;
+    overflow: hidden;
     padding: 0.15em 0.25em;
+    position: relative;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     width: 100%;
 }
 
 .event.past {
     background: $secondaryLight;
     color: $baseText;
+}
+
+.event .accountDot {
+    border-radius: 50%;
+    display: inline-block;
+    height: 8px;
+    margin: 0 0.25em;
+    position: relative;
+    width: 8px;
 }

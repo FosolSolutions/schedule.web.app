@@ -8,6 +8,15 @@
     text-transform: uppercase;
 }
 
+.accountDot {
+    border-radius: 50%;
+    display: inline-block;
+    height: 9px;
+    margin-right: 0.35em;
+    position: relative;
+    width: 9px;
+}
+
 .menuListItem {
     @include dropdownListItem;
 }

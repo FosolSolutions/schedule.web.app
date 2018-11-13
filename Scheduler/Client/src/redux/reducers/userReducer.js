@@ -20,6 +20,7 @@ import {
     FETCH_IDENTITY_FAILURE,
     FETCH_IDENTITY_SUCCESS,
     SET_IS_AUTHENTICATED,
+    SET_PARTICIPANT_ID,
     SET_USER,
 } from "redux/actionTypes";
 
@@ -30,11 +31,10 @@ import {
 //------------------------------------------------------------------------------
 
 export const initialUserState = {
-    fetchIdentityError: false,
+    error: null,
     fetchIdentityInProgress: false,
-    loginError: null,
     loginInProgress: false,
-    signOffError: null,
+    participantId: "",
     signOffInProgress: false,
 
     isAuthenticated: false,
@@ -65,21 +65,21 @@ export default function userReducer(
             returnVal = update(state, {
                 isAuthenticated: { $set: false },
                 loginInProgress: { $set: false },
-                loginError: { $set: action.error },
+                error: { $set: action.error },
             });
             break;
         case LOGIN_FAILURE:
             returnVal = update(state, {
                 isAuthenticated: { $set: false },
                 loginInProgress: { $set: false },
-                loginError: { $set: null },
+                error: { $set: null },
             });
             break;
         case LOGIN_SUCCESS:
             returnVal = update(state, {
                 isAuthenticated: { $set: true },
                 loginInProgress: { $set: false },
-                loginError: { $set: null },
+                error: { $set: null },
             });
             break;
         case SIGN_OFF:
@@ -90,20 +90,21 @@ export default function userReducer(
         case SIGN_OFF_ERROR:
             returnVal = update(state, {
                 signOffInProgress: { $set: false },
-                signOffError: { $set: action.error },
+                error: { $set: action.error },
             });
             break;
         case SIGN_OFF_FAILURE:
             returnVal = update(state, {
                 signOffInProgress: { $set: false },
-                signOffError: { $set: null },
+                error: { $set: null },
             });
             break;
         case SIGN_OFF_SUCCESS:
             returnVal = update(state, {
                 isAuthenticated: { $set: false },
+                participantId: { $set: "" },
                 signOffInProgress: { $set: false },
-                signOffError: { $set: null },
+                error: { $set: null },
             });
             break;
         case FETCH_IDENTITY:
@@ -114,25 +115,30 @@ export default function userReducer(
         case FETCH_IDENTITY_ERROR:
             returnVal = update(state, {
                 fetchIdentityInProgress: { $set: false },
-                fetchIdentityError: { $set: action.error },
+                error: { $set: action.error },
             });
             break;
         case FETCH_IDENTITY_FAILURE:
             returnVal = update(state, {
                 fetchIdentityInProgress: { $set: false },
-                fetchIdentityError: { $set: null },
+                error: { $set: null },
             });
             break;
         case FETCH_IDENTITY_SUCCESS:
             returnVal = update(state, {
                 isAuthenticated: { $set: true },
                 fetchIdentityInProgress: { $set: false },
-                fetchIdentityError: { $set: null },
+                error: { $set: null },
             });
             break;
         case SET_IS_AUTHENTICATED:
             returnVal = update(state, {
                 isAuthenticated: { $set: action.isAuthenticated },
+            });
+            break;
+        case SET_PARTICIPANT_ID:
+            returnVal = update(state, {
+                participantId: { $set: action.participantId },
             });
             break;
         case SET_USER:
@@ -171,14 +177,14 @@ export function selectIsAuthenticated(state) {
 }
 
 /**
- * loginError selector
+ * error selector
  *
  * @param  {Object} state Store state object
  *
- * @return {Object}       The login error
+ * @return {Object}       The error
  */
-export function selectLoginError(state) {
-    return state.user.loginError;
+export function selectUserError(state) {
+    return state.user.error;
 }
 
 /**
@@ -190,6 +196,17 @@ export function selectLoginError(state) {
  */
 export function selectLoginInProgress(state) {
     return state.user.loginInProgress;
+}
+
+/**
+ * participantId selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {string}       The participantId
+ */
+export function selectParticipantId(state) {
+    return state.user.participantId;
 }
 
 /**

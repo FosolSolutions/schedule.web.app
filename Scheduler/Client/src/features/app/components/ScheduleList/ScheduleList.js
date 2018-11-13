@@ -9,6 +9,7 @@ import classNames from "classnames";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
+import { selectCalendar } from "redux/reducers/calendarReducer";
 import { selectPageId } from "redux/reducers/uiReducer";
 import { setPageId } from "redux/actions/uiActions";
 
@@ -34,6 +35,7 @@ import AssignmentIconFilled from "@material-ui/icons/Assignment";
 //------------------------------------------------------------------------------
 import { HISTORY_PUSH } from "utils/constants";
 import { PAGE_ID_SCHEDULES } from "utils/backendConstants";
+import { stringToHslColor } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
 
@@ -47,9 +49,50 @@ export class ScheduleList extends React.PureComponent {
             [styles.active]: this.props.pageId === PAGE_ID_SCHEDULES,
         });
 
+        const accountName = (this.props.calendar !== null)
+            ? this.props.calendar.getAccountName()
+            : "Loading...";
+        const accountColor = (this.props.calendar !== null)
+            ? this.props.calendar.getAccountColor()
+            : stringToHslColor(accountName);
+        const renderEventTypes = () => {
+            const eventTypes = (this.props.calendar !== null)
+                ? this.props.calendar.getEvents().getEventTypes()
+                : [];
+            const eventTypeMarkup = [];
+
+            eventTypes.forEach((eventType) => {
+                eventTypeMarkup.push(
+                    <ListItem
+                        button
+                        className={styles.expansionListItem}
+                        key={`${eventType}ListItem`}
+                    >
+                        <ListItemIcon className={styles.listItemIcon}>
+                            <AssignmentIconFilled fontSize="small"/>
+                        </ListItemIcon>
+                        <ListItemText
+                            className={styles.listItemText}
+                            disableTypography={true}
+                        >
+                            {eventType}
+                        </ListItemText>
+                    </ListItem>,
+                );
+            });
+
+            return eventTypeMarkup;
+        };
+
         return (
             <div>
-                <h4 className={styles.orgHeading}>Victoria Christadelphians</h4>
+                <h4 className={styles.orgHeading}>
+                    <i
+                        className={styles.accountDot}
+                        style={{ backgroundColor: accountColor }}
+                    />
+                    {accountName}
+                </h4>
                 <ExpansionPanel
                     className={styles.expansionPanel}
                     expanded={true}
@@ -80,62 +123,7 @@ export class ScheduleList extends React.PureComponent {
                         </ListItem>
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails className={styles.expansionPanelDetails}>
-                        <ListItem
-                            button
-                            className={styles.expansionListItem}
-                        >
-                            <ListItemIcon className={styles.listItemIcon}>
-                                <AssignmentIconFilled fontSize="small"/>
-                            </ListItemIcon>
-                            <ListItemText
-                                className={styles.listItemText}
-                                disableTypography={true}
-                            >
-                                    Bible Talk
-                            </ListItemText>
-                        </ListItem>
-                        <ListItem
-                            button
-                            className={styles.expansionListItem}
-                        >
-                            <ListItemIcon className={styles.listItemIcon}>
-                                <AssignmentIconFilled fontSize="small"/>
-                            </ListItemIcon>
-                            <ListItemText
-                                className={styles.listItemText}
-                                disableTypography={true}
-                            >
-                                    Bible Class
-                            </ListItemText>
-                        </ListItem>
-                        <ListItem
-                            button
-                            className={styles.expansionListItem}
-                        >
-                            <ListItemIcon className={styles.listItemIcon}>
-                                <AssignmentIconFilled fontSize="small"/>
-                            </ListItemIcon>
-                            <ListItemText
-                                className={styles.listItemText}
-                                disableTypography={true}
-                            >
-                                    Memorial Meeting
-                            </ListItemText>
-                        </ListItem>
-                        <ListItem
-                            button
-                            className={styles.expansionListItem}
-                        >
-                            <ListItemIcon className={styles.listItemIcon}>
-                                <AssignmentIconFilled fontSize="small"/>
-                            </ListItemIcon>
-                            <ListItemText
-                                className={styles.listItemText}
-                                disableTypography={true}
-                            >
-                                    Hall Cleaning
-                            </ListItemText>
-                        </ListItem>
+                        {renderEventTypes()}
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
             </div>
@@ -145,6 +133,7 @@ export class ScheduleList extends React.PureComponent {
 
 // Export the redux-connected component
 export default connect((state) => ({
+    calendar: selectCalendar(state),
     pageId: selectPageId(state),
 }), {
     setPageId,
@@ -155,6 +144,7 @@ ScheduleList.propTypes = {
     // Data propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
+    calendar: PropTypes.object,
     pageId: PropTypes.string.isRequired,
 
     // -------------------------------------------------------------------------

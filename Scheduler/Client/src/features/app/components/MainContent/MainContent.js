@@ -17,6 +17,7 @@ import {
     selectSnackbarContentKey,
 } from "redux/reducers/uiReducer";
 import {
+    selectUserError,
     selectFetchIdentityInProgress,
     selectIsAuthenticated,
 } from "redux/reducers/userReducer";
@@ -47,7 +48,10 @@ import {
     PAGE_ID_CALENDAR,
     PAGE_ID_SCHEDULES,
 } from "utils/backendConstants";
-import { SNACKBAR_NETWORK_ERROR } from "utils/constants";
+import {
+    SNACKBAR_NETWORK_ERROR,
+    SNACKBAR_DYNAMIC_USER_ERROR,
+} from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -98,6 +102,10 @@ export class MainContent extends React.Component {
                     case SNACKBAR_NETWORK_ERROR:
                         snackbarClassNames = `${styles.errorSnack}`;
                         snackbarText = "Sorry, we're having network problems.";
+                        break;
+                    case SNACKBAR_DYNAMIC_USER_ERROR:
+                        snackbarClassNames = `${styles.errorSnack}`;
+                        snackbarText = this.props.userError;
                         break;
                     default:
                 }
@@ -162,6 +170,7 @@ export default connect((state) => ({
     drawerIsOpen: selectDrawerIsOpen(state),
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     pageId: selectPageId(state),
+    userError: selectUserError(state),
     snackbarContentKey: selectSnackbarContentKey(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
@@ -178,6 +187,7 @@ MainContent.propTypes = {
     fetchIdentityInProgress: PropTypes.bool.isRequired,
     pageId: PropTypes.string.isRequired,
     snackbarContentKey: PropTypes.string.isRequired,
+    userError: PropTypes.string,
     userIsAuthenticated: PropTypes.bool.isRequired,
 
     // -------------------------------------------------------------------------

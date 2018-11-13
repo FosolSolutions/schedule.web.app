@@ -21,8 +21,10 @@ import {
     SIGN_OFF_FAILURE,
     SIGN_OFF_SUCCESS,
     SET_IS_AUTHENTICATED,
+    SET_PARTICIPANT_ID,
 } from "redux/actionTypes";
 import { selectPageId } from "redux/reducers/uiReducer";
+import { selectParticipantId } from "redux/reducers/userReducer";
 import {
     setPageId,
     setSnackbarContentKey,
@@ -34,9 +36,8 @@ import {
 import { User } from "utils/User";
 import {
     PATH_AUTH_BACKDOOR,
-    PATH_AUTH_GOOGLE,
-    PATH_AUTH_MICROSOFT,
     PATH_AUTH_IDENTITY,
+    PATH_AUTH_PARTICIPANT,
     PATH_AUTH_SIGN_OFF,
     PAGE_ID_DASHBOARD,
     PAGE_ID_ROOT,
@@ -51,6 +52,7 @@ import {
     HISTORY_REPLACE,
     LOCAL_STORAGE,
     SNACKBAR_NETWORK_ERROR,
+    SNACKBAR_DYNAMIC_USER_ERROR,
 } from "utils/constants";
 
 //------------------------------------------------------------------------------
@@ -88,6 +90,20 @@ export function setUser(user) {
     return {
         type: SET_USER,
         user,
+    };
+}
+
+/**
+ * Set the participantId in the store.
+ *
+ * @param  {User} participantId The user.
+ *
+ * @return {Object}             Action object.
+ */
+export function setParticipantId(participantId = "") {
+    return {
+        type: SET_PARTICIPANT_ID,
+        participantId,
     };
 }
 
@@ -144,48 +160,37 @@ export function backdoorLogin() {
 }
 
 /**
- * Login the user using the authentication back door.
+ * Log the user in with the participant ID.
  *
  * @return {Function} Action-dispatching thunk.
  */
-export function googleLogin() {
+export function participantLogin() {
     return (dispatch, getState) => {
+        const participantId = selectParticipantId(getState());
+        const PATH = `${PATH_AUTH_PARTICIPANT}/${participantId}`;
+
         dispatch({
             type: LOGIN,
         });
 
         axios({
             method: "get",
-            url: PATH_AUTH_GOOGLE,
+            url: PATH,
             withCredentials: true,
         })
-            .then(() => {
-                // Note sure what response to expect here yet due to CORS issues
-            })
-            .catch((error) => {
-                handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
-            });
-    };
-}
+            .then((response) => {
+                const pageId = selectPageId(getState());
 
-/**
- * Login the user using the authentication back door.
- *
- * @return {Function} Action-dispatching thunk.
- */
-export function microsoftLogin() {
-    return (dispatch, getState) => {
-        dispatch({
-            type: LOGIN,
-        });
-
-        axios({
-            method: "get",
-            url: PATH_AUTH_MICROSOFT,
-            withCredentials: true,
-        })
-            .then(() => {
-                // Note sure what response to expect here yet due to CORS issues
+                if (response.status === 200) {
+                    dispatch({ type: LOGIN_SUCCESS });
+                    dispatch(setUser(new User(response.data)));
+                    writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
+                    if (pageId === PAGE_ID_ROOT) {
+                        dispatch(setPageId(PAGE_ID_DASHBOARD, HISTORY_REPLACE));
+                    }
+                } else {
+                    dispatch({ type: LOGIN_FAILURE });
+                }
             })
             .catch((error) => {
                 handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
@@ -272,6 +277,7 @@ export function signOff() {
 function handleErrorResponse(errorActionType, dispatch, getState, error) {
     const pageId = selectPageId(getState());
     let showSnackbar = false;
+    let dynamicSnackbarError = false;
     let errorMsg;
 
     // Send the user to the login page.
@@ -279,7 +285,11 @@ function handleErrorResponse(errorActionType, dispatch, getState, error) {
         dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
     }
 
-    if (
+    if (typeof error.response !== "undefined" && typeof error.response.data !== "undefined") {
+        errorMsg = error.response.data.message;
+        dynamicSnackbarError = true;
+        showSnackbar = true;
+    } else if (
         typeof error.response !== "undefined" &&
         typeof error.response.status !== "undefined" &&
         typeof error.response.statusText !== "undefined"
@@ -289,7 +299,7 @@ function handleErrorResponse(errorActionType, dispatch, getState, error) {
         }
 
         errorMsg = `${error.response.status}: ${error.response.statusText}`;
-    } else if (typeof error.message !== "undefined") {
+    } else if (typeof error.message !== "undefined" && typeof errorMsg !== "undefined") {
         errorMsg = error.message;
         showSnackbar = true;
     } else {
@@ -307,6 +317,10 @@ function handleErrorResponse(errorActionType, dispatch, getState, error) {
     dispatch(setIsAuthenticated(false));
 
     if (showSnackbar) {
-        dispatch(setSnackbarContentKey(SNACKBAR_NETWORK_ERROR));
+        if (dynamicSnackbarError) {
+            dispatch(setSnackbarContentKey(SNACKBAR_DYNAMIC_USER_ERROR));
+        } else {
+            dispatch(setSnackbarContentKey(SNACKBAR_NETWORK_ERROR));
+        }
     }
 }

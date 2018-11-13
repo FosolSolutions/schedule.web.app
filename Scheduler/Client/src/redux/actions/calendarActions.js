@@ -126,6 +126,20 @@ export function fetchCalendarInRange(startOn = null, endOn) {
     };
 }
 
+/**
+ * Hard-coded convenience method for 2019 Ecclesial schedule.
+ *
+ * @return {Function} Action-dispatching thunk.
+ */
+export function fetchEcclesialCalendar() {
+    return (dispatch) => {
+        const startDateJan2019 = new Date(2019, 0, 1);
+        const endDateJun2019 = new Date(2019, 6, 1);
+
+        dispatch(fetchCalendarInRange(startDateJan2019, endDateJun2019));
+    };
+}
+
 //------------------------------------------------------------------------------
 // Private Implementation Details
 //------------------------------------------------------------------------------

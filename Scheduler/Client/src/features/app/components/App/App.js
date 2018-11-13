@@ -14,13 +14,10 @@ import {
     selectFetchIdentityInProgress,
     selectLoginInProgress,
 } from "redux/reducers/userReducer";
-import { fetchCalendars } from "redux/actions/calendarsActions";
+import { fetchEcclesialCalendar } from "redux/actions/calendarActions";
 import { initUserFromCache } from "redux/actions/userActions";
 import { setPageId } from "redux/actions/uiActions";
-import {
-    selectCalendarsIsLoading,
-    selectCalendarsError,
-} from "redux/reducers/calendarReducer";
+import { selectCalendarError } from "redux/reducers/calendarReducer";
 
 //------------------------------------------------------------------------------
 // Components
@@ -56,7 +53,7 @@ export class App extends React.PureComponent {
     }
 
     componentDidMount() {
-        this.props.fetchCalendars();
+        this.props.fetchEcclesialCalendar();
         this.props.initUserFromCache();
 
         window.addEventListener("popstate", this.handlePopState.bind(this));
@@ -64,8 +61,8 @@ export class App extends React.PureComponent {
 
     componentDidUpdate(prevProps) {
         if (this.props.userIsAuthenticated && !prevProps.userIsAuthenticated) {
-            if (this.props.calendarsError !== null) {
-                this.props.fetchCalendars();
+            if (this.props.calendarError !== null) {
+                this.props.fetchEcclesialCalendar();
             }
 
             if (this.props.pageId === PAGE_ID_ROOT) {
@@ -125,14 +122,13 @@ export class App extends React.PureComponent {
 
 // Export the redux-connected component
 export default connect((state) => ({
-    calendarsError: selectCalendarsError(state),
-    calendarsIsLoading: selectCalendarsIsLoading(state),
+    calendarError: selectCalendarError(state),
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     loginInProgress: selectLoginInProgress(state),
     pageId: selectPageId(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
-    fetchCalendars,
+    fetchEcclesialCalendar,
     initUserFromCache,
     setPageId,
 })(App);
@@ -141,8 +137,7 @@ App.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
-    calendarsError: PropTypes.string,
-    calendarsIsLoading: PropTypes.bool.isRequired,
+    calendarError: PropTypes.string,
     fetchIdentityInProgress: PropTypes.bool.isRequired,
     loginInProgress: PropTypes.bool.isRequired,
     pageId: PropTypes.string.isRequired,
@@ -151,7 +146,7 @@ App.propTypes = {
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
-    fetchCalendars: PropTypes.func.isRequired,
+    fetchEcclesialCalendar: PropTypes.func.isRequired,
     initUserFromCache: PropTypes.func.isRequired,
     setPageId: PropTypes.func.isRequired,
 };

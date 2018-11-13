@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { capitalizeFirstLetterOnly } from "utils/generalUtils";
+import { capitalizeFirstLetterOnly, stringToHslColor } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
 
@@ -18,6 +18,12 @@ export class User {
         this.oauthAccounts = data.oauthAccounts;
         this.addedOn = data.addedOn;
         this.rowVersion = data.rowVersion;
+
+        this.avatarColor = stringToHslColor(`${this.firstName}${this.lastName}`, 60, 70);
+    }
+
+    getAvatarColor() {
+        return this.avatarColor;
     }
 
     getId() {

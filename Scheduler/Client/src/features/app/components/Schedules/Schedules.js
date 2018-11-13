@@ -14,7 +14,7 @@ import {
     selectCalendar,
     selectCalendarError,
 } from "redux/reducers/calendarReducer";
-import { fetchCalendarInRange } from "redux/actions/calendarsActions";
+import { fetchCalendarInRange } from "redux/actions/calendarActions";
 
 //------------------------------------------------------------------------------
 // Components
