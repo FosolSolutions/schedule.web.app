@@ -7,7 +7,7 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import classNames from "classnames";
 import format from "date-fns/format";
-import isBefore from "date-fns/isBefore";
+import isSameDay from "date-fns/isSameDay";
 import { Route } from "react-router-dom";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core";
 
@@ -88,7 +88,7 @@ export class Schedules extends React.Component {
             fixTableHead: false,
         };
 
-        if (props.calendar !== null && this.props.events === null) {
+        if (props.calendar !== null && props.events === null) {
             this.loadSchedule();
         }
 
@@ -101,7 +101,10 @@ export class Schedules extends React.Component {
             this.loadSchedule();
         }
 
-        if (isBefore(prevProps.scheduleEndDate, this.props.scheduleEndDate)) {
+        if (
+            !isSameDay(prevProps.scheduleEndDate, this.props.scheduleEndDate) ||
+            !isSameDay(prevProps.scheduleStartDate, this.props.scheduleStartDate)
+        ) {
             this.loadSchedule();
         }
 

@@ -70,7 +70,7 @@ export function setScheduleEndDate(date) {
 export function setScheduleStartDate(date) {
     return {
         type: SET_SCHEDULE_START_DATE,
-        scheduleEndDate: date,
+        scheduleStartDate: date,
     };
 }
 
