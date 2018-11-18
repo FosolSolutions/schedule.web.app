@@ -4,16 +4,20 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
+import { withRouter } from "react-router";
+import { Route } from "react-router-dom";
 import classNames from "classnames";
 import isEmpty from "lodash/isEmpty";
 
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { selectCalendars } from "redux/reducers/calendarReducer";
+import {
+    selectCalendarError,
+    selectEventsError,
+} from "redux/reducers/calendarReducer";
 import {
     selectDrawerIsOpen,
-    selectPageId,
     selectSnackbarContentKey,
 } from "redux/reducers/uiReducer";
 import {
@@ -47,10 +51,13 @@ import ErrorIcon from "@material-ui/icons/Error";
 import {
     PAGE_ID_CALENDAR,
     PAGE_ID_SCHEDULES,
+    PAGE_ID_DASHBOARD,
 } from "utils/backendConstants";
 import {
     SNACKBAR_NETWORK_ERROR,
     SNACKBAR_DYNAMIC_USER_ERROR,
+    SNACKBAR_DYNAMIC_CALENDAR_ERROR,
+    SNACKBAR_DYNAMIC_EVENTS_ERROR,
 } from "utils/constants";
 
 //------------------------------------------------------------------------------
@@ -103,6 +110,14 @@ export class MainContent extends React.Component {
                         snackbarClassNames = `${styles.errorSnack}`;
                         snackbarText = "Sorry, we're having network problems.";
                         break;
+                    case SNACKBAR_DYNAMIC_CALENDAR_ERROR:
+                        snackbarClassNames = `${styles.errorSnack}`;
+                        snackbarText = this.props.calendarError;
+                        break;
+                    case SNACKBAR_DYNAMIC_EVENTS_ERROR:
+                        snackbarClassNames = `${styles.errorSnack}`;
+                        snackbarText = this.props.eventsError;
+                        break;
                     case SNACKBAR_DYNAMIC_USER_ERROR:
                         snackbarClassNames = `${styles.errorSnack}`;
                         snackbarText = this.props.userError;
@@ -136,19 +151,39 @@ export class MainContent extends React.Component {
             return snackbarMarkup;
         };
         const renderPageContent = () => {
+            const dashboardPath = `/${PAGE_ID_DASHBOARD}`;
+            const rootPath = "/";
             let returnVal = false;
 
             if (this.props.userIsAuthenticated) {
-                switch (this.props.pageId) {
-                    case PAGE_ID_CALENDAR:
-                        returnVal = (renderAppContent(<Calendar />));
-                        break;
-                    case PAGE_ID_SCHEDULES:
-                        returnVal = (renderAppContent(<Schedules />));
-                        break;
-                    default:
-                        returnVal = (renderAppContent(<Dashboard />));
+                if (this.props.location.pathname === rootPath) {
+                    this.props.history.replace(dashboardPath);
                 }
+
+                returnVal = [
+                    <Route
+                        key={"calendarView"}
+                        path={`/${PAGE_ID_CALENDAR}`}
+                        render={() => renderAppContent(<Calendar />)}
+                    />,
+                    <Route
+                        key={"schedulesView"}
+                        path={`/${PAGE_ID_SCHEDULES}`}
+                        render={() => renderAppContent(<Schedules />)}
+                    />,
+                    <Route
+                        exact
+                        key={"dashboardView"}
+                        path={dashboardPath}
+                        render={() => renderAppContent(<Dashboard />)}
+                    />,
+                    <Route
+                        exact
+                        key={"rootView"}
+                        path={rootPath}
+                        render={() => renderAppContent(<Dashboard />)}
+                    />,
+                ];
             } else if (this.props.fetchIdentityInProgress) {
                 returnVal = renderAppContent();
             } else {
@@ -165,30 +200,35 @@ export class MainContent extends React.Component {
 }
 
 // Export the redux-connected component
-export default connect((state) => ({
-    calendars: selectCalendars(state),
+export default withRouter(connect((state) => ({
+    calendarError: selectCalendarError(state),
     drawerIsOpen: selectDrawerIsOpen(state),
+    eventsError: selectEventsError(state),
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
-    pageId: selectPageId(state),
     userError: selectUserError(state),
     snackbarContentKey: selectSnackbarContentKey(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
     setDrawerIsOpen,
     setSnackbarContentKey,
-})(MainContent);
+})(MainContent));
 
 MainContent.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
+    calendarError: PropTypes.string,
     drawerIsOpen: PropTypes.bool.isRequired,
+    eventsError: PropTypes.string,
     fetchIdentityInProgress: PropTypes.bool.isRequired,
-    pageId: PropTypes.string.isRequired,
     snackbarContentKey: PropTypes.string.isRequired,
     userError: PropTypes.string,
     userIsAuthenticated: PropTypes.bool.isRequired,
+
+    // React Router ------------------------------------------------------------
+    history: PropTypes.object,
+    location: PropTypes.object,
 
     // -------------------------------------------------------------------------
     // Method propTypes

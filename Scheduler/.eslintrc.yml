@@ -93,6 +93,7 @@ rules:
         - "**/webpack.config.**.js"
         - "**/webpack.server.js"
         - "**/postcss.config.js"
+        - "**/entry.js"
 
     # Report use of exported name as identifier of default export.
     # https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-named-as-default.md

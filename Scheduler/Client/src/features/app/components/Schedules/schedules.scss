@@ -1,13 +1,130 @@
 @import "../../../../__assets__/styles/sassResources";
 
-.cardAvatar {
-    background-color: $secondaryMain;
+.progressWrap {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    width: 100%;
 }
 
-.cardHeader {
-    font-family: $bodyTypeface !important;
+.circProgress {
+    position: absolute;
+    top: 40%;
+}
+
+.header {
+    align-items: center;
+    display: flex;
+    height: 4.5em;
+    padding: 0.5em 0;
+}
+
+.leftWrap {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding-left: 0.1em;
+}
+
+.rightWrap {
+    padding: 0.25em 0.5em 0;
 }
 
 .heading {
     margin: 0.5em 0 1em;
+}
+
+.fullScreenButton {
+    margin: -0.15em 0.1em 0 0;
+}
+
+.accountDot {
+    border-radius: 50%;
+    display: inline-block;
+    height: 9px;
+    margin-right: 0.35em;
+    position: relative;
+    width: 9px;
+}
+
+.allHeading {
+    font-size: 115%;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.accountNameWrap {
+    line-height: 0.8em;
+}
+
+.accountName {
+    color: lighten($primaryMid, 10%);
+    font-size: 0.75em;
+    text-transform: uppercase;
+}
+
+.pickerField {
+    font-size: 90%;
+    margin-left: 1em;
+    max-width: 9em;
+}
+
+.inputAdornment button {
+    padding: 0 0 4px !important;
+}
+
+.pickerAdornment {
+    font-size: 0.9em;
+}
+
+.scheduleHeading {
+    font-size: 1em;
+    margin: 1.5em 1.5em 1em;
+}
+
+.card {
+    overflow-x: auto;
+}
+
+.table {
+    position: relative;
+    table-layout: fixed;
+}
+
+.tableHead {
+    background-color: $primaryMain;
+    display: table;
+    position: absolute;
+    table-layout: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.tableHead.fixed {
+    position: fixed;
+    width: calc(100% - 1em);
+}
+
+.tableHeadPlaceholder {
+    display: block;
+    height: 56px;
+}
+
+.headerRow {
+    text-transform: uppercase;
+}
+
+.headerCell {
+    color: $baseBackground;
+    padding: 0.5em 1.5em;
+}
+
+.tableCell {
+    border: 0;
+    padding: 0.5em 1.5em;
+}
+
+.tableRow:nth-child(even) {
+    background-color: $primaryLight;
 }

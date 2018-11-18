@@ -8,6 +8,7 @@ import update from "immutability-helper";
 //------------------------------------------------------------------------------
 import {
     FETCH_CALENDAR,
+    FETCH_EVENTS,
     FETCH_CALENDARS,
     FETCH_CALENDARS_ERROR,
     FETCH_CALENDARS_FAILURE,
@@ -15,11 +16,15 @@ import {
     FETCH_CALENDAR_ERROR,
     FETCH_CALENDAR_FAILURE,
     FETCH_CALENDAR_SUCCESS,
+    FETCH_EVENTS_ERROR,
+    FETCH_EVENTS_FAILURE,
+    FETCH_EVENTS_SUCCESS,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
+import { DATE_START_ECCLESIAL_SCHEDULE } from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -28,11 +33,17 @@ export const initialCalendarsState = {
         data: null,
         error: null,
         isLoading: true,
+        populatedTo: DATE_START_ECCLESIAL_SCHEDULE,
     },
     calendars: {
         data: null,
         error: null,
         isLoading: true,
+    },
+    events: {
+        data: null,
+        error: null,
+        isLoading: false,
     },
 };
 
@@ -112,6 +123,38 @@ export default function calendarReducer(state = initialCalendarsState, action) {
                 },
             });
             break;
+        case FETCH_EVENTS:
+            returnVal = update(state, {
+                events: {
+                    isLoading: { $set: true },
+                },
+            });
+            break;
+        case FETCH_EVENTS_ERROR:
+            returnVal = update(state, {
+                events: {
+                    isLoading: { $set: false },
+                    error: { $set: action.error },
+                },
+            });
+            break;
+        case FETCH_EVENTS_FAILURE:
+            returnVal = update(state, {
+                events: {
+                    isLoading: { $set: false },
+                    error: { $set: null },
+                },
+            });
+            break;
+        case FETCH_EVENTS_SUCCESS:
+            returnVal = update(state, {
+                events: {
+                    data: { $set: action.events },
+                    isLoading: { $set: false },
+                    error: { $set: null },
+                },
+            });
+            break;
         default:
             returnVal = state;
     }
@@ -183,4 +226,26 @@ export function selectCalendarsIsLoading(state) {
  */
 export function selectCalendarsError(state) {
     return state.calendars.calendars.error;
+}
+
+/**
+ * events selector
+ *
+ * @param  {Object} state   Store state object
+ *
+ * @return {CalendarEvetns} The CalendarEvents
+ */
+export function selectEvents(state) {
+    return state.calendars.events.data;
+}
+
+/**
+ * error selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {Object}       The events request error
+ */
+export function selectEventsError(state) {
+    return state.calendars.events.error;
 }

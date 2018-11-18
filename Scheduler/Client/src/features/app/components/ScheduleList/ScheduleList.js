@@ -4,14 +4,13 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
+import { withRouter } from "react-router";
 import classNames from "classnames";
 
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
 import { selectCalendar } from "redux/reducers/calendarReducer";
-import { selectPageId } from "redux/reducers/uiReducer";
-import { setPageId } from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Components
@@ -33,40 +32,48 @@ import AssignmentIconFilled from "@material-ui/icons/Assignment";
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { HISTORY_PUSH } from "utils/constants";
 import { PAGE_ID_SCHEDULES } from "utils/backendConstants";
 import { stringToHslColor } from "utils/generalUtils";
+import { Calendar } from "utils/Calendar";
+import { buildRelativePath } from "utils/appDataUtils";
 
 //------------------------------------------------------------------------------
 
 /**
  * Renders and adds handling for the main application navigation.
  */
-export class ScheduleList extends React.PureComponent {
+export class ScheduleList extends React.Component {
     render() {
-        const schedulesNavListClassNames = classNames({
-            [styles.listItem]: true,
-            [styles.active]: this.props.pageId === PAGE_ID_SCHEDULES,
-        });
-
-        const accountName = (this.props.calendar !== null)
-            ? this.props.calendar.getAccountName()
+        const calendar = (this.props.calendar !== null)
+            ? new Calendar(this.props.calendar)
+            : null;
+        const accountName = (calendar !== null)
+            ? calendar.getAccountName()
             : "Loading...";
-        const accountColor = (this.props.calendar !== null)
-            ? this.props.calendar.getAccountColor()
+        const accountColor = (calendar !== null)
+            ? calendar.getAccountColor()
             : stringToHslColor(accountName);
         const renderEventTypes = () => {
-            const eventTypes = (this.props.calendar !== null)
-                ? this.props.calendar.getEvents().getEventTypes()
+            const eventTypes = (calendar !== null)
+                ? calendar.getEvents().getEventTypes()
                 : [];
             const eventTypeMarkup = [];
 
             eventTypes.forEach((eventType) => {
+                const routePath = buildRelativePath(
+                    PAGE_ID_SCHEDULES,
+                    [calendar.getEvents().getEventPath(eventType)],
+                );
+                const listItemClassNames = classNames({
+                    [styles.expansionListItem]: true,
+                    [styles.active]: this.props.location.pathname === routePath,
+                });
                 eventTypeMarkup.push(
                     <ListItem
                         button
-                        className={styles.expansionListItem}
+                        className={listItemClassNames}
                         key={`${eventType}ListItem`}
+                        onClick={() => this.props.history.push(routePath)}
                     >
                         <ListItemIcon className={styles.listItemIcon}>
                             <AssignmentIconFilled fontSize="small"/>
@@ -101,16 +108,7 @@ export class ScheduleList extends React.PureComponent {
                         classes={{ expanded: styles.expanded }}
                         className={styles.expansionPanelSummary}
                     >
-                        <ListItem
-                            button
-                            className={schedulesNavListClassNames}
-                            onClick={
-                                () => this.props.setPageId(
-                                    PAGE_ID_SCHEDULES,
-                                    HISTORY_PUSH,
-                                )
-                            }
-                        >
+                        <ListItem className={styles.listItem}>
                             <ListItemIcon className={styles.listItemIcon}>
                                 <AssignmentIcon />
                             </ListItemIcon>
@@ -132,12 +130,10 @@ export class ScheduleList extends React.PureComponent {
 }
 
 // Export the redux-connected component
-export default connect((state) => ({
+export default withRouter(connect((state) => ({
     calendar: selectCalendar(state),
-    pageId: selectPageId(state),
-}), {
-    setPageId,
-})(ScheduleList);
+}),
+null)(ScheduleList));
 
 ScheduleList.propTypes = {
     // -------------------------------------------------------------------------
@@ -145,11 +141,13 @@ ScheduleList.propTypes = {
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     calendar: PropTypes.object,
-    pageId: PropTypes.string.isRequired,
+
+    // React Router ------------------------------------------------------------
+    history: PropTypes.object,
+    location: PropTypes.object,
 
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
-    setPageId: PropTypes.func.isRequired,
 };

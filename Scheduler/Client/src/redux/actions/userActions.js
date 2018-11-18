@@ -23,28 +23,22 @@ import {
     SET_IS_AUTHENTICATED,
     SET_PARTICIPANT_ID,
 } from "redux/actionTypes";
-import { selectPageId } from "redux/reducers/uiReducer";
 import { selectParticipantId } from "redux/reducers/userReducer";
-import {
-    setPageId,
-    setSnackbarContentKey,
-} from "redux/actions/uiActions";
+import { setSnackbarContentKey } from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
 import { User } from "utils/User";
 import {
-    PATH_AUTH_BACKDOOR,
     PATH_AUTH_IDENTITY,
     PATH_AUTH_PARTICIPANT,
     PATH_AUTH_SIGN_OFF,
-    PAGE_ID_DASHBOARD,
-    PAGE_ID_ROOT,
 } from "utils/backendConstants";
 import {
     deleteFromWebStorage,
     readWebStorage,
+    updateHistory,
     writeWebStorage,
 } from "utils/generalUtils";
 import {
@@ -124,42 +118,6 @@ export function setIsAuthenticated(isAuthenticated) {
 }
 
 /**
- * Login the user using the authentication back door.
- *
- * @return {Function} Action-dispatching thunk.
- */
-export function backdoorLogin() {
-    return (dispatch, getState) => {
-        dispatch({
-            type: LOGIN,
-        });
-
-        axios({
-            method: "get",
-            url: PATH_AUTH_BACKDOOR,
-            withCredentials: true,
-        })
-            .then((response) => {
-                const pageId = selectPageId(getState());
-
-                if (response.status === 200) {
-                    dispatch({ type: LOGIN_SUCCESS });
-                    dispatch(setUser(new User(response.data)));
-                    writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
-                    if (pageId === PAGE_ID_ROOT) {
-                        dispatch(setPageId(PAGE_ID_DASHBOARD, HISTORY_REPLACE));
-                    }
-                } else {
-                    dispatch({ type: LOGIN_FAILURE });
-                }
-            })
-            .catch((error) => {
-                handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
-            });
-    };
-}
-
-/**
  * Log the user in with the participant ID.
  *
  * @return {Function} Action-dispatching thunk.
@@ -179,21 +137,16 @@ export function participantLogin() {
             withCredentials: true,
         })
             .then((response) => {
-                const pageId = selectPageId(getState());
-
                 if (response.status === 200) {
                     dispatch({ type: LOGIN_SUCCESS });
                     dispatch(setUser(new User(response.data)));
                     writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
-                    if (pageId === PAGE_ID_ROOT) {
-                        dispatch(setPageId(PAGE_ID_DASHBOARD, HISTORY_REPLACE));
-                    }
                 } else {
                     dispatch({ type: LOGIN_FAILURE });
                 }
             })
             .catch((error) => {
-                handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
+                handleErrorResponse(LOGIN_ERROR, dispatch, error);
             });
     };
 }
@@ -204,7 +157,7 @@ export function participantLogin() {
  * @return {Function} Action-dispatching thunk.
  */
 export function fetchIdentity() {
-    return (dispatch, getState) => {
+    return (dispatch) => {
         dispatch({
             type: FETCH_IDENTITY,
         });
@@ -225,7 +178,7 @@ export function fetchIdentity() {
                 }
             })
             .catch((error) => {
-                handleErrorResponse(FETCH_IDENTITY_ERROR, dispatch, getState, error);
+                handleErrorResponse(FETCH_IDENTITY_ERROR, dispatch, error);
             });
     };
 }
@@ -236,7 +189,7 @@ export function fetchIdentity() {
  * @return {Function} Action-dispatching thunk.
  */
 export function signOff() {
-    return (dispatch, getState) => {
+    return (dispatch) => {
         deleteFromWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED);
         dispatch({
             type: SIGN_OFF,
@@ -252,13 +205,13 @@ export function signOff() {
             .then((response) => {
                 if (response.status === 200) {
                     dispatch({ type: SIGN_OFF_SUCCESS });
-                    dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
+                    updateHistory("", HISTORY_REPLACE);
                 } else {
                     dispatch({ type: SIGN_OFF_FAILURE });
                 }
             })
             .catch((error) => {
-                handleErrorResponse(SIGN_OFF_ERROR, dispatch, getState, error);
+                handleErrorResponse(SIGN_OFF_ERROR, dispatch, error);
             });
     };
 }
@@ -271,24 +224,24 @@ export function signOff() {
  *
  * @param {string}   errorActionType The action type of the error.
  * @param {Function} dispatch        Redux dispatch method.
- * @param {Function} getState        Redux getState method.
  * @param {Object}   error           The returned error object.
  */
-function handleErrorResponse(errorActionType, dispatch, getState, error) {
-    const pageId = selectPageId(getState());
+function handleErrorResponse(errorActionType, dispatch, error) {
     let showSnackbar = false;
     let dynamicSnackbarError = false;
     let errorMsg;
 
     // Send the user to the login page.
-    if (pageId !== PAGE_ID_ROOT) {
-        dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
-    }
+    updateHistory("", HISTORY_REPLACE);
 
     if (typeof error.response !== "undefined" && typeof error.response.data !== "undefined") {
-        errorMsg = error.response.data.message;
-        dynamicSnackbarError = true;
-        showSnackbar = true;
+        if (error.response.status === 401 && errorActionType === FETCH_IDENTITY_ERROR) {
+            errorMsg = "";
+        } else {
+            dynamicSnackbarError = true;
+            errorMsg = error.response.data.message;
+            showSnackbar = true;
+        }
     } else if (
         typeof error.response !== "undefined" &&
         typeof error.response.status !== "undefined" &&
@@ -316,7 +269,7 @@ function handleErrorResponse(errorActionType, dispatch, getState, error) {
     });
     dispatch(setIsAuthenticated(false));
 
-    if (showSnackbar) {
+    if (showSnackbar && errorMsg !== "") {
         if (dynamicSnackbarError) {
             dispatch(setSnackbarContentKey(SNACKBAR_DYNAMIC_USER_ERROR));
         } else {

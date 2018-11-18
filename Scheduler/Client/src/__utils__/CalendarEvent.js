@@ -21,12 +21,21 @@ export class CalendarEvent {
         this.updatedOn = data.updatedOn;
         this.rowVersion = data.rowVersion;
 
-        this.activities = [];
+        this.activities = new Map();
         this.criteria = [];
 
-        data.activities.forEach((activityData) => {
-            this.activities.push(new EventActivity(activityData));
-        });
+        data.activities
+            .sort((a, b) => {
+                if (a.name < b.name) { return -1; }
+                if (a.name > b.name) { return 1; }
+                return 0;
+            })
+            .map(
+                (activity) => this.activities.set(
+                    activity.id,
+                    new EventActivity(activity),
+                ),
+            );
 
         data.criteria.forEach((criterionDatum) => {
             this.criteria.push(new EventCriterion(criterionDatum));
@@ -47,6 +56,10 @@ export class CalendarEvent {
 
     getName() {
         return this.name;
+    }
+
+    getActivities() {
+        return this.activities;
     }
 
     getDescription() {

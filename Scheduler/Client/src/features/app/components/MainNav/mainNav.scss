@@ -17,7 +17,7 @@
     align-items: center;
     border-bottom: 1px solid lighten($primaryMain, 5%);
     display: flex;
-    height: 4.7em;
+    height: 5em;
     justify-content: flex-start;
     z-index: 1;
 }
@@ -101,7 +101,7 @@
 .drawer {
     background-color: $primaryMain;
     position: relative;
-    width: 250px;
+    width: $drawerWidth;
     z-index: 1;
 }
 
@@ -109,7 +109,7 @@
     background-color: $primaryMain;
     transition-duration: $uiTransitionDuration !important;
     transition-timing-function: $uiTransitionFunction !important;
-    width: 250px;
+    width: $drawerWidth;
 }
 
 .noOverflowVert {

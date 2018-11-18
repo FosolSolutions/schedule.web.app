@@ -4,31 +4,23 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
+import { withRouter } from "react-router";
 import classNames from "classnames";
 import format from "date-fns/format";
 
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import {
-    backdoorLogin,
-    signOff,
-} from "redux/actions/userActions";
+import { signOff } from "redux/actions/userActions";
 import { selectCalendars } from "redux/reducers/calendarReducer";
-import {
-    selectDrawerIsOpen,
-    selectPageId,
-} from "redux/reducers/uiReducer";
+import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
 import {
     selectFetchIdentityInProgress,
     selectIsAuthenticated,
     selectSignOffInProgress,
     selectUser,
 } from "redux/reducers/userReducer";
-import {
-    setDrawerIsOpen,
-    setPageId,
-} from "redux/actions/uiActions";
+import { setDrawerIsOpen } from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Components
@@ -59,11 +51,9 @@ import styles from "features/app/components/MainNav/mainNav.scss";
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { HISTORY_PUSH } from "utils/constants";
 import {
     PAGE_ID_CALENDAR,
     PAGE_ID_DASHBOARD,
-    PAGE_ID_ROOT,
 } from "utils/backendConstants";
 import { stringToHslColor } from "utils/generalUtils";
 
@@ -72,7 +62,7 @@ import { stringToHslColor } from "utils/generalUtils";
 /**
  * Renders and adds handling for the main application navigation.
  */
-export class MainNav extends React.PureComponent {
+export class MainNav extends React.Component {
     constructor(props) {
         super(props);
 
@@ -117,16 +107,17 @@ export class MainNav extends React.PureComponent {
         const lastName = (user === null) ? "." : user.getLastName();
         const fullName = (user === null) ? "Loading..." : user.getFullName();
         const displayName = (user === null) ? "Loading..." : user.getDisplayName();
+
         const nameColor = (user === null)
             ? stringToHslColor(fullName, 60, 70)
             : user.getAvatarColor();
         const homeNavListClassNames = classNames({
             [styles.listItem]: true,
-            [styles.active]: this.props.pageId === PAGE_ID_DASHBOARD,
+            [styles.active]: this.props.location.pathname === `/${PAGE_ID_DASHBOARD}`,
         });
         const calendarNavListClassNames = classNames({
             [styles.listItem]: true,
-            [styles.active]: this.props.pageId === PAGE_ID_CALENDAR,
+            [styles.active]: this.props.location.pathname === `/${PAGE_ID_CALENDAR}`,
         });
         /**
          * Render the main app navigation.
@@ -198,9 +189,7 @@ export class MainNav extends React.PureComponent {
                     <ListItem
                         button
                         className={homeNavListClassNames}
-                        onClick={
-                            () => this.props.setPageId(PAGE_ID_DASHBOARD, HISTORY_PUSH)
-                        }
+                        onClick={() => this.props.history.push(`/${PAGE_ID_DASHBOARD}`)}
                     >
                         <ListItemIcon className={styles.listItemIcon}>
                             <Home />
@@ -215,9 +204,7 @@ export class MainNav extends React.PureComponent {
                     <ListItem
                         button
                         className={calendarNavListClassNames}
-                        onClick={
-                            () => this.props.setPageId(PAGE_ID_CALENDAR, HISTORY_PUSH)
-                        }
+                        onClick={() => this.props.history.push(`/${PAGE_ID_CALENDAR}`)}
                     >
                         <ListItemIcon className={styles.listItemIcon}>
                             <Event />
@@ -313,16 +300,12 @@ export class MainNav extends React.PureComponent {
         const renderMainNav = () => {
             let returnVal = false;
 
-            switch (this.props.pageId) {
-                case PAGE_ID_ROOT:
-                    returnVal = false;
-                    break;
-                default:
-                    if (this.props.fetchIdentityInProgress) {
-                        returnVal = appNavEmpty();
-                    } else {
-                        returnVal = appNav();
-                    }
+            if (this.props.location.pathname === "/" || !this.props.isAuthenticated) {
+                returnVal = false;
+            } else if (this.props.fetchIdentityInProgress) {
+                returnVal = appNavEmpty();
+            } else {
+                returnVal = appNav();
             }
 
             return returnVal;
@@ -333,20 +316,17 @@ export class MainNav extends React.PureComponent {
 }
 
 // Export the redux-connected component
-export default connect((state) => ({
+export default withRouter(connect((state) => ({
     calendars: selectCalendars(state),
     drawerIsOpen: selectDrawerIsOpen(state),
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     isAuthenticated: selectIsAuthenticated(state),
-    pageId: selectPageId(state),
     signOffInProgress: selectSignOffInProgress(state),
     user: selectUser(state),
 }), {
-    backdoorLogin,
     setDrawerIsOpen,
-    setPageId,
     signOff,
-})(MainNav);
+})(MainNav));
 
 MainNav.propTypes = {
     // -------------------------------------------------------------------------
@@ -356,17 +336,18 @@ MainNav.propTypes = {
     drawerIsOpen: PropTypes.bool.isRequired,
     fetchIdentityInProgress: PropTypes.bool.isRequired,
     isAuthenticated: PropTypes.bool.isRequired,
-    pageId: PropTypes.string.isRequired,
     signOffInProgress: PropTypes.bool.isRequired,
     user: PropTypes.object,
+
+    // React Router ------------------------------------------------------------
+    history: PropTypes.object,
+    location: PropTypes.object,
 
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
-    backdoorLogin: PropTypes.func.isRequired,
     setDrawerIsOpen: PropTypes.func.isRequired,
-    setPageId: PropTypes.func.isRequired,
     signOff: PropTypes.func.isRequired,
 };
 

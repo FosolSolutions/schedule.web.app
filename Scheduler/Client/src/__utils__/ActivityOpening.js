@@ -30,17 +30,23 @@ export class ActivityOpening {
         this.applications = [];
         this.criteria = [];
 
-        data.participants.forEach((participantDatum) => {
-            this.criteria.push(new OpeningParticipant(participantDatum));
-        });
+        if (typeof data.participants !== "undefined") {
+            data.participants.forEach((participantDatum) => {
+                this.criteria.push(new OpeningParticipant(participantDatum));
+            });
+        }
 
-        data.applications.forEach((applicationDatum) => {
-            this.criteria.push(new OpeningApplication(applicationDatum));
-        });
+        if (typeof data.participants !== "undefined") {
+            data.applications.forEach((applicationDatum) => {
+                this.criteria.push(new OpeningApplication(applicationDatum));
+            });
+        }
 
-        data.criteria.forEach((criterionDatum) => {
-            this.criteria.push(new EventCriterion(criterionDatum));
-        });
+        if (typeof data.participants !== "undefined") {
+            data.criteria.forEach((criterionDatum) => {
+                this.criteria.push(new EventCriterion(criterionDatum));
+            });
+        }
     }
 
     getId() {

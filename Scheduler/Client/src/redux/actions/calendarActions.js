@@ -8,11 +8,7 @@ import format from "date-fns/format";
 // Redux Support
 //------------------------------------------------------------------------------
 import { selectCalendar } from "redux/reducers/calendarReducer";
-import { selectPageId } from "redux/reducers/uiReducer";
-import {
-    setPageId,
-    setSnackbarContentKey,
-} from "redux/actions/uiActions";
+import { setSnackbarContentKey } from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -26,17 +22,23 @@ import {
     FETCH_CALENDAR_ERROR,
     FETCH_CALENDAR_FAILURE,
     FETCH_CALENDAR_SUCCESS,
+    FETCH_EVENTS,
+    FETCH_EVENTS_SUCCESS,
+    FETCH_EVENTS_FAILURE,
+    FETCH_EVENTS_ERROR,
 } from "redux/actionTypes";
 import {
-    PAGE_ID_ROOT,
     PATH_DATA_CALENDARS,
     PATH_DATA_CALENDAR,
+    PATH_DATA_EVENTS,
 } from "utils/backendConstants";
 import {
-    HISTORY_REPLACE,
     SNACKBAR_NETWORK_ERROR,
+    DATE_END_ECCLESIAL_SCHEDULE,
+    DATE_START_ECCLESIAL_SCHEDULE,
+    SNACKBAR_DYNAMIC_CALENDAR_ERROR,
+    SNACKBAR_DYNAMIC_EVENTS_ERROR,
 } from "utils/constants";
-import { Calendar } from "utils/Calendar";
 import { Calendars } from "utils/Calendars";
 
 //------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ import { Calendars } from "utils/Calendars";
  * @return {Function} Action-dispatching thunk.
  */
 export function fetchCalendars() {
-    return (dispatch, getState) => {
+    return (dispatch) => {
         dispatch({
             type: FETCH_CALENDARS,
         });
@@ -75,7 +77,7 @@ export function fetchCalendars() {
                 }
             })
             .catch((error) => {
-                handleErrorResponse(FETCH_CALENDARS_ERROR, dispatch, getState, error);
+                handleErrorResponse(FETCH_CALENDARS_ERROR, dispatch, error);
             });
     };
 }
@@ -95,7 +97,7 @@ export function fetchCalendarInRange(startOn = null, endOn) {
         const dateFormat = "yyyy-MM-dd";
         const startParam = (startOn === null) ? "" : `starton=${format(startOn, dateFormat)}&`;
         const endParam = `endon=${format(endOn, dateFormat)}`;
-        const PATH = `${PATH_DATA_CALENDAR}${calendarId}?${startParam}${endParam}`;
+        const PATH = `${PATH_DATA_CALENDAR}/${calendarId}?${startParam}${endParam}`;
 
         dispatch({
             type: FETCH_CALENDAR,
@@ -112,7 +114,7 @@ export function fetchCalendarInRange(startOn = null, endOn) {
                 if (response.status === 200) {
                     dispatch({
                         type: FETCH_CALENDAR_SUCCESS,
-                        calendar: new Calendar(response.data),
+                        calendar: response.data,
                     });
                 } else {
                     dispatch({
@@ -121,7 +123,7 @@ export function fetchCalendarInRange(startOn = null, endOn) {
                 }
             })
             .catch((error) => {
-                handleErrorResponse(FETCH_CALENDAR_ERROR, dispatch, getState, error);
+                handleErrorResponse(FETCH_CALENDAR_ERROR, dispatch, error);
             });
     };
 }
@@ -133,10 +135,52 @@ export function fetchCalendarInRange(startOn = null, endOn) {
  */
 export function fetchEcclesialCalendar() {
     return (dispatch) => {
-        const startDateJan2019 = new Date(2019, 0, 1);
-        const endDateJun2019 = new Date(2019, 6, 1);
+        dispatch(
+            fetchCalendarInRange(
+                DATE_START_ECCLESIAL_SCHEDULE,
+                DATE_END_ECCLESIAL_SCHEDULE,
+            ),
+        );
+    };
+}
 
-        dispatch(fetchCalendarInRange(startDateJan2019, endDateJun2019));
+/**
+ * Fetch the events, with full activity, opening, participant data.
+ *
+ * @param  {Array} eventIds The event IDs to fetch full data for.
+ *
+ * @return {Function}       Action-dispatching thunk.
+ */
+export function fetchEvents(eventIds) {
+    return (dispatch) => {
+        const PATH = `${PATH_DATA_EVENTS}?ids=${eventIds.join()}`;
+
+        dispatch({
+            type: FETCH_EVENTS,
+        });
+
+        axios({
+            method: "get",
+            url: PATH,
+            withCredentials: true,
+        })
+            .then((response) => {
+                const status = response.status;
+
+                if (status === 200) {
+                    dispatch({
+                        type: FETCH_EVENTS_SUCCESS,
+                        events: response.data,
+                    });
+                } else {
+                    dispatch({
+                        type: FETCH_EVENTS_FAILURE,
+                    });
+                }
+            })
+            .catch((error) => {
+                handleErrorResponse(FETCH_EVENTS_ERROR, dispatch, error);
+            });
     };
 }
 
@@ -148,19 +192,22 @@ export function fetchEcclesialCalendar() {
  *
  * @param {string}   errorActionType The action type of the error.
  * @param {Function} dispatch        Redux dispatch method.
- * @param {Function} getState        Redux getState method.
  * @param {Object}   error           The returned error object.
  */
-function handleErrorResponse(errorActionType, dispatch, getState, error) {
-    const pageId = selectPageId(getState());
+function handleErrorResponse(errorActionType, dispatch, error) {
+    let dynamicSnackbarError = false;
     let showSnackbar = false;
     let errorMsg;
 
-    if (pageId !== PAGE_ID_ROOT) {
-        dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
-    }
-
-    if (
+    if (typeof error.response !== "undefined" && typeof error.response.data !== "undefined") {
+        if (error.response.status === 401) {
+            errorMsg = "";
+        } else {
+            dynamicSnackbarError = true;
+            errorMsg = error.response.data.message;
+            showSnackbar = true;
+        }
+    } else if (
         typeof error.response !== "undefined" &&
         typeof error.response.status !== "undefined" &&
         typeof error.response.statusText !== "undefined"
@@ -170,7 +217,7 @@ function handleErrorResponse(errorActionType, dispatch, getState, error) {
         }
 
         errorMsg = `${error.response.status}: ${error.response.statusText}`;
-    } else if (typeof error.message !== "undefined") {
+    } else if (typeof error.message !== "undefined" && typeof errorMsg !== "undefined") {
         errorMsg = error.message;
         showSnackbar = true;
     } else {
@@ -183,7 +230,19 @@ function handleErrorResponse(errorActionType, dispatch, getState, error) {
         error: errorMsg,
     });
 
-    if (showSnackbar) {
-        dispatch(setSnackbarContentKey(SNACKBAR_NETWORK_ERROR));
+    if (showSnackbar && errorMsg !== "") {
+        if (dynamicSnackbarError) {
+            switch (errorActionType) {
+                case FETCH_CALENDAR_ERROR:
+                    dispatch(setSnackbarContentKey(SNACKBAR_DYNAMIC_CALENDAR_ERROR));
+                    break;
+                case FETCH_EVENTS_ERROR:
+                    dispatch(setSnackbarContentKey(SNACKBAR_DYNAMIC_EVENTS_ERROR));
+                    break;
+                default:
+            }
+        } else {
+            dispatch(setSnackbarContentKey(SNACKBAR_NETWORK_ERROR));
+        }
     }
 }

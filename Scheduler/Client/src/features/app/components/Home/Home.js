@@ -19,7 +19,7 @@ import hands from "assets/images/hands.svg";
 /**
  * Renders the homepage content. Not currently in use, but keeping for now.
  */
-export default class Home extends React.Component {
+export default class Home extends React.PureComponent {
     render() {
         return [
             <section

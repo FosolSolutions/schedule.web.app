@@ -31,7 +31,7 @@ import Validator, {
 /**
  * Renders a text field with validation error as appropriate.
  */
-export default class ValidatedTextField extends React.Component {
+export default class ValidatedTextField extends React.PureComponent {
     constructor(props) {
         super(props);
 

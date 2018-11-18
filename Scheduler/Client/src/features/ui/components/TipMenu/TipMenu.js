@@ -22,7 +22,7 @@ import styles from "features/ui/components/TipMenu/tipMenu.scss";
 /**
  * Renders the TipMenu.
  */
-export default class TipMenu extends React.Component {
+export default class TipMenu extends React.PureComponent {
     render() {
         const composedMenu = ({ TransitionProps, placement }) => {
             const placementCompare = (this.props.placement === null)

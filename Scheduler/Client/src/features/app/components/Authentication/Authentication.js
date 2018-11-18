@@ -14,10 +14,7 @@ import {
     selectLoginInProgress,
     selectParticipantId,
 } from "redux/reducers/userReducer";
-import { selectPageId } from "redux/reducers/uiReducer";
-import { setPageId } from "redux/actions/uiActions";
 import {
-    backdoorLogin,
     participantLogin,
     setParticipantId,
 } from "redux/actions/userActions";
@@ -62,7 +59,7 @@ import { participantKeyValid } from "utils/validatorRules";
 /**
  * Renders the Authentication page content.
  */
-export class Authentication extends React.Component {
+export class Authentication extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -111,7 +108,7 @@ export class Authentication extends React.Component {
                         <section className={styles.panel}>
                             <h2 className={styles.signInHeading}>To sign in:</h2>
                             <div className={styles.linkInstructionWrap}>
-                                <LinkIcon onClick={() => this.props.backdoorLogin()}/>
+                                <LinkIcon />
                                 <span className={styles.linkInstructionText}>
                                     Click the sign-in link in your email
                                 </span>
@@ -163,14 +160,11 @@ export class Authentication extends React.Component {
 export default connect((state) => ({
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     loginInProgress: selectLoginInProgress(state),
-    pageId: selectPageId(state),
     participantId: selectParticipantId(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
-    backdoorLogin,
     fetchCalendars,
     participantLogin,
-    setPageId,
     setParticipantId,
 })(Authentication);
 
@@ -182,15 +176,12 @@ Authentication.propTypes = {
     fetchIdentityInProgress: PropTypes.bool.isRequired,
     loginInProgress: PropTypes.bool.isRequired,
     participantId: PropTypes.string.isRequired,
-    pageId: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,
 
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
-    backdoorLogin: PropTypes.func.isRequired,
     participantLogin: PropTypes.func.isRequired,
-    setPageId: PropTypes.func.isRequired,
     setParticipantId: PropTypes.func.isRequired,
 };

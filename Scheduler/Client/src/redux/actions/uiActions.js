@@ -6,26 +6,32 @@
 // Redux Support
 //------------------------------------------------------------------------------
 import {
+    SET_CURRENT_CALENDAR_MONTH,
     SET_DRAWER_IS_OPEN,
-    SET_PAGE_ID,
+    SET_SCHEDULE_END_DATE,
+    SET_SCHEDULE_START_DATE,
     SET_SNACKBAR_CONTENT_KEY,
 } from "redux/actionTypes";
-
-//------------------------------------------------------------------------------
-// Helpers
-//------------------------------------------------------------------------------
-import {
-    HISTORY_PUSH,
-    HISTORY_REPLACE,
-    HISTORY_STATE_KEY_PAGE_ID,
-} from "utils/constants";
-import { getRelativePath } from "utils/appDataUtils";
 
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Public Interface
 //------------------------------------------------------------------------------
+/**
+ * Set whether the calendar date.
+ *
+ * @param  {Date} date The new calendar month to show in the calendar UI.
+ *
+ * @return {Object}    Action object.
+ */
+export function setCurrentCalendarMonth(date) {
+    return {
+        type: SET_CURRENT_CALENDAR_MONTH,
+        currentCalendarMonth: date,
+    };
+}
+
 /**
  * Set whether the drawer should be open.
  *
@@ -41,31 +47,30 @@ export function setDrawerIsOpen(drawerIsOpen) {
 }
 
 /**
- * Set the page ID and update browser history.
+ * Set whether the schedule end date.
  *
- * @param  {string}      pageId        A PAGE_ID_* to set.
- * @param  {string|null} historyMethod Either a HISTORY_* constant or false (in
- *                                     which case history will not be modified).
+ * @param  {Date} date The schedule end date.
  *
- * @return {Object}                    Action object.
+ * @return {Object}    Action object.
  */
-export function setPageId(pageId, historyMethod = null) {
-    const relativePath = getRelativePath(pageId);
-    const historyAPIArgs = [
-        { [HISTORY_STATE_KEY_PAGE_ID]: pageId },
-        "",
-        `/${relativePath}`,
-    ];
-
-    if (historyMethod === HISTORY_PUSH) {
-        window.history.pushState(...historyAPIArgs);
-    } else if (historyMethod === HISTORY_REPLACE) {
-        window.history.replaceState(...historyAPIArgs);
-    }
-
+export function setScheduleEndDate(date) {
     return {
-        type: SET_PAGE_ID,
-        pageId,
+        type: SET_SCHEDULE_END_DATE,
+        scheduleEndDate: date,
+    };
+}
+
+/**
+ * Set whether the schedule start date.
+ *
+ * @param  {Date} date The schedule start date.
+ *
+ * @return {Object}    Action object.
+ */
+export function setScheduleStartDate(date) {
+    return {
+        type: SET_SCHEDULE_START_DATE,
+        scheduleEndDate: date,
     };
 }
 
