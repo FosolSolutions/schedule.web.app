@@ -16,7 +16,7 @@ import {
 } from "redux/reducers/userReducer";
 import { fetchEcclesialCalendar } from "redux/actions/calendarActions";
 import { initUserFromCache } from "redux/actions/userActions";
-import { selectCalendarError } from "redux/reducers/calendarReducer";
+import { selectCalendarsError } from "redux/reducers/calendarReducer";
 
 //------------------------------------------------------------------------------
 // Components
@@ -46,7 +46,7 @@ export class App extends React.PureComponent {
 
     componentDidUpdate(prevProps) {
         if (this.props.userIsAuthenticated && !prevProps.userIsAuthenticated) {
-            if (this.props.calendarError !== null) {
+            if (this.props.calendarsError !== null) {
                 this.props.fetchEcclesialCalendar();
             }
 
@@ -83,7 +83,7 @@ export class App extends React.PureComponent {
 
 // Export the redux-connected component
 export default withRouter(connect((state) => ({
-    calendarError: selectCalendarError(state),
+    calendarsError: selectCalendarsError(state),
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     loginInProgress: selectLoginInProgress(state),
     userIsAuthenticated: selectIsAuthenticated(state),
@@ -96,7 +96,7 @@ App.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
-    calendarError: PropTypes.string,
+    calendarsError: PropTypes.string,
     fetchIdentityInProgress: PropTypes.bool.isRequired,
     loginInProgress: PropTypes.bool.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,

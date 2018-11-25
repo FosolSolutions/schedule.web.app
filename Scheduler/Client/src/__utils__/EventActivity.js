@@ -1,8 +1,7 @@
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { ActivityOpening } from "utils/ActivityOpening";
-import { EventCriterion } from "utils/EventCriterion";
+import { ActivityCriterion } from "utils/ActivityCriterion";
 
 //------------------------------------------------------------------------------
 
@@ -24,17 +23,9 @@ export class EventActivity {
         this.updatedById = data.updatedById;
         this.updatedOn = data.updatedOn;
         this.rowVersion = data.rowVersion;
-
-        this.openings = [];
-        this.criteria = [];
-
-        data.openings.forEach((openingDatum) => {
-            this.openings.push(new ActivityOpening(openingDatum));
-        });
-
-        data.criteria.forEach((criterionDatum) => {
-            this.criteria.push(new EventCriterion(criterionDatum));
-        });
+        this.openings = data.openings;
+        // Can't normalize criteria as their IDs aren't unique
+        this.criteria = data.criteria.map((criteria) => new ActivityCriterion(criteria));
     }
 
     getId() {

@@ -1,8 +1,4 @@
 //------------------------------------------------------------------------------
-// Third Party
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
 import {
@@ -12,6 +8,15 @@ import {
     SET_SCHEDULE_START_DATE,
     SET_SNACKBAR_CONTENT_KEY,
 } from "redux/actionTypes";
+import { selectSnackbars } from "redux/reducers/uiReducer";
+
+//------------------------------------------------------------------------------
+// Helpers
+//------------------------------------------------------------------------------
+import {
+    ARRAY_COMMAND_PUSH,
+    ARRAY_COMMAND_SHIFT,
+} from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -75,19 +80,35 @@ export function setScheduleStartDate(date) {
 }
 
 /**
- * Set the snackbar content key.
+ * Set/unset the snackbar content key.
  *
- * @param  {string} snackbarContentKey A SNACKBAR_* constant.
+ * @param  {string} arrayCommand       An ARRAY_COMMAND_*
+ * @param  {Object} snackbarContent    Two key/value pairs:
+ *                                      - key    {string} A SNACKBAR_* constant
+ *                                      - text   {string} Snackbar message
+ *                                      Optional (not required when shifting)
  *
  * @return {Object}                    Action object.
  */
-export function setSnackbarContentKey(snackbarContentKey = "") {
-    return {
-        type: SET_SNACKBAR_CONTENT_KEY,
-        snackbarContentKey,
+export function setSnackbarContent(arrayCommand, snackbarContent) {
+    return (dispatch, getState) => {
+        const currentSnackbars = new Map(selectSnackbars(getState()));
+
+        if (
+            arrayCommand === ARRAY_COMMAND_PUSH &&
+            typeof snackbarContent !== "undefined"
+        ) {
+            currentSnackbars.set(Date.now(), snackbarContent);
+        } else if (arrayCommand === ARRAY_COMMAND_SHIFT) {
+            currentSnackbars.delete(currentSnackbars.keys().next().value);
+        }
+
+        dispatch({
+            type: SET_SNACKBAR_CONTENT_KEY,
+            snackbars: currentSnackbars,
+        });
     };
 }
-
 
 //------------------------------------------------------------------------------
 // Private Implementation Details

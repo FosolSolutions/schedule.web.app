@@ -113,7 +113,15 @@ export default class ValidatedTextField extends React.PureComponent {
      */
     handleChange(e) {
         const value = e.target.value;
+
         this.validate(value);
+    }
+
+    /**
+     * Handle input blur event
+     */
+    handleFocus() {
+        this.props.onFocus();
     }
 
     /**
@@ -159,6 +167,7 @@ export default class ValidatedTextField extends React.PureComponent {
         const textFieldClassNames = classNames({
             [styles.textField]: true,
             [styles.error]: SHOULD_SHOW_ERROR,
+            [styles.standard]: this.props.variant === "standard",
         });
         const renderValidationError = () => {
             let validationErrorMarkup = false;
@@ -182,6 +191,7 @@ export default class ValidatedTextField extends React.PureComponent {
                     adornment = (
                         <InputAdornment position={this.props.adornmentPosition}>
                             <IconButton
+                                className={this.props.variant === "standard" ? styles.adornmentButton : ""}
                                 onClick={() => this.props.onEnter()}
                                 disabled={this.state.validatorError !== null || this.props.value === ""}
                             >
@@ -211,11 +221,13 @@ export default class ValidatedTextField extends React.PureComponent {
                     error={SHOULD_SHOW_ERROR}
                     label={this.props.label}
                     margin={"normal"}
-                    variant={"outlined"}
                     InputProps={getInputProps()}
+                    InputLabelProps={this.props.inputLabelProps}
                     value={this.props.value}
+                    variant={this.props.variant}
                     onBlur={(e) => this.handleBlur(e)}
                     onChange={(e) => this.handleChange(e)}
+                    onFocus={(e) => this.handleFocus(e)}
                     onKeyDown={(e) => this.handleKeyDown(e)}
                 />
                 {renderValidationError()}
@@ -237,8 +249,11 @@ ValidatedTextField.propTypes = {
     // Whether the passed adornment icon should be a button.
     adornmentIsButton: PropTypes.bool,
 
+    // Props to apply to the InputLabel component rendered by TextField
+    inputLabelProps: PropTypes.object,
+
     // The field label.
-    label: PropTypes.string.isRequired,
+    label: PropTypes.string,
 
     // Whether to show any error on mount.
     showErrorOnMount: PropTypes.bool,
@@ -253,6 +268,9 @@ ValidatedTextField.propTypes = {
 
     // The synchronous concern validation rules to check.
     syncValidatorRules: PropTypes.array,
+
+    // The material-ui style variant
+    variant: PropTypes.string,
 
     // The field value.
     value: PropTypes.string,
@@ -281,6 +299,7 @@ ValidatedTextField.defaultProps = {
     showErrorOnMount: false,
     syncValidatorRules: [],
     value: "",
+    variant: "outlined",
     onEnter: () => {},
     onFocus: () => {},
     storeStatusSetter: () => {},

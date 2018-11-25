@@ -2,6 +2,7 @@
 ignoreFiles:
   - build/*
   - "**/*.js"
+  - "**/*.svg"
 extends: stylelint-config-sass-guidelines
 rules:
     at-rule-empty-line-before:

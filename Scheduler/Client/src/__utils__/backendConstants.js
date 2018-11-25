@@ -6,6 +6,7 @@ const backendConstants = window.Scheduler.constants;
 const rootRequestPath = "https://coeventapi.azurewebsites.net";
 const authPath = `${rootRequestPath}/auth`;
 const dataPath = `${rootRequestPath}/data`;
+const managePath = `${rootRequestPath}/manage`;
 
 //------------------------------------------------------------------------------
 // Public Interface
@@ -26,8 +27,13 @@ export const PATH_AUTH_GOOGLE = `${authPath}/signin?authScheme=Google&redirectUr
 export const PATH_AUTH_MICROSOFT = `${authPath}/signin?authScheme=Microsoft&redirectUrl=https://coevent.azurewebsites.net`;
 export const PATH_AUTH_IDENTITY = `${authPath}/current/identity`;
 export const PATH_AUTH_SIGN_OFF = `${authPath}/signoff`;
+export const PATH_MANAGE_PARTICIPANT = `${managePath}/participant`;
 
 // Data Paths ------------------------------------------------------------------
 export const PATH_DATA_CALENDARS = `${dataPath}/calendars`;
 export const PATH_DATA_CALENDAR = `${dataPath}/calendar`;
 export const PATH_DATA_EVENTS = `${PATH_DATA_CALENDAR}/events`;
+export const PATH_DATA_EVENT = `${PATH_DATA_CALENDAR}/event`;
+export const PATH_DATA_OPENING = `${PATH_DATA_EVENT}/activity/opening`;
+export const PATH_DATA_APPLY = `${PATH_DATA_OPENING}/apply`;
+export const PATH_DATA_UNAPPLY = `${PATH_DATA_OPENING}/unapply`;

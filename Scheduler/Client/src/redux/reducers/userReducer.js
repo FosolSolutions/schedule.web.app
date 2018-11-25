@@ -19,26 +19,53 @@ import {
     FETCH_IDENTITY_ERROR,
     FETCH_IDENTITY_FAILURE,
     FETCH_IDENTITY_SUCCESS,
+    MANAGE_PARTICIPANT,
+    MANAGE_PARTICIPANT_ERROR,
+    MANAGE_PARTICIPANT_FAILURE,
+    MANAGE_PARTICIPANT_SUCCESS,
     SET_IS_AUTHENTICATED,
     SET_PARTICIPANT_ID,
-    SET_USER,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
+import { Participant } from "utils/Participant";
+import { UserAttribute } from "utils/UserAttribute";
 
 //------------------------------------------------------------------------------
+
+const initialUserData = {
+    id: null,
+    key: "",
+    state: "",
+    calendarId: null,
+    displayName: "",
+    email: "",
+    firstName: "",
+    lastName: "",
+    gender: "",
+    contactInfo: [],
+    attributes: [],
+    addedById: null,
+    addedOn: "",
+    rowVersion: "",
+};
 
 export const initialUserState = {
     error: null,
     fetchIdentityInProgress: false,
     loginInProgress: false,
-    participantId: "",
+    manageParticipantInProgress: false,
+    participantKey: "",
     signOffInProgress: false,
-
     isAuthenticated: false,
-    user: null,
+
+    user: initialUserData,
+    attributes: {
+        byId: {},
+        allIds: [],
+    },
 };
 
 /**
@@ -102,7 +129,7 @@ export default function userReducer(
         case SIGN_OFF_SUCCESS:
             returnVal = update(state, {
                 isAuthenticated: { $set: false },
-                participantId: { $set: "" },
+                participantKey: { $set: "" },
                 signOffInProgress: { $set: false },
                 error: { $set: null },
             });
@@ -131,6 +158,32 @@ export default function userReducer(
                 error: { $set: null },
             });
             break;
+        case MANAGE_PARTICIPANT:
+            returnVal = update(state, {
+                manageParticipantInProgress: { $set: true },
+            });
+            break;
+        case MANAGE_PARTICIPANT_ERROR:
+            returnVal = update(state, {
+                manageParticipantInProgress: { $set: false },
+                error: { $set: action.error },
+            });
+            break;
+        case MANAGE_PARTICIPANT_FAILURE:
+            returnVal = update(state, {
+                manageParticipantInProgress: { $set: false },
+                error: { $set: null },
+            });
+            break;
+        case MANAGE_PARTICIPANT_SUCCESS:
+            returnVal = update(state, {
+                isAuthenticated: { $set: true },
+                manageParticipantInProgress: { $set: false },
+                error: { $set: null },
+                user: { $set: action.user },
+                attributes: { $set: action.attributes },
+            });
+            break;
         case SET_IS_AUTHENTICATED:
             returnVal = update(state, {
                 isAuthenticated: { $set: action.isAuthenticated },
@@ -138,12 +191,7 @@ export default function userReducer(
             break;
         case SET_PARTICIPANT_ID:
             returnVal = update(state, {
-                participantId: { $set: action.participantId },
-            });
-            break;
-        case SET_USER:
-            returnVal = update(state, {
-                user: { $set: action.user },
+                participantKey: { $set: action.participantKey },
             });
             break;
         default:
@@ -199,14 +247,25 @@ export function selectLoginInProgress(state) {
 }
 
 /**
- * participantId selector
+ * manageParticipantInProgress selector
  *
  * @param  {Object} state Store state object
  *
- * @return {string}       The participantId
+ * @return {boolean}      Whether the login request is in progress
  */
-export function selectParticipantId(state) {
-    return state.user.participantId;
+export function selectManageParticipantInProgress(state) {
+    return state.user.manageParticipantInProgress;
+}
+
+/**
+ * participantKey selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {string}       The participantKey
+ */
+export function selectParticipantKey(state) {
+    return state.user.participantKey;
 }
 
 /**
@@ -228,5 +287,17 @@ export function selectSignOffInProgress(state) {
  * @return {string}       The user
  */
 export function selectUser(state) {
-    return state.user.user;
+    return new Participant(state.user.user);
+}
+
+/**
+ * user attributes selector
+ *
+ * @param  {Object} state     Store state object
+ *
+ * @return {UserAttribute[]}  The user's attributes
+ */
+export function selectUserAttributes(state) {
+    const attributeData = state.user.attributes;
+    return attributeData.allIds.map((id) => new UserAttribute(attributeData.byId[id]));
 }

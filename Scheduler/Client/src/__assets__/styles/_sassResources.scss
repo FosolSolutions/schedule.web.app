@@ -13,27 +13,28 @@
 // -----------------------------------------------------------------------------
 
 // Color
-$primaryMain: #34495e;
-$primaryMid: lighten(desaturate($primaryMain, 10%), 15%);
-$primaryLight: lighten(desaturate($primaryMain, 10%), 67%);
-$secondaryMain: #2196f3;
-$secondaryMid: lighten(desaturate($secondaryMain, 10%), 15%);
-$secondaryLight: lighten(desaturate($secondaryMain, 10%), 20%);
-$secondaryExtraLight: lighten(desaturate($secondaryMain, 10%), 42%);
-$errorMain: #e74c3c;
-$errorLight: lighten($errorMain, 10%);
-$warningMain: #ffc312;
-$neutralLight: #f9f9f9;
-$neutralMid: #eee;
-$neutralDark: #e0e0e0;
-$google: lighten(#db4437, 7.5%);
-$microsoft: lighten(#00a1f1, 2%);
+$primaryMain: hsl(210, 29%, 29%);
+$primaryMid: hsl(210, 19%, 44%);
+$primaryLight: hsl(210, 18%, 96%);
+$secondaryDark: hsl(207, 89%, 44%);
+$secondaryMain: hsl(207, 90%, 54%);
+$secondaryMid: hsl(207, 80%, 69%);
+$secondaryLight: hsl(207, 80%, 74%);
+$secondaryExtraLight: hsl(207, 80%, 85%);
+$errorMain: hsl(6, 78%, 57%);
+$errorLight: hsl(6, 78%, 67%);
+$warningMain: hsl(45, 100%, 54%);
+$neutralLight: hsl(0, 0%, 98%);
+$neutralMid: hsl(0, 0%, 93%);
+$neutralDark: hsl(0, 0%, 88%);
+$google: hsl(5, 69%, 46.5%);
+$microsoft: hsl(200, 100%, 49%);
 
-$baseText: #051923;
-$baseTextMid: #777;
-$baseTextLight: #aaa;
-$baseTextDisabled: #ccc;
-$baseBackground: #fff;
+$baseText: hsl(200, 75%, 8%);
+$baseTextMid: hsl(0, 0%, 47%);
+$baseTextLight: hsl(0, 0%, 67%);
+$baseTextDisabled: hsl(0, 0%, 80%);
+$baseBackground: hsl(0, 0%, 100%);
 
 // Typeface
 $bodyTypeface: "Open Sans", sans-serif;

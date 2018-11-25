@@ -15,7 +15,10 @@ import {
     LOGIN_ERROR,
     LOGIN_FAILURE,
     LOGIN_SUCCESS,
-    SET_USER,
+    MANAGE_PARTICIPANT,
+    MANAGE_PARTICIPANT_SUCCESS,
+    MANAGE_PARTICIPANT_FAILURE,
+    MANAGE_PARTICIPANT_ERROR,
     SIGN_OFF,
     SIGN_OFF_ERROR,
     SIGN_OFF_FAILURE,
@@ -23,16 +26,16 @@ import {
     SET_IS_AUTHENTICATED,
     SET_PARTICIPANT_ID,
 } from "redux/actionTypes";
-import { selectParticipantId } from "redux/reducers/userReducer";
-import { setSnackbarContentKey } from "redux/actions/uiActions";
+import { selectParticipantKey } from "redux/reducers/userReducer";
+import { setSnackbarContent } from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { User } from "utils/User";
 import {
     PATH_AUTH_IDENTITY,
     PATH_AUTH_PARTICIPANT,
+    PATH_MANAGE_PARTICIPANT,
     PATH_AUTH_SIGN_OFF,
 } from "utils/backendConstants";
 import {
@@ -47,7 +50,9 @@ import {
     LOCAL_STORAGE,
     SNACKBAR_NETWORK_ERROR,
     SNACKBAR_DYNAMIC_USER_ERROR,
+    ARRAY_COMMAND_PUSH,
 } from "utils/constants";
+import { UserNormalizer } from "utils/UserNormalizer";
 
 //------------------------------------------------------------------------------
 
@@ -74,30 +79,16 @@ export function initUserFromCache() {
 }
 
 /**
- * Set the user in the store.
+ * Set the participantKey in the store.
  *
- * @param  {User} user The user.
- *
- * @return {Object}    Action object.
- */
-export function setUser(user) {
-    return {
-        type: SET_USER,
-        user,
-    };
-}
-
-/**
- * Set the participantId in the store.
- *
- * @param  {User} participantId The user.
+ * @param  {User} participantKey The user.
  *
  * @return {Object}             Action object.
  */
-export function setParticipantId(participantId = "") {
+export function setParticipantKey(participantKey = "") {
     return {
         type: SET_PARTICIPANT_ID,
-        participantId,
+        participantKey,
     };
 }
 
@@ -124,8 +115,9 @@ export function setIsAuthenticated(isAuthenticated) {
  */
 export function participantLogin() {
     return (dispatch, getState) => {
-        const participantId = selectParticipantId(getState());
-        const PATH = `${PATH_AUTH_PARTICIPANT}/${participantId}`;
+        const participantKey = selectParticipantKey(getState());
+        const PATH = `${PATH_AUTH_PARTICIPANT}/${participantKey}`;
+        let normalizedParticipant;
 
         dispatch({
             type: LOGIN,
@@ -138,8 +130,13 @@ export function participantLogin() {
         })
             .then((response) => {
                 if (response.status === 200) {
-                    dispatch({ type: LOGIN_SUCCESS });
-                    dispatch(setUser(new User(response.data)));
+                    normalizedParticipant = normalizeUserData(response.data);
+                    dispatch({
+                        type: LOGIN_SUCCESS,
+                        user: normalizedParticipant.user,
+                        attributes: normalizedParticipant.attributes,
+                    });
+                    dispatch(manageParticipant(normalizedParticipant.user.id));
                     writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
                 } else {
                     dispatch({ type: LOGIN_FAILURE });
@@ -158,6 +155,8 @@ export function participantLogin() {
  */
 export function fetchIdentity() {
     return (dispatch) => {
+        let normalizedParticipant;
+
         dispatch({
             type: FETCH_IDENTITY,
         });
@@ -171,14 +170,60 @@ export function fetchIdentity() {
             )
             .then((response) => {
                 if (response.status === 200) {
-                    dispatch({ type: FETCH_IDENTITY_SUCCESS });
-                    dispatch(setUser(new User(response.data)));
+                    normalizedParticipant = normalizeUserData(response.data);
+                    dispatch({
+                        type: FETCH_IDENTITY_SUCCESS,
+                        user: normalizedParticipant.user,
+                        attributes: normalizedParticipant.attributes,
+                    });
+                    dispatch(manageParticipant(normalizedParticipant.user.id));
                 } else {
                     dispatch({ type: FETCH_IDENTITY_FAILURE });
                 }
             })
             .catch((error) => {
                 handleErrorResponse(FETCH_IDENTITY_ERROR, dispatch, error);
+            });
+    };
+}
+
+/**
+ * Get the current user with all attributes.
+ *
+ * @param  {string} id The particpant ID.
+ *
+ * @return {Function} Action-dispatching thunk.
+ */
+export function manageParticipant(id) {
+    return (dispatch) => {
+        const PATH = `${PATH_MANAGE_PARTICIPANT}/${id}`;
+        let normalizedParticipant;
+
+        dispatch({
+            type: MANAGE_PARTICIPANT,
+        });
+
+        axios
+            .get(
+                PATH,
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((response) => {
+                if (response.status === 200) {
+                    normalizedParticipant = normalizeUserData(response.data);
+                    dispatch({
+                        type: MANAGE_PARTICIPANT_SUCCESS,
+                        user: normalizedParticipant.user,
+                        attributes: normalizedParticipant.attributes,
+                    });
+                } else {
+                    dispatch({ type: MANAGE_PARTICIPANT_FAILURE });
+                }
+            })
+            .catch((error) => {
+                handleErrorResponse(MANAGE_PARTICIPANT_ERROR, dispatch, error);
             });
     };
 }
@@ -229,6 +274,7 @@ export function signOff() {
 function handleErrorResponse(errorActionType, dispatch, error) {
     let showSnackbar = false;
     let dynamicSnackbarError = false;
+    let snackbarContentKey;
     let errorMsg;
 
     // Send the user to the login page.
@@ -271,9 +317,39 @@ function handleErrorResponse(errorActionType, dispatch, error) {
 
     if (showSnackbar && errorMsg !== "") {
         if (dynamicSnackbarError) {
-            dispatch(setSnackbarContentKey(SNACKBAR_DYNAMIC_USER_ERROR));
+            snackbarContentKey = SNACKBAR_DYNAMIC_USER_ERROR;
         } else {
-            dispatch(setSnackbarContentKey(SNACKBAR_NETWORK_ERROR));
+            snackbarContentKey = SNACKBAR_NETWORK_ERROR;
         }
+
+        dispatch(setSnackbarContent(
+            ARRAY_COMMAND_PUSH,
+            {
+                key: snackbarContentKey,
+                text: errorMsg,
+            },
+        ));
     }
+}
+
+/**
+ * Normalize the raw events data (requires special handling for now).
+ *
+ * @param {Object} rawUser User object with potentially nested attributes and
+ *                         contactInfo.
+ *
+ * @return {Object}        Object with two properties: user, and attributes.
+ *                         Need to add contactInfo handling later.
+ *
+ */
+export function normalizeUserData(rawUser) {
+    const normalizedUser = new UserNormalizer(rawUser);
+
+    return {
+        user: normalizedUser.getUser(),
+        attributes: {
+            byId: normalizedUser.getAllAttributes(),
+            allIds: normalizedUser.getAllAttributeIds(),
+        },
+    };
 }

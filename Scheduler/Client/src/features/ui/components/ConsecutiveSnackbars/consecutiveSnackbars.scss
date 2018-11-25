@@ -1,0 +1,17 @@
+@import "../../../../__assets__/styles/sassResources";
+
+.errorSnack {
+    background-color: $errorMain;
+    padding: 0.35em 1em;
+}
+
+.snackbarContent {
+    align-items: center;
+    display: flex;
+    margin: 0;
+}
+
+.snackbarIcon {
+    font-size: 1.3em;
+    margin-right: 0.25em;
+}

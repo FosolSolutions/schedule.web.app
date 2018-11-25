@@ -103,12 +103,13 @@ export class MainNav extends React.Component {
 
     render() {
         const user = this.props.user;
-        const firstName = (user === null) ? "." : user.getFirstName();
-        const lastName = (user === null) ? "." : user.getLastName();
-        const fullName = (user === null) ? "Loading..." : user.getFullName();
-        const displayName = (user === null) ? "Loading..." : user.getDisplayName();
+        const userIsNull = (this.props.user.getId() === null);
+        const firstName = (userIsNull) ? "." : user.getFirstName();
+        const lastName = (userIsNull) ? "." : user.getLastName();
+        const fullName = (userIsNull) ? "Loading..." : user.getFullName();
+        const displayName = (userIsNull) ? "Loading..." : user.getDisplayName();
 
-        const nameColor = (user === null)
+        const nameColor = (userIsNull)
             ? stringToHslColor(fullName, 60, 70)
             : user.getAvatarColor();
         const homeNavListClassNames = classNames({
@@ -300,10 +301,10 @@ export class MainNav extends React.Component {
         const renderMainNav = () => {
             let returnVal = false;
 
-            if (this.props.location.pathname === "/" || !this.props.isAuthenticated) {
-                returnVal = false;
-            } else if (this.props.fetchIdentityInProgress) {
+            if (this.props.fetchIdentityInProgress) {
                 returnVal = appNavEmpty();
+            } else if (this.props.location.pathname === "/" || !this.props.isAuthenticated) {
+                returnVal = false;
             } else {
                 returnVal = appNav();
             }

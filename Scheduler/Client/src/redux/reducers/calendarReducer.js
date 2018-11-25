@@ -7,6 +7,10 @@ import update from "immutability-helper";
 // Redux Support
 //------------------------------------------------------------------------------
 import {
+    APPLY_TO_OPENING,
+    APPLY_TO_OPENING_ERROR,
+    APPLY_TO_OPENING_FAILURE,
+    APPLY_TO_OPENING_SUCCESS,
     FETCH_CALENDAR,
     FETCH_EVENTS,
     FETCH_CALENDARS,
@@ -19,29 +23,64 @@ import {
     FETCH_EVENTS_ERROR,
     FETCH_EVENTS_FAILURE,
     FETCH_EVENTS_SUCCESS,
+    FETCH_OPENING,
+    FETCH_OPENING_ERROR,
+    FETCH_OPENING_FAILURE,
+    FETCH_OPENING_SUCCESS,
+    UNAPPLY_FROM_OPENING,
+    UNAPPLY_FROM_OPENING_ERROR,
+    UNAPPLY_FROM_OPENING_FAILURE,
+    UNAPPLY_FROM_OPENING_SUCCESS,
+    SET_ANSWER,
+    SET_CURRENT_QUESTION_ID,
+    SET_CURRENT_OPENING_ID,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
-// Helpers
+// Redux Support
 //------------------------------------------------------------------------------
-import { DATE_START_ECCLESIAL_SCHEDULE } from "utils/constants";
+import { EventActivities } from "utils/EventActivities";
+import { ActivityOpenings } from "utils/ActivityOpenings";
+import { CalendarEvents } from "utils/CalendarEvents";
+import { Calendars } from "utils/Calendars";
 
 //------------------------------------------------------------------------------
+
+const initialStateData = {
+    byId: {},
+    allIds: [],
+};
+
+const initialEventsStateData = {
+    byId: {},
+    allIds: [],
+    bibleClassIds: [],
+    bibleTalkIds: [],
+    hallCleaningIds: [],
+    memorialMeetingIds: [],
+};
 
 export const initialCalendarsState = {
-    calendar: {
-        data: null,
-        error: null,
-        isLoading: true,
-        populatedTo: DATE_START_ECCLESIAL_SCHEDULE,
-    },
+    answers: {},
+    currentOpeningId: null,
+    currentQuestionId: null,
     calendars: {
-        data: null,
+        data: initialStateData,
         error: null,
         isLoading: true,
     },
     events: {
-        data: null,
+        data: initialEventsStateData,
+        error: null,
+        isLoading: false,
+    },
+    activities: {
+        data: initialStateData,
+        error: null,
+        isLoading: false,
+    },
+    openings: {
+        data: initialStateData,
         error: null,
         isLoading: false,
     },
@@ -57,11 +96,65 @@ export const initialCalendarsState = {
  */
 export default function calendarReducer(state = initialCalendarsState, action) {
     let returnVal;
+    let openingId;
+    let questionId;
+    let answer;
 
     switch (action.type) {
+        case APPLY_TO_OPENING:
+            returnVal = update(state, {
+                openings: {
+                    isLoading: { $set: action.isLoading },
+                },
+            });
+            break;
+        case APPLY_TO_OPENING_ERROR:
+            returnVal = update(state, {
+                openings: {
+                    isLoading: { $set: false },
+                    error: { $set: action.error },
+                },
+            });
+            break;
+        case APPLY_TO_OPENING_FAILURE:
+            returnVal = update(state, {
+                openings: {
+                    isLoading: { $set: false },
+                    error: { $set: null },
+                },
+            });
+            break;
+        case APPLY_TO_OPENING_SUCCESS:
+            if (typeof state.openings.data.byId[action.opening.id] !== "undefined") {
+                returnVal = update(state, {
+                    openings: {
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                        data: {
+                            byId: {
+                                [action.opening.id]: { $set: action.opening },
+                            },
+                        },
+                    },
+                });
+            } else {
+                returnVal = update(state, {
+                    openings: {
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                        data: {
+                            byId: {
+                                [action.opening.id]: { $set: action.opening },
+                            },
+                            allIds: { $push: [action.opening.id] },
+                        },
+                    },
+                });
+            }
+            break;
         case FETCH_CALENDAR:
             returnVal = update(state, {
-                calendar: {
+                calendars: {
                     isLoading: { $set: true },
                 },
             });
@@ -75,7 +168,7 @@ export default function calendarReducer(state = initialCalendarsState, action) {
             break;
         case FETCH_CALENDAR_ERROR:
             returnVal = update(state, {
-                calendar: {
+                calendars: {
                     isLoading: { $set: false },
                     error: { $set: action.error },
                 },
@@ -91,7 +184,7 @@ export default function calendarReducer(state = initialCalendarsState, action) {
             break;
         case FETCH_CALENDAR_FAILURE:
             returnVal = update(state, {
-                calendar: {
+                calendars: {
                     isLoading: { $set: false },
                     error: { $set: null },
                 },
@@ -106,13 +199,38 @@ export default function calendarReducer(state = initialCalendarsState, action) {
             });
             break;
         case FETCH_CALENDAR_SUCCESS:
-            returnVal = update(state, {
-                calendar: {
-                    isLoading: { $set: false },
-                    error: { $set: null },
-                    data: { $set: action.calendar },
-                },
-            });
+            if (typeof state.calendars.data.byId[action.id] !== "undefined") {
+                returnVal = update(state, {
+                    calendars: {
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                        data: {
+                            byId: {
+                                [action.id]: { $set: action.calendar },
+                            },
+                        },
+                    },
+                    events: {
+                        data: { $set: action.events },
+                    },
+                });
+            } else {
+                returnVal = update(state, {
+                    calendars: {
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                        data: {
+                            byId: {
+                                [action.id]: { $set: action.calendar },
+                            },
+                            allIds: { $push: [action.id] },
+                        },
+                    },
+                    events: {
+                        data: { $set: action.events },
+                    },
+                });
+            }
             break;
         case FETCH_CALENDARS_SUCCESS:
             returnVal = update(state, {
@@ -147,12 +265,165 @@ export default function calendarReducer(state = initialCalendarsState, action) {
             });
             break;
         case FETCH_EVENTS_SUCCESS:
+            if (
+                state.events.data.allIds.length === 0 &&
+                state.activities.data.allIds.length === 0 &&
+                state.openings.data.allIds.length === 0
+            ) {
+                returnVal = update(state, {
+                    events: {
+                        data: { $set: action.events },
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                    },
+                    activities: {
+                        data: { $set: action.activities },
+                    },
+                    openings: {
+                        data: { $set: action.openings },
+                    },
+                });
+            } else {
+                returnVal = update(state, {
+                    events: {
+                        data: {
+                            allIds: { $push: action.events.allIds },
+                            byId: { $merge: action.events.byId },
+                        },
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                    },
+                    activities: {
+                        data: {
+                            allIds: { $push: action.activities.allIds },
+                            byId: { $merge: action.activities.byId },
+                        },
+                    },
+                    openings: {
+                        data: {
+                            allIds: { $push: action.openings.allIds },
+                            byId: { $merge: action.openings.byId },
+                        },
+                    },
+                });
+            }
+            break;
+        case FETCH_OPENING:
             returnVal = update(state, {
-                events: {
-                    data: { $set: action.events },
+                openings: {
+                    isLoading: { $set: true },
+                },
+            });
+            break;
+        case FETCH_OPENING_ERROR:
+            returnVal = update(state, {
+                openings: {
+                    isLoading: { $set: false },
+                    error: { $set: action.error },
+                },
+            });
+            break;
+        case FETCH_OPENING_FAILURE:
+            returnVal = update(state, {
+                openings: {
                     isLoading: { $set: false },
                     error: { $set: null },
                 },
+            });
+            break;
+        case FETCH_OPENING_SUCCESS:
+            if (typeof state.openings.data.byId[action.opening.id] !== "undefined") {
+                returnVal = update(state, {
+                    openings: {
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                        data: {
+                            byId: {
+                                [action.opening.id]: { $set: action.opening },
+                            },
+                        },
+                    },
+                });
+            } else {
+                returnVal = update(state, {
+                    openings: {
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                        data: {
+                            byId: {
+                                [action.opening.id]: { $set: action.opening },
+                            },
+                            allIds: { $push: [action.opening.id] },
+                        },
+                    },
+                });
+            }
+            break;
+        case UNAPPLY_FROM_OPENING:
+            returnVal = update(state, {
+                openings: {
+                    isLoading: { $set: action.isLoading },
+                },
+            });
+            break;
+        case UNAPPLY_FROM_OPENING_ERROR:
+            returnVal = update(state, {
+                openings: {
+                    isLoading: { $set: false },
+                    error: { $set: action.error },
+                },
+            });
+            break;
+        case UNAPPLY_FROM_OPENING_FAILURE:
+            returnVal = update(state, {
+                openings: {
+                    isLoading: { $set: false },
+                    error: { $set: null },
+                },
+            });
+            break;
+        case UNAPPLY_FROM_OPENING_SUCCESS:
+            returnVal = update(state, {
+                openings: {
+                    isLoading: { $set: false },
+                    error: { $set: null },
+                },
+            });
+            break;
+        case SET_ANSWER:
+            openingId = action.openingId;
+            questionId = action.questionId;
+            answer = action.answer;
+
+            if (typeof state.answers[openingId] === "undefined") {
+                const fullAnswer = { [openingId]: { [questionId]: answer } };
+                returnVal = update(state, {
+                    answers: { $merge: fullAnswer },
+                });
+            } else if (typeof state.answers[openingId][questionId] === "undefined") {
+                returnVal = update(state, {
+                    answers: {
+                        [openingId]: { $merge: { [questionId]: action.answer } },
+                    },
+                });
+            } else {
+                returnVal = update(state, {
+                    answers: {
+                        [openingId]: {
+                            [questionId]: { $set: action.answer },
+                        },
+                    },
+                });
+            }
+            break;
+        case SET_CURRENT_OPENING_ID:
+            returnVal = update(state, {
+                currentOpeningId: { $set: action.openingId },
+            });
+            break;
+        case SET_CURRENT_QUESTION_ID:
+            returnVal = update(state, {
+                currentQuestionId: { $set: action.questionId },
             });
             break;
         default:
@@ -162,37 +433,29 @@ export default function calendarReducer(state = initialCalendarsState, action) {
     return returnVal;
 }
 
+//------------------------------------------------------------------------------
+// Selectors
+//------------------------------------------------------------------------------
 /**
- * calendar selector
+ * applications isLoading selector
  *
  * @param  {Object} state Store state object
  *
- * @return {Object[]}     The calendar object
+ * @return {boolean}      Whether the application is loading.
  */
-export function selectCalendar(state) {
-    return state.calendars.calendar.data;
+export function selectApplicationIsLoading(state) {
+    return state.calendars.applications.isLoading;
 }
 
 /**
- * calendar error selector
+ * applications error selector
  *
  * @param  {Object} state Store state object
  *
- * @return {boolean}      Whether there is a calendar error.
+ * @return {string}       The application error.
  */
-export function selectCalendarError(state) {
-    return state.calendars.calendar.error;
-}
-
-/**
- * calendar isLoading selector
- *
- * @param  {Object} state Store state object
- *
- * @return {boolean}      Whether the calendar is loading.
- */
-export function selectCalendarIsLoading(state) {
-    return state.calendars.calendar.isLoading;
+export function selectApplicationError(state) {
+    return state.calendars.applications.error;
 }
 
 /**
@@ -203,7 +466,7 @@ export function selectCalendarIsLoading(state) {
  * @return {Object[]}     The array of calendar objects
  */
 export function selectCalendars(state) {
-    return state.calendars.calendars.data;
+    return new Calendars(state.calendars.calendars.data);
 }
 
 /**
@@ -231,12 +494,12 @@ export function selectCalendarsError(state) {
 /**
  * events selector
  *
- * @param  {Object} state   Store state object
+ * @param  {Object} state      Store state object
  *
- * @return {CalendarEvetns} The CalendarEvents
+ * @return {Array}             The events
  */
 export function selectEvents(state) {
-    return state.calendars.events.data;
+    return new CalendarEvents(state.calendars.events.data);
 }
 
 /**
@@ -248,4 +511,81 @@ export function selectEvents(state) {
  */
 export function selectEventsError(state) {
     return state.calendars.events.error;
+}
+
+/**
+ * activities selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {Object}       The activities
+ */
+export function selectActivities(state) {
+    return new EventActivities(state.calendars.activities.data);
+}
+
+/**
+ * openings selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {Object}       The openings
+ */
+export function selectOpenings(state) {
+    return new ActivityOpenings(state.calendars.openings.data);
+}
+
+/**
+ * error selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {Object}       The openings request error
+ */
+export function selectOpeningsError(state) {
+    return state.calendars.openings.error;
+}
+
+/**
+ * error selector
+ *
+ * @param  {Object} state    Store state object
+ *
+ * @return {boolean|number}  Whether openings or which opening is loading.
+ */
+export function selectOpeningsIsLoading(state) {
+    return state.calendars.openings.isLoading;
+}
+
+/**
+ * answers selector
+ *
+ * @param  {Object} state    Store state object
+ *
+ * @return {Object}          The answers, mapped by opening and question ID.
+ */
+export function selectAnswers(state) {
+    return state.calendars.answers;
+}
+
+/**
+ * currentOpeningId selector
+ *
+ * @param  {Object} state    Store state object
+ *
+ * @return {Object}          The current opening ID.
+ */
+export function selectCurrentOpeningId(state) {
+    return state.calendars.currentOpeningId;
+}
+
+/**
+ * currentQuestionId selector
+ *
+ * @param  {Object} state    Store state object
+ *
+ * @return {Object}          The current question ID.
+ */
+export function selectCurrentQuestionId(state) {
+    return state.calendars.currentQuestionId;
 }

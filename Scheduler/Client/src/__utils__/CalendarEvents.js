@@ -1,7 +1,6 @@
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import isBefore from "date-fns/isBefore";
 import isSameDay from "date-fns/isSameDay";
 import isWithinInterval from "date-fns/isWithinInterval";
 
@@ -15,29 +14,15 @@ import {
     EVENT_NAME_MEMORIAL_MEETING,
 } from "utils/constants";
 import { CalendarEvent } from "utils/CalendarEvent";
-import { getEventPath } from "utils/appDataUtils";
 
 //------------------------------------------------------------------------------
 
 export class CalendarEvents {
     constructor(data) {
         const eventTypesArray = [];
-        const sortedEvents = data
-            .map((event) => new CalendarEvent(event))
-            .sort(
-                (a, b) => {
-                    let returnVal = 0;
+        const events = data.byId;
 
-                    if (isBefore(a.getStartDate(), b.getStartDate())) {
-                        returnVal = -1;
-                    } else if (isBefore(a.getStartDate(), b.getStartDate())) {
-                        returnVal = 1;
-                    }
-
-                    return returnVal;
-                },
-            );
-
+        this.allIds = data.allIds;
         this.all = new Map();
         this.bibleClassEvents = new Map();
         this.bibleTalkEvents = new Map();
@@ -46,26 +31,26 @@ export class CalendarEvents {
         this.hallCleaningEvents = new Map();
         this.memorialMeetingEvents = new Map();
 
-
-        sortedEvents.forEach((event) => {
-            this.all.set(event.getId(), event);
+        this.allIds.forEach((eventId) => {
+            const event = new CalendarEvent(events[eventId]);
+            this.all.set(eventId, event);
 
             switch (event.getName()) {
                 case EVENT_NAME_BIBLE_CLASS:
                     eventTypesArray.push(EVENT_NAME_BIBLE_CLASS);
-                    this.bibleClassEvents.set(event.getId(), event);
+                    this.bibleClassEvents.set(eventId, event);
                     break;
                 case EVENT_NAME_BIBLE_TALK:
                     eventTypesArray.push(EVENT_NAME_BIBLE_TALK);
-                    this.bibleTalkEvents.set(event.getId(), event);
+                    this.bibleTalkEvents.set(eventId, event);
                     break;
                 case EVENT_NAME_HALL_CLEANING:
                     eventTypesArray.push(EVENT_NAME_HALL_CLEANING);
-                    this.hallCleaningEvents.set(event.getId(), event);
+                    this.hallCleaningEvents.set(eventId, event);
                     break;
                 case EVENT_NAME_MEMORIAL_MEETING:
                     eventTypesArray.push(EVENT_NAME_MEMORIAL_MEETING);
-                    this.memorialMeetingEvents.set(event.getId(), event);
+                    this.memorialMeetingEvents.set(eventId, event);
                     break;
                 default:
             }
@@ -78,7 +63,6 @@ export class CalendarEvents {
         });
 
         eventTypesArray.forEach((eventType) => {
-            this.eventPathMap.set(eventType, getEventPath(eventType));
             this.eventTypes.add(eventType);
         });
     }
@@ -88,6 +72,28 @@ export class CalendarEvents {
      */
     getAll() {
         return this.all;
+    }
+
+    /**
+     * @return {Map} All events.
+     */
+    getAllIds() {
+        return this.allIds;
+    }
+
+    /**
+     * @return {Map} Array of events.
+     */
+    getAllValues() {
+        return [...this.all.values()];
+    }
+
+    /**
+     * @param  {number}        id ID of opening to get.
+     * @return {CalendarEvent}    The event.
+     */
+    getEvent(id) {
+        return this.all.get(id);
     }
 
     /**

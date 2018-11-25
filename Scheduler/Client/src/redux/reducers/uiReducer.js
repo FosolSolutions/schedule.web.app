@@ -3,6 +3,7 @@
 //------------------------------------------------------------------------------
 import update from "immutability-helper";
 import isBefore from "date-fns/isBefore";
+import endOfMonth from "date-fns/endOfMonth";
 
 //------------------------------------------------------------------------------
 // Redux Support
@@ -19,22 +20,21 @@ import {
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import {
-    DATE_END_ECCLESIAL_SCHEDULE,
-    DATE_START_ECCLESIAL_SCHEDULE,
-} from "utils/constants";
+import { DATE_START_ECCLESIAL_SCHEDULE } from "utils/constants";
 
 //------------------------------------------------------------------------------
 
+const initialStartDate = (isBefore(new Date(), DATE_START_ECCLESIAL_SCHEDULE))
+    ? DATE_START_ECCLESIAL_SCHEDULE
+    : new Date();
+
 export const initialUiState = {
     currentCalendarMonth: new Date(),
-    scheduleStartDate: (isBefore(new Date(), DATE_START_ECCLESIAL_SCHEDULE))
-        ? DATE_START_ECCLESIAL_SCHEDULE
-        : new Date(),
-    scheduleEndDate: DATE_END_ECCLESIAL_SCHEDULE,
+    scheduleStartDate: initialStartDate,
+    scheduleEndDate: endOfMonth(initialStartDate),
     drawerIsOpen: true,
     mainContentKey: "",
-    snackbarContentKey: "",
+    snackbars: new Map(),
 };
 
 /**
@@ -79,7 +79,7 @@ export default function uiReducer(
             break;
         case SET_SNACKBAR_CONTENT_KEY:
             returnVal = update(state, {
-                snackbarContentKey: { $set: action.snackbarContentKey },
+                snackbars: { $set: action.snackbars },
             });
             break;
         default:
@@ -150,8 +150,8 @@ export function selectScheduleStartDate(state) {
  *
  * @param  {Object} state Store state object
  *
- * @return {boolean}      The current snackbar content key.
+ * @return {Array}       The current snackbar content keys.
  */
-export function selectSnackbarContentKey(state) {
-    return state.ui.snackbarContentKey;
+export function selectSnackbars(state) {
+    return state.ui.snackbars;
 }

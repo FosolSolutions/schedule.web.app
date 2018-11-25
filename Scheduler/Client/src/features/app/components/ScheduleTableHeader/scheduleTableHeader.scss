@@ -121,10 +121,6 @@
     padding: 0.5em 1.5em;
 }
 
-.dateCol {
-    width: 80px;
-}
-
 .tableCell,
 .dateCell {
     border: 0;
@@ -141,40 +137,12 @@
     background-color: $primaryLight;
 }
 
-.openingWithName {
-    align-items: center;
-    display: flex;
-    flex-wrap: nowrap;
-    text-overflow: ellipsis;
-}
-
-.progressWrapper {
-    position: relative;
-}
-
-.openingProgressIconButton,
-.openingProgressTextButton {
-    color: $secondaryMid;
-    position: absolute;
-}
-
-.openingProgressIconButton {
-    left: 0.8em;
-    top: 0.8em;
-}
-
-.openingProgressTextButton {
-    left: 0.35em;
-    top: 0.7em;
-}
-
 .applyButton,
 .applyIconButton {
     font-size: 0.9em;
 }
 
 .applyButton {
-    margin: 0.25em 0;
     padding: 0 0.75em 0 0.35em;
     white-space: nowrap;
 
@@ -184,8 +152,7 @@
 }
 
 .applyIconButton {
-    margin: 0.2em;
-    padding: 0.7em;
+    padding: 0.5em;
 }
 
 .applyButtonIcon {
@@ -195,54 +162,4 @@
 .applyButtonIcon,
 .applyButtonIconDisabled {
     font-size: 1.8em;
-}
-
-.answer {
-    font-style: italic;
-    margin-left: 1em;
-}
-
-.nameWithAvatar {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.avatarWrap {
-    display: inline-block;
-    margin: 0.5em 0.25em;
-    position: relative;
-}
-
-.avatar {
-    margin: 0.25em 0;
-}
-
-.unapplyButton {
-    padding: 0;
-    position: absolute;
-    right: -7px;
-    top: -5px;
-    z-index: 1;
-}
-
-.unapplyIcon {
-    font-size: 1.3rem;
-    opacity: 0.5;
-
-    &:hover {
-        color: $errorLight;
-        opacity: 1;
-    }
-}
-
-.loadMoreWrap {
-    display: flex;
-    justify-content: center;
-    padding: 1em;
-}
-
-.loadMore {
-    color: $baseBackground;
-    padding-left: 8px;
 }

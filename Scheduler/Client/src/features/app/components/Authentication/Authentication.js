@@ -12,11 +12,11 @@ import {
     selectIsAuthenticated,
     selectFetchIdentityInProgress,
     selectLoginInProgress,
-    selectParticipantId,
+    selectParticipantKey,
 } from "redux/reducers/userReducer";
 import {
     participantLogin,
-    setParticipantId,
+    setParticipantKey,
 } from "redux/actions/userActions";
 import { fetchCalendars } from "redux/actions/calendarActions";
 
@@ -63,10 +63,10 @@ export class Authentication extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        const participantIdInputName = "Participant ID";
+        const participantKeyInputName = "Participant ID";
 
-        this.participantIdValidatorRules = [
-            participantKeyValid(participantIdInputName),
+        this.participantKeyValidatorRules = [
+            participantKeyValid(participantKeyInputName),
         ];
     }
 
@@ -124,10 +124,10 @@ export class Authentication extends React.PureComponent {
                                 adornmentPosition="end"
                                 adornmentIsButton={true}
                                 label="Participant ID"
-                                syncValidatorRules={this.participantIdValidatorRules}
-                                value={this.props.participantId}
+                                syncValidatorRules={this.participantKeyValidatorRules}
+                                value={this.props.participantKey}
                                 onEnter={this.props.participantLogin}
-                                storeValueSetter={this.props.setParticipantId}
+                                storeValueSetter={this.props.setParticipantKey}
                             />
                             {/* <Button
                                 className={`${styles.loginButton} ${styles.google}`}
@@ -160,12 +160,12 @@ export class Authentication extends React.PureComponent {
 export default connect((state) => ({
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     loginInProgress: selectLoginInProgress(state),
-    participantId: selectParticipantId(state),
+    participantKey: selectParticipantKey(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
     fetchCalendars,
     participantLogin,
-    setParticipantId,
+    setParticipantKey,
 })(Authentication);
 
 Authentication.propTypes = {
@@ -175,7 +175,7 @@ Authentication.propTypes = {
     // Redux -------------------------------------------------------------------
     fetchIdentityInProgress: PropTypes.bool.isRequired,
     loginInProgress: PropTypes.bool.isRequired,
-    participantId: PropTypes.string.isRequired,
+    participantKey: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,
 
     // -------------------------------------------------------------------------
@@ -183,5 +183,5 @@ Authentication.propTypes = {
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     participantLogin: PropTypes.func.isRequired,
-    setParticipantId: PropTypes.func.isRequired,
+    setParticipantKey: PropTypes.func.isRequired,
 };

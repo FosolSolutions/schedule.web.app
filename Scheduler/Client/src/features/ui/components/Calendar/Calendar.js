@@ -4,7 +4,6 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
-import isEmpty from "lodash/isEmpty";
 import addMonths from "date-fns/addMonths";
 import format from "date-fns/format";
 import addDays from "date-fns/addDays";
@@ -21,7 +20,10 @@ import classNames from "classnames";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { selectCalendar } from "redux/reducers/calendarReducer";
+import {
+    selectCalendars,
+    selectEvents,
+} from "redux/reducers/calendarReducer";
 import {
     selectCurrentCalendarMonth,
     selectDrawerIsOpen,
@@ -46,11 +48,6 @@ import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import FullscreenExitIcon from "@material-ui/icons/FullscreenExit";
 import FullscreenIcon from "@material-ui/icons/Fullscreen";
-
-//------------------------------------------------------------------------------
-// Helpers
-//------------------------------------------------------------------------------
-import { Calendar as CalendarUtil } from "utils/Calendar";
 
 //------------------------------------------------------------------------------
 
@@ -84,9 +81,7 @@ export class Calendar extends React.PureComponent {
     }
 
     render() {
-        const calendar = (this.props.calendar)
-            ? new CalendarUtil(this.props.calendar)
-            : null;
+        const calendar = this.props.calendars.getAllValues()[0];
         const fullScreenIcon = (this.props.drawerIsOpen)
             ? <FullscreenIcon />
             : <FullscreenExitIcon color="secondary" />;
@@ -177,9 +172,7 @@ export class Calendar extends React.PureComponent {
                         [styles.number]: true,
                         [styles.singleDigit]: formattedDate.length === 1,
                     });
-                    dayEvents = (!isEmpty(calendar))
-                        ? calendar.getEvents().getAllByDay(day)
-                        : [];
+                    dayEvents = this.props.events.getAllByDay(day);
                     dayClassNames = classNames({
                         [styles.day]: true,
                         [styles.disabled]: !isSameMonth(day, monthStart),
@@ -209,9 +202,9 @@ export class Calendar extends React.PureComponent {
 
             return <div className={styles.days}>{rows}</div>;
         };
-        const renderEvents = (events, day) => {
+        const renderEvents = (eventsToRender, day) => {
             const eventsMarkup = [];
-            events.forEach((event) => {
+            eventsToRender.forEach((event) => {
                 const eventName = event.getName();
                 const eventClassNames = classNames({
                     [styles.event]: true,
@@ -254,9 +247,10 @@ export class Calendar extends React.PureComponent {
 
 // Export the redux-connected component
 export default connect((state) => ({
-    calendar: selectCalendar(state),
+    calendars: selectCalendars(state),
     currentCalendarMonth: selectCurrentCalendarMonth(state),
     drawerIsOpen: selectDrawerIsOpen(state),
+    events: selectEvents(state),
 }), {
     setCurrentCalendarMonth,
     setDrawerIsOpen,
@@ -267,9 +261,10 @@ Calendar.propTypes = {
     // Data propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
-    calendar: PropTypes.object,
+    calendars: PropTypes.object.isRequired,
     currentCalendarMonth: PropTypes.object.isRequired,
     drawerIsOpen: PropTypes.bool.isRequired,
+    events: PropTypes.object.isRequired,
 
     // -------------------------------------------------------------------------
     // Method propTypes
