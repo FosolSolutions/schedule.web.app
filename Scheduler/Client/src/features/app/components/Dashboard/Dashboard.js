@@ -1,18 +1,7 @@
 //------------------------------------------------------------------------------
 // Third Party
 //------------------------------------------------------------------------------
-import PropTypes from "prop-types";
 import React from "react";
-import { connect } from "react-redux";
-
-//------------------------------------------------------------------------------
-// Redux Support
-//------------------------------------------------------------------------------
-import {
-    selectCalendars,
-    selectCalendarsError,
-    selectCalendarsIsLoading,
-} from "redux/reducers/calendarReducer";
 
 //------------------------------------------------------------------------------
 // Components
@@ -34,7 +23,7 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 /**
  * Renders the dashboard content.
  */
-export class Dashboard extends React.PureComponent {
+export default class Dashboard extends React.PureComponent {
     render() {
         return (
             <Grid
@@ -65,22 +54,6 @@ export class Dashboard extends React.PureComponent {
     }
 }
 
-// Export the redux-connected component
-export default connect((state) => ({
-    calendars: selectCalendars(state),
-    calendarsError: selectCalendarsError(state),
-    calendarsIsLoading: selectCalendarsIsLoading(state),
-}),
-null)(Dashboard);
-
-Dashboard.propTypes = {
-    // -------------------------------------------------------------------------
-    // Data propTypes
-    // -------------------------------------------------------------------------
-    // Redux -------------------------------------------------------------------
-    calendars: PropTypes.object,
-    calendarsError: PropTypes.string,
-    calendarsIsLoading: PropTypes.bool.isRequired,
-};
+Dashboard.propTypes = {};
 
 Dashboard.defaultProps = {};

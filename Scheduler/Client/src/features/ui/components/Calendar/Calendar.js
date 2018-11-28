@@ -4,7 +4,6 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
-import isEmpty from "lodash/isEmpty";
 import addMonths from "date-fns/addMonths";
 import format from "date-fns/format";
 import addDays from "date-fns/addDays";
@@ -21,9 +20,18 @@ import classNames from "classnames";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { selectCalendar } from "redux/reducers/calendarReducer";
-import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
-import { setDrawerIsOpen } from "redux/actions/uiActions";
+import {
+    selectCalendars,
+    selectEvents,
+} from "redux/reducers/calendarReducer";
+import {
+    selectCurrentCalendarMonth,
+    selectDrawerIsOpen,
+} from "redux/reducers/uiReducer";
+import {
+    setCurrentCalendarMonth,
+    setDrawerIsOpen,
+} from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Components
@@ -44,44 +52,36 @@ import FullscreenIcon from "@material-ui/icons/Fullscreen";
 //------------------------------------------------------------------------------
 
 /**
- * Renders an avatar using the user's initials.
+ * Renders a calendar.
  */
 export class Calendar extends React.PureComponent {
     constructor(props) {
         super(props);
 
         this.state = {
-            currentMonth: new Date(),
             selectedDate: new Date(),
         };
     }
 
     onDateClick(day) {
-        this.setState({
-            selectedDate: day,
-        });
+        this.setState({ selectedDate: day });
     }
 
     nextMonth() {
-        this.setState({
-            currentMonth: addMonths(this.state.currentMonth, 1),
-        });
+        this.props.setCurrentCalendarMonth(addMonths(this.props.currentCalendarMonth, 1));
     }
 
     prevMonth() {
-        this.setState({
-            currentMonth: subMonths(this.state.currentMonth, 1),
-        });
+        this.props.setCurrentCalendarMonth(subMonths(this.props.currentCalendarMonth, 1));
     }
 
     today() {
-        this.setState({
-            currentMonth: new Date(),
-            selectedDate: new Date(),
-        });
+        this.setState({ selectedDate: new Date() });
+        this.props.setCurrentCalendarMonth(new Date());
     }
 
     render() {
+        const calendar = this.props.calendars.getAllValues()[0];
         const fullScreenIcon = (this.props.drawerIsOpen)
             ? <FullscreenIcon />
             : <FullscreenExitIcon color="secondary" />;
@@ -107,7 +107,7 @@ export class Calendar extends React.PureComponent {
                     </div>
                     <div className={styles.centerWrap}>
                         <span>
-                            {format(this.state.currentMonth, dateFormat)}
+                            {format(this.props.currentCalendarMonth, dateFormat)}
                         </span>
                     </div>
                     <div className={styles.rightWrap}>
@@ -124,7 +124,7 @@ export class Calendar extends React.PureComponent {
         const renderWeekDays = () => {
             const dateFormat = "iii";
             const days = [];
-            const startDate = startOfWeek(this.state.currentMonth);
+            const startDate = startOfWeek(this.props.currentCalendarMonth);
             let formattedDate;
 
             for (let i = 0; i < 7; i += 1) {
@@ -146,7 +146,7 @@ export class Calendar extends React.PureComponent {
         };
 
         const renderDays = () => {
-            const monthStart = startOfMonth(this.state.currentMonth);
+            const monthStart = startOfMonth(this.props.currentCalendarMonth);
             const monthEnd = endOfMonth(monthStart);
             const startDate = startOfWeek(monthStart);
             const endDate = endOfWeek(monthEnd);
@@ -172,9 +172,7 @@ export class Calendar extends React.PureComponent {
                         [styles.number]: true,
                         [styles.singleDigit]: formattedDate.length === 1,
                     });
-                    dayEvents = (!isEmpty(this.props.calendar))
-                        ? this.props.calendar.getEvents().getAllByDay(day)
-                        : [];
+                    dayEvents = this.props.events.getAllByDay(day);
                     dayClassNames = classNames({
                         [styles.day]: true,
                         [styles.disabled]: !isSameMonth(day, monthStart),
@@ -204,16 +202,16 @@ export class Calendar extends React.PureComponent {
 
             return <div className={styles.days}>{rows}</div>;
         };
-        const renderEvents = (events, day) => {
+        const renderEvents = (eventsToRender, day) => {
             const eventsMarkup = [];
-            events.forEach((event) => {
+            eventsToRender.forEach((event) => {
                 const eventName = event.getName();
                 const eventClassNames = classNames({
                     [styles.event]: true,
                     [styles.past]: isBefore(day, this.state.selectedDate),
                 });
 
-                if (isSameMonth(this.state.currentMonth, event.getStartDate())) {
+                if (isSameMonth(this.props.currentCalendarMonth, event.getStartDate())) {
                     eventsMarkup.push(
                         (
                             <div
@@ -224,7 +222,7 @@ export class Calendar extends React.PureComponent {
                                     className={styles.accountDot}
                                     style={{
                                         backgroundColor:
-                                            this.props.calendar.getAccountColor(),
+                                            calendar.getAccountColor(),
                                     }}
                                 />
                                 {eventName}
@@ -238,7 +236,7 @@ export class Calendar extends React.PureComponent {
         };
 
         return (
-            <Card >
+            <Card>
                 {renderHeader()}
                 {renderWeekDays()}
                 {renderDays()}
@@ -249,9 +247,12 @@ export class Calendar extends React.PureComponent {
 
 // Export the redux-connected component
 export default connect((state) => ({
-    calendar: selectCalendar(state),
+    calendars: selectCalendars(state),
+    currentCalendarMonth: selectCurrentCalendarMonth(state),
     drawerIsOpen: selectDrawerIsOpen(state),
+    events: selectEvents(state),
 }), {
+    setCurrentCalendarMonth,
     setDrawerIsOpen,
 })(Calendar);
 
@@ -260,13 +261,16 @@ Calendar.propTypes = {
     // Data propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
-    calendar: PropTypes.object,
+    calendars: PropTypes.object.isRequired,
+    currentCalendarMonth: PropTypes.object.isRequired,
     drawerIsOpen: PropTypes.bool.isRequired,
+    events: PropTypes.object.isRequired,
 
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
+    setCurrentCalendarMonth: PropTypes.func.isRequired,
     setDrawerIsOpen: PropTypes.func.isRequired,
 };
 

@@ -4,27 +4,19 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
+import { withRouter } from "react-router";
+import { Route } from "react-router-dom";
 import classNames from "classnames";
-import isEmpty from "lodash/isEmpty";
 
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { selectCalendars } from "redux/reducers/calendarReducer";
+import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
 import {
-    selectDrawerIsOpen,
-    selectPageId,
-    selectSnackbarContentKey,
-} from "redux/reducers/uiReducer";
-import {
-    selectUserError,
     selectFetchIdentityInProgress,
     selectIsAuthenticated,
 } from "redux/reducers/userReducer";
-import {
-    setDrawerIsOpen,
-    setSnackbarContentKey,
-} from "redux/actions/uiActions";
+import { setDrawerIsOpen } from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Components
@@ -33,13 +25,12 @@ import Calendar from "features/ui/components/Calendar/Calendar";
 import Dashboard from "features/app/components/Dashboard/Dashboard";
 import Authentication from "features/app/components/Authentication/Authentication";
 import Schedules from "features/app/components/Schedules/Schedules";
-import Snackbar from "@material-ui/core/Snackbar";
+import ConsecutiveSnackbars from "features/ui/components/ConsecutiveSnackbars/ConsecutiveSnackbars";
 
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
 import styles from "features/app/components/MainContent/mainContent.scss";
-import ErrorIcon from "@material-ui/icons/Error";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -47,11 +38,8 @@ import ErrorIcon from "@material-ui/icons/Error";
 import {
     PAGE_ID_CALENDAR,
     PAGE_ID_SCHEDULES,
+    PAGE_ID_DASHBOARD,
 } from "utils/backendConstants";
-import {
-    SNACKBAR_NETWORK_ERROR,
-    SNACKBAR_DYNAMIC_USER_ERROR,
-} from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -75,7 +63,7 @@ export class MainContent extends React.Component {
             <div className={appPageStyles}>
                 <div className={styles.appContent}>
                     {child}
-                    {renderSnackbar()}
+                    <ConsecutiveSnackbars />
                 </div>
             </div>
         );
@@ -89,66 +77,43 @@ export class MainContent extends React.Component {
         const renderAuthContent = (child) => (
             <div className={styles.fullHeight}>
                 {child}
-                {renderSnackbar()}
+                <ConsecutiveSnackbars />
             </div>
         );
-        const renderSnackbar = () => {
-            let snackbarText;
-            let snackbarClassNames;
-            let snackbarMarkup = false;
-
-            if (!isEmpty(this.props.snackbarContentKey)) {
-                switch (this.props.snackbarContentKey) {
-                    case SNACKBAR_NETWORK_ERROR:
-                        snackbarClassNames = `${styles.errorSnack}`;
-                        snackbarText = "Sorry, we're having network problems.";
-                        break;
-                    case SNACKBAR_DYNAMIC_USER_ERROR:
-                        snackbarClassNames = `${styles.errorSnack}`;
-                        snackbarText = this.props.userError;
-                        break;
-                    default:
-                }
-
-                snackbarMarkup = (
-                    <Snackbar
-                        anchorOrigin={{
-                            vertical: "top",
-                            horizontal: "right",
-                        }}
-                        open={true}
-                        autoHideDuration={12000}
-                        onClose={() => this.props.setSnackbarContentKey()}
-                        ContentProps={{
-                            "aria-describedby": "message-id",
-                            className: snackbarClassNames,
-                        }}
-                        message={
-                            <div className={styles.snackbarContent}>
-                                <ErrorIcon className={styles.snackbarIcon} />
-                                <span id="message-id">{snackbarText}</span>
-                            </div>
-                        }
-                    />
-                );
-            }
-
-            return snackbarMarkup;
-        };
         const renderPageContent = () => {
+            const dashboardPath = `/${PAGE_ID_DASHBOARD}`;
+            const rootPath = "/";
             let returnVal = false;
 
             if (this.props.userIsAuthenticated) {
-                switch (this.props.pageId) {
-                    case PAGE_ID_CALENDAR:
-                        returnVal = (renderAppContent(<Calendar />));
-                        break;
-                    case PAGE_ID_SCHEDULES:
-                        returnVal = (renderAppContent(<Schedules />));
-                        break;
-                    default:
-                        returnVal = (renderAppContent(<Dashboard />));
+                if (this.props.location.pathname === rootPath) {
+                    this.props.history.replace(dashboardPath);
                 }
+
+                returnVal = [
+                    <Route
+                        key={"calendarView"}
+                        path={`/${PAGE_ID_CALENDAR}`}
+                        render={() => renderAppContent(<Calendar />)}
+                    />,
+                    <Route
+                        key={"schedulesView"}
+                        path={`/${PAGE_ID_SCHEDULES}`}
+                        render={() => renderAppContent(<Schedules />)}
+                    />,
+                    <Route
+                        exact
+                        key={"dashboardView"}
+                        path={dashboardPath}
+                        render={() => renderAppContent(<Dashboard />)}
+                    />,
+                    <Route
+                        exact
+                        key={"rootView"}
+                        path={rootPath}
+                        render={() => renderAppContent(<Dashboard />)}
+                    />,
+                ];
             } else if (this.props.fetchIdentityInProgress) {
                 returnVal = renderAppContent();
             } else {
@@ -165,18 +130,13 @@ export class MainContent extends React.Component {
 }
 
 // Export the redux-connected component
-export default connect((state) => ({
-    calendars: selectCalendars(state),
+export default withRouter(connect((state) => ({
     drawerIsOpen: selectDrawerIsOpen(state),
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
-    pageId: selectPageId(state),
-    userError: selectUserError(state),
-    snackbarContentKey: selectSnackbarContentKey(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
     setDrawerIsOpen,
-    setSnackbarContentKey,
-})(MainContent);
+})(MainContent));
 
 MainContent.propTypes = {
     // -------------------------------------------------------------------------
@@ -185,15 +145,15 @@ MainContent.propTypes = {
     // Redux -------------------------------------------------------------------
     drawerIsOpen: PropTypes.bool.isRequired,
     fetchIdentityInProgress: PropTypes.bool.isRequired,
-    pageId: PropTypes.string.isRequired,
-    snackbarContentKey: PropTypes.string.isRequired,
-    userError: PropTypes.string,
     userIsAuthenticated: PropTypes.bool.isRequired,
+
+    // React Router ------------------------------------------------------------
+    history: PropTypes.object,
+    location: PropTypes.object,
 
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     setDrawerIsOpen: PropTypes.func.isRequired,
-    setSnackbarContentKey: PropTypes.func.isRequired,
 };

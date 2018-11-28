@@ -16,6 +16,7 @@
 }
 
 .loginProgress {
+    background-color: darken($primaryLight, 5%);
     color: darken($primaryLight, 2.5%);
     display: block;
     margin: 0 auto;

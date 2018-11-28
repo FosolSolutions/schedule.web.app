@@ -1,9 +1,7 @@
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { CalendarEvents } from "utils/CalendarEvents";
-import { EventCriterion } from "utils/EventCriterion";
-import { stringToHslColor } from "./generalUtils";
+import { stringToHslColor } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
 
@@ -14,18 +12,15 @@ export class Calendar {
         this.accountId = data.accountId;
         this.name = data.name;
         this.description = data.description;
-        this.events = new CalendarEvents(data.events);
         this.addedById = data.addedById;
-        this.addedOn = data.addedOn;
+        this.addedOn = new Date(data.addedOn);
         this.updatedById = data.updatedById;
-        this.updatedOn = data.updatedOn;
+        this.updatedOn = new Date(data.updatedOn);
         this.rowVersion = data.rowVersion;
+        this.criteria = data.criteria.map((criterion) => criterion.id);
 
-        this.criteria = [];
-
-        data.criteria.forEach((criterionDatum) => {
-            this.criteria.push(new EventCriterion(criterionDatum));
-        });
+        // These are already date-sorted by CalendarEventsNormalizer
+        this.events = data.events;
 
         // Hardcoded properties
         this.accountName = "Victoria Christadelphians";

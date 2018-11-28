@@ -12,14 +12,11 @@ import {
     selectIsAuthenticated,
     selectFetchIdentityInProgress,
     selectLoginInProgress,
-    selectParticipantId,
+    selectParticipantKey,
 } from "redux/reducers/userReducer";
-import { selectPageId } from "redux/reducers/uiReducer";
-import { setPageId } from "redux/actions/uiActions";
 import {
-    backdoorLogin,
     participantLogin,
-    setParticipantId,
+    setParticipantKey,
 } from "redux/actions/userActions";
 import { fetchCalendars } from "redux/actions/calendarActions";
 
@@ -62,14 +59,14 @@ import { participantKeyValid } from "utils/validatorRules";
 /**
  * Renders the Authentication page content.
  */
-export class Authentication extends React.Component {
+export class Authentication extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        const participantIdInputName = "Participant ID";
+        const participantKeyInputName = "Participant ID";
 
-        this.participantIdValidatorRules = [
-            participantKeyValid(participantIdInputName),
+        this.participantKeyValidatorRules = [
+            participantKeyValid(participantKeyInputName),
         ];
     }
 
@@ -111,7 +108,7 @@ export class Authentication extends React.Component {
                         <section className={styles.panel}>
                             <h2 className={styles.signInHeading}>To sign in:</h2>
                             <div className={styles.linkInstructionWrap}>
-                                <LinkIcon onClick={() => this.props.backdoorLogin()}/>
+                                <LinkIcon />
                                 <span className={styles.linkInstructionText}>
                                     Click the sign-in link in your email
                                 </span>
@@ -127,10 +124,10 @@ export class Authentication extends React.Component {
                                 adornmentPosition="end"
                                 adornmentIsButton={true}
                                 label="Participant ID"
-                                syncValidatorRules={this.participantIdValidatorRules}
-                                value={this.props.participantId}
+                                syncValidatorRules={this.participantKeyValidatorRules}
+                                value={this.props.participantKey}
                                 onEnter={this.props.participantLogin}
-                                storeValueSetter={this.props.setParticipantId}
+                                storeValueSetter={this.props.setParticipantKey}
                             />
                             {/* <Button
                                 className={`${styles.loginButton} ${styles.google}`}
@@ -163,15 +160,12 @@ export class Authentication extends React.Component {
 export default connect((state) => ({
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     loginInProgress: selectLoginInProgress(state),
-    pageId: selectPageId(state),
-    participantId: selectParticipantId(state),
+    participantKey: selectParticipantKey(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
-    backdoorLogin,
     fetchCalendars,
     participantLogin,
-    setPageId,
-    setParticipantId,
+    setParticipantKey,
 })(Authentication);
 
 Authentication.propTypes = {
@@ -181,16 +175,13 @@ Authentication.propTypes = {
     // Redux -------------------------------------------------------------------
     fetchIdentityInProgress: PropTypes.bool.isRequired,
     loginInProgress: PropTypes.bool.isRequired,
-    participantId: PropTypes.string.isRequired,
-    pageId: PropTypes.string.isRequired,
+    participantKey: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,
 
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
-    backdoorLogin: PropTypes.func.isRequired,
     participantLogin: PropTypes.func.isRequired,
-    setPageId: PropTypes.func.isRequired,
-    setParticipantId: PropTypes.func.isRequired,
+    setParticipantKey: PropTypes.func.isRequired,
 };

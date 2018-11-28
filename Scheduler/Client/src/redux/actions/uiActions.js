@@ -1,31 +1,42 @@
 //------------------------------------------------------------------------------
-// Third Party
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
 import {
+    SET_CURRENT_CALENDAR_MONTH,
     SET_DRAWER_IS_OPEN,
-    SET_PAGE_ID,
+    SET_SCHEDULE_END_DATE,
+    SET_SCHEDULE_START_DATE,
     SET_SNACKBAR_CONTENT_KEY,
 } from "redux/actionTypes";
+import { selectSnackbars } from "redux/reducers/uiReducer";
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
 import {
-    HISTORY_PUSH,
-    HISTORY_REPLACE,
-    HISTORY_STATE_KEY_PAGE_ID,
+    ARRAY_COMMAND_PUSH,
+    ARRAY_COMMAND_SHIFT,
 } from "utils/constants";
-import { getRelativePath } from "utils/appDataUtils";
 
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Public Interface
 //------------------------------------------------------------------------------
+/**
+ * Set whether the calendar date.
+ *
+ * @param  {Date} date The new calendar month to show in the calendar UI.
+ *
+ * @return {Object}    Action object.
+ */
+export function setCurrentCalendarMonth(date) {
+    return {
+        type: SET_CURRENT_CALENDAR_MONTH,
+        currentCalendarMonth: date,
+    };
+}
+
 /**
  * Set whether the drawer should be open.
  *
@@ -41,48 +52,63 @@ export function setDrawerIsOpen(drawerIsOpen) {
 }
 
 /**
- * Set the page ID and update browser history.
+ * Set whether the schedule end date.
  *
- * @param  {string}      pageId        A PAGE_ID_* to set.
- * @param  {string|null} historyMethod Either a HISTORY_* constant or false (in
- *                                     which case history will not be modified).
+ * @param  {Date} date The schedule end date.
  *
- * @return {Object}                    Action object.
+ * @return {Object}    Action object.
  */
-export function setPageId(pageId, historyMethod = null) {
-    const relativePath = getRelativePath(pageId);
-    const historyAPIArgs = [
-        { [HISTORY_STATE_KEY_PAGE_ID]: pageId },
-        "",
-        `/${relativePath}`,
-    ];
-
-    if (historyMethod === HISTORY_PUSH) {
-        window.history.pushState(...historyAPIArgs);
-    } else if (historyMethod === HISTORY_REPLACE) {
-        window.history.replaceState(...historyAPIArgs);
-    }
-
+export function setScheduleEndDate(date) {
     return {
-        type: SET_PAGE_ID,
-        pageId,
+        type: SET_SCHEDULE_END_DATE,
+        scheduleEndDate: date,
     };
 }
 
 /**
- * Set the snackbar content key.
+ * Set whether the schedule start date.
  *
- * @param  {string} snackbarContentKey A SNACKBAR_* constant.
+ * @param  {Date} date The schedule start date.
  *
- * @return {Object}                    Action object.
+ * @return {Object}    Action object.
  */
-export function setSnackbarContentKey(snackbarContentKey = "") {
+export function setScheduleStartDate(date) {
     return {
-        type: SET_SNACKBAR_CONTENT_KEY,
-        snackbarContentKey,
+        type: SET_SCHEDULE_START_DATE,
+        scheduleStartDate: date,
     };
 }
 
+/**
+ * Set/unset the snackbar content key.
+ *
+ * @param  {string} arrayCommand       An ARRAY_COMMAND_*
+ * @param  {Object} snackbarContent    Two key/value pairs:
+ *                                      - key    {string} A SNACKBAR_* constant
+ *                                      - text   {string} Snackbar message
+ *                                      Optional (not required when shifting)
+ *
+ * @return {Object}                    Action object.
+ */
+export function setSnackbarContent(arrayCommand, snackbarContent) {
+    return (dispatch, getState) => {
+        const currentSnackbars = new Map(selectSnackbars(getState()));
+
+        if (
+            arrayCommand === ARRAY_COMMAND_PUSH &&
+            typeof snackbarContent !== "undefined"
+        ) {
+            currentSnackbars.set(Date.now(), snackbarContent);
+        } else if (arrayCommand === ARRAY_COMMAND_SHIFT) {
+            currentSnackbars.delete(currentSnackbars.keys().next().value);
+        }
+
+        dispatch({
+            type: SET_SNACKBAR_CONTENT_KEY,
+            snackbars: currentSnackbars,
+        });
+    };
+}
 
 //------------------------------------------------------------------------------
 // Private Implementation Details

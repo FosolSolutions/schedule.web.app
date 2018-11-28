@@ -4,11 +4,13 @@ using Scheduler.Models;
 
 namespace Scheduler.Controllers
 {
-    public class ScheduleController : Controller
+    public class SchedulesController : Controller
     {
         [Route("schedules")]
+        [Route("schedules/{name}")]
         public IActionResult Schedules()
         {
+            ViewData["relativePath"] = Request.Path.Value;
             return View();
         }
 

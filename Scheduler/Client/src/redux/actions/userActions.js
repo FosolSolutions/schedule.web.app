@@ -15,7 +15,10 @@ import {
     LOGIN_ERROR,
     LOGIN_FAILURE,
     LOGIN_SUCCESS,
-    SET_USER,
+    MANAGE_PARTICIPANT,
+    MANAGE_PARTICIPANT_SUCCESS,
+    MANAGE_PARTICIPANT_FAILURE,
+    MANAGE_PARTICIPANT_ERROR,
     SIGN_OFF,
     SIGN_OFF_ERROR,
     SIGN_OFF_FAILURE,
@@ -23,28 +26,22 @@ import {
     SET_IS_AUTHENTICATED,
     SET_PARTICIPANT_ID,
 } from "redux/actionTypes";
-import { selectPageId } from "redux/reducers/uiReducer";
-import { selectParticipantId } from "redux/reducers/userReducer";
-import {
-    setPageId,
-    setSnackbarContentKey,
-} from "redux/actions/uiActions";
+import { selectParticipantKey } from "redux/reducers/userReducer";
+import { setSnackbarContent } from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { User } from "utils/User";
 import {
-    PATH_AUTH_BACKDOOR,
     PATH_AUTH_IDENTITY,
     PATH_AUTH_PARTICIPANT,
+    PATH_MANAGE_PARTICIPANT,
     PATH_AUTH_SIGN_OFF,
-    PAGE_ID_DASHBOARD,
-    PAGE_ID_ROOT,
 } from "utils/backendConstants";
 import {
     deleteFromWebStorage,
     readWebStorage,
+    updateHistory,
     writeWebStorage,
 } from "utils/generalUtils";
 import {
@@ -53,7 +50,9 @@ import {
     LOCAL_STORAGE,
     SNACKBAR_NETWORK_ERROR,
     SNACKBAR_DYNAMIC_USER_ERROR,
+    ARRAY_COMMAND_PUSH,
 } from "utils/constants";
+import { UserNormalizer } from "utils/UserNormalizer";
 
 //------------------------------------------------------------------------------
 
@@ -80,30 +79,16 @@ export function initUserFromCache() {
 }
 
 /**
- * Set the user in the store.
+ * Set the participantKey in the store.
  *
- * @param  {User} user The user.
- *
- * @return {Object}    Action object.
- */
-export function setUser(user) {
-    return {
-        type: SET_USER,
-        user,
-    };
-}
-
-/**
- * Set the participantId in the store.
- *
- * @param  {User} participantId The user.
+ * @param  {User} participantKey The user.
  *
  * @return {Object}             Action object.
  */
-export function setParticipantId(participantId = "") {
+export function setParticipantKey(participantKey = "") {
     return {
         type: SET_PARTICIPANT_ID,
-        participantId,
+        participantKey,
     };
 }
 
@@ -124,50 +109,15 @@ export function setIsAuthenticated(isAuthenticated) {
 }
 
 /**
- * Login the user using the authentication back door.
- *
- * @return {Function} Action-dispatching thunk.
- */
-export function backdoorLogin() {
-    return (dispatch, getState) => {
-        dispatch({
-            type: LOGIN,
-        });
-
-        axios({
-            method: "get",
-            url: PATH_AUTH_BACKDOOR,
-            withCredentials: true,
-        })
-            .then((response) => {
-                const pageId = selectPageId(getState());
-
-                if (response.status === 200) {
-                    dispatch({ type: LOGIN_SUCCESS });
-                    dispatch(setUser(new User(response.data)));
-                    writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
-                    if (pageId === PAGE_ID_ROOT) {
-                        dispatch(setPageId(PAGE_ID_DASHBOARD, HISTORY_REPLACE));
-                    }
-                } else {
-                    dispatch({ type: LOGIN_FAILURE });
-                }
-            })
-            .catch((error) => {
-                handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
-            });
-    };
-}
-
-/**
  * Log the user in with the participant ID.
  *
  * @return {Function} Action-dispatching thunk.
  */
 export function participantLogin() {
     return (dispatch, getState) => {
-        const participantId = selectParticipantId(getState());
-        const PATH = `${PATH_AUTH_PARTICIPANT}/${participantId}`;
+        const participantKey = selectParticipantKey(getState());
+        const PATH = `${PATH_AUTH_PARTICIPANT}/${participantKey}`;
+        let normalizedParticipant;
 
         dispatch({
             type: LOGIN,
@@ -179,21 +129,21 @@ export function participantLogin() {
             withCredentials: true,
         })
             .then((response) => {
-                const pageId = selectPageId(getState());
-
                 if (response.status === 200) {
-                    dispatch({ type: LOGIN_SUCCESS });
-                    dispatch(setUser(new User(response.data)));
+                    normalizedParticipant = normalizeUserData(response.data);
+                    dispatch({
+                        type: LOGIN_SUCCESS,
+                        user: normalizedParticipant.user,
+                        attributes: normalizedParticipant.attributes,
+                    });
+                    dispatch(manageParticipant(normalizedParticipant.user.id));
                     writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
-                    if (pageId === PAGE_ID_ROOT) {
-                        dispatch(setPageId(PAGE_ID_DASHBOARD, HISTORY_REPLACE));
-                    }
                 } else {
                     dispatch({ type: LOGIN_FAILURE });
                 }
             })
             .catch((error) => {
-                handleErrorResponse(LOGIN_ERROR, dispatch, getState, error);
+                handleErrorResponse(LOGIN_ERROR, dispatch, error);
             });
     };
 }
@@ -204,7 +154,9 @@ export function participantLogin() {
  * @return {Function} Action-dispatching thunk.
  */
 export function fetchIdentity() {
-    return (dispatch, getState) => {
+    return (dispatch) => {
+        let normalizedParticipant;
+
         dispatch({
             type: FETCH_IDENTITY,
         });
@@ -218,14 +170,60 @@ export function fetchIdentity() {
             )
             .then((response) => {
                 if (response.status === 200) {
-                    dispatch({ type: FETCH_IDENTITY_SUCCESS });
-                    dispatch(setUser(new User(response.data)));
+                    normalizedParticipant = normalizeUserData(response.data);
+                    dispatch({
+                        type: FETCH_IDENTITY_SUCCESS,
+                        user: normalizedParticipant.user,
+                        attributes: normalizedParticipant.attributes,
+                    });
+                    dispatch(manageParticipant(normalizedParticipant.user.id));
                 } else {
                     dispatch({ type: FETCH_IDENTITY_FAILURE });
                 }
             })
             .catch((error) => {
-                handleErrorResponse(FETCH_IDENTITY_ERROR, dispatch, getState, error);
+                handleErrorResponse(FETCH_IDENTITY_ERROR, dispatch, error);
+            });
+    };
+}
+
+/**
+ * Get the current user with all attributes.
+ *
+ * @param  {string} id The particpant ID.
+ *
+ * @return {Function} Action-dispatching thunk.
+ */
+export function manageParticipant(id) {
+    return (dispatch) => {
+        const PATH = `${PATH_MANAGE_PARTICIPANT}/${id}`;
+        let normalizedParticipant;
+
+        dispatch({
+            type: MANAGE_PARTICIPANT,
+        });
+
+        axios
+            .get(
+                PATH,
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((response) => {
+                if (response.status === 200) {
+                    normalizedParticipant = normalizeUserData(response.data);
+                    dispatch({
+                        type: MANAGE_PARTICIPANT_SUCCESS,
+                        user: normalizedParticipant.user,
+                        attributes: normalizedParticipant.attributes,
+                    });
+                } else {
+                    dispatch({ type: MANAGE_PARTICIPANT_FAILURE });
+                }
+            })
+            .catch((error) => {
+                handleErrorResponse(MANAGE_PARTICIPANT_ERROR, dispatch, error);
             });
     };
 }
@@ -236,7 +234,7 @@ export function fetchIdentity() {
  * @return {Function} Action-dispatching thunk.
  */
 export function signOff() {
-    return (dispatch, getState) => {
+    return (dispatch) => {
         deleteFromWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED);
         dispatch({
             type: SIGN_OFF,
@@ -252,13 +250,13 @@ export function signOff() {
             .then((response) => {
                 if (response.status === 200) {
                     dispatch({ type: SIGN_OFF_SUCCESS });
-                    dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
+                    updateHistory("", HISTORY_REPLACE);
                 } else {
                     dispatch({ type: SIGN_OFF_FAILURE });
                 }
             })
             .catch((error) => {
-                handleErrorResponse(SIGN_OFF_ERROR, dispatch, getState, error);
+                handleErrorResponse(SIGN_OFF_ERROR, dispatch, error);
             });
     };
 }
@@ -271,24 +269,25 @@ export function signOff() {
  *
  * @param {string}   errorActionType The action type of the error.
  * @param {Function} dispatch        Redux dispatch method.
- * @param {Function} getState        Redux getState method.
  * @param {Object}   error           The returned error object.
  */
-function handleErrorResponse(errorActionType, dispatch, getState, error) {
-    const pageId = selectPageId(getState());
+function handleErrorResponse(errorActionType, dispatch, error) {
     let showSnackbar = false;
     let dynamicSnackbarError = false;
+    let snackbarContentKey;
     let errorMsg;
 
     // Send the user to the login page.
-    if (pageId !== PAGE_ID_ROOT) {
-        dispatch(setPageId(PAGE_ID_ROOT, HISTORY_REPLACE));
-    }
+    updateHistory("", HISTORY_REPLACE);
 
     if (typeof error.response !== "undefined" && typeof error.response.data !== "undefined") {
-        errorMsg = error.response.data.message;
-        dynamicSnackbarError = true;
-        showSnackbar = true;
+        if (error.response.status === 401 && errorActionType === FETCH_IDENTITY_ERROR) {
+            errorMsg = "";
+        } else {
+            dynamicSnackbarError = true;
+            errorMsg = error.response.data.message;
+            showSnackbar = true;
+        }
     } else if (
         typeof error.response !== "undefined" &&
         typeof error.response.status !== "undefined" &&
@@ -316,11 +315,41 @@ function handleErrorResponse(errorActionType, dispatch, getState, error) {
     });
     dispatch(setIsAuthenticated(false));
 
-    if (showSnackbar) {
+    if (showSnackbar && errorMsg !== "") {
         if (dynamicSnackbarError) {
-            dispatch(setSnackbarContentKey(SNACKBAR_DYNAMIC_USER_ERROR));
+            snackbarContentKey = SNACKBAR_DYNAMIC_USER_ERROR;
         } else {
-            dispatch(setSnackbarContentKey(SNACKBAR_NETWORK_ERROR));
+            snackbarContentKey = SNACKBAR_NETWORK_ERROR;
         }
+
+        dispatch(setSnackbarContent(
+            ARRAY_COMMAND_PUSH,
+            {
+                key: snackbarContentKey,
+                text: errorMsg,
+            },
+        ));
     }
+}
+
+/**
+ * Normalize the raw events data (requires special handling for now).
+ *
+ * @param {Object} rawUser User object with potentially nested attributes and
+ *                         contactInfo.
+ *
+ * @return {Object}        Object with two properties: user, and attributes.
+ *                         Need to add contactInfo handling later.
+ *
+ */
+export function normalizeUserData(rawUser) {
+    const normalizedUser = new UserNormalizer(rawUser);
+
+    return {
+        user: normalizedUser.getUser(),
+        attributes: {
+            byId: normalizedUser.getAllAttributes(),
+            allIds: normalizedUser.getAllAttributeIds(),
+        },
+    };
 }

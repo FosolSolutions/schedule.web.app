@@ -3,8 +3,10 @@
 //------------------------------------------------------------------------------
 import React from "react";
 import ReactDOM from "react-dom";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { AppContainer } from "react-hot-loader";
+import { BrowserRouter } from "react-router-dom";
+import DateFnsUtils from "@date-io/date-fns";
+import { MuiPickersUtilsProvider } from "material-ui-pickers";
 import {
     MuiThemeProvider,
     createMuiTheme,
@@ -32,12 +34,19 @@ import App from "features/app/components/App/App";
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
+import {
+    COLOR_PRIMARY_MAIN,
+    COLOR_PRIMARY_LIGHT,
+    COLOR_SECONDARY_MAIN,
+    COLOR_SECONDARY_DARK,
+    COLOR_ERROR_MAIN,
+    COLOR_DEFAULT_MAIN,
+} from "utils/constants";
 
 //------------------------------------------------------------------------------
 // Global requires
 //------------------------------------------------------------------------------
 require("assets/styles/core.scss");
-
 //------------------------------------------------------------------------------
 
 const generateClassName = createGenerateClassName();
@@ -46,22 +55,23 @@ const store = configureStore();
 const theme = createMuiTheme({
     palette: {
         primary: {
-            main: "#34495e",
-            light: "#eceff2",
+            main: COLOR_PRIMARY_MAIN,
+            light: COLOR_PRIMARY_LIGHT,
         },
         secondary: {
-            main: "#00a6fb",
-            dark: "#0c7cd5",
+            main: COLOR_SECONDARY_MAIN,
+            dark: COLOR_SECONDARY_DARK,
         },
         error: {
-            main: "#fe4a49",
+            main: COLOR_ERROR_MAIN,
         },
         default: {
-            main: "#eceff2",
+            main: COLOR_DEFAULT_MAIN,
             light: "red",
         },
     },
     typography: {
+        useNextVariants: true,
         fontFamily: [
             `"Open Sans"`,
             `"Helvetica Neue"`,
@@ -97,7 +107,11 @@ const render = (Component) => {
                         jss={jss}
                         generateClassName={generateClassName}
                     >
-                        <Component />
+                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                            <BrowserRouter>
+                                <Component />
+                            </BrowserRouter>
+                        </MuiPickersUtilsProvider>
                     </JssProvider>
                 </MuiThemeProvider>
             </Provider>

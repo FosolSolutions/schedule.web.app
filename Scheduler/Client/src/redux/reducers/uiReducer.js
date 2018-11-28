@@ -2,27 +2,39 @@
 // Third Party
 //------------------------------------------------------------------------------
 import update from "immutability-helper";
+import isBefore from "date-fns/isBefore";
+import endOfMonth from "date-fns/endOfMonth";
 
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
 import {
+    SET_CURRENT_CALENDAR_MONTH,
     SET_DRAWER_IS_OPEN,
-    SET_PAGE_ID,
+    SET_MAIN_CONTENT_KEY,
     SET_SNACKBAR_CONTENT_KEY,
+    SET_SCHEDULE_END_DATE,
+    SET_SCHEDULE_START_DATE,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { PAGE_ID } from "utils/staticBackendData";
+import { DATE_START_ECCLESIAL_SCHEDULE } from "utils/constants";
 
 //------------------------------------------------------------------------------
 
+const initialStartDate = (isBefore(new Date(), DATE_START_ECCLESIAL_SCHEDULE))
+    ? DATE_START_ECCLESIAL_SCHEDULE
+    : new Date();
+
 export const initialUiState = {
+    currentCalendarMonth: new Date(),
+    scheduleStartDate: initialStartDate,
+    scheduleEndDate: endOfMonth(initialStartDate),
     drawerIsOpen: true,
-    snackbarContentKey: "",
-    pageId: PAGE_ID,
+    mainContentKey: "",
+    snackbars: new Map(),
 };
 
 /**
@@ -40,19 +52,34 @@ export default function uiReducer(
     let returnVal;
 
     switch (action.type) {
+        case SET_CURRENT_CALENDAR_MONTH:
+            returnVal = update(state, {
+                currentCalendarMonth: { $set: action.currentCalendarMonth },
+            });
+            break;
         case SET_DRAWER_IS_OPEN:
             returnVal = update(state, {
                 drawerIsOpen: { $set: action.drawerIsOpen },
             });
             break;
-        case SET_PAGE_ID:
+        case SET_MAIN_CONTENT_KEY:
             returnVal = update(state, {
-                pageId: { $set: action.pageId },
+                mainContentKey: { $set: action.mainContentKey },
+            });
+            break;
+        case SET_SCHEDULE_END_DATE:
+            returnVal = update(state, {
+                scheduleEndDate: { $set: action.scheduleEndDate },
+            });
+            break;
+        case SET_SCHEDULE_START_DATE:
+            returnVal = update(state, {
+                scheduleStartDate: { $set: action.scheduleStartDate },
             });
             break;
         case SET_SNACKBAR_CONTENT_KEY:
             returnVal = update(state, {
-                snackbarContentKey: { $set: action.snackbarContentKey },
+                snackbars: { $set: action.snackbars },
             });
             break;
         default:
@@ -60,6 +87,17 @@ export default function uiReducer(
     }
 
     return returnVal;
+}
+
+/**
+ * currentCalendarMonth selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {Date}         The current month in the calendar UI.
+ */
+export function selectCurrentCalendarMonth(state) {
+    return state.ui.currentCalendarMonth;
 }
 
 /**
@@ -74,23 +112,46 @@ export function selectDrawerIsOpen(state) {
 }
 
 /**
- * pageId selector
+ * mainContentKey selector
  *
  * @param  {Object} state Store state object
  *
- * @return {boolean}      The current page ID.
+ * @return {boolean}      The current main content key.
  */
-export function selectPageId(state) {
-    return state.ui.pageId;
+export function selectMainContentKey(state) {
+    return state.ui.mainContentKey;
 }
+
+/**
+ * scheduleEndDate selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {Date}         The schedule end date.
+ */
+export function selectScheduleEndDate(state) {
+    return state.ui.scheduleEndDate;
+}
+
+/**
+ * scheduleStartDate selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {Date}         The schedule start date.
+ */
+export function selectScheduleStartDate(state) {
+    return state.ui.scheduleStartDate;
+}
+
 
 /**
  * snackbarContentKey selector
  *
  * @param  {Object} state Store state object
  *
- * @return {boolean}      The current snackbar content key.
+ * @return {Array}       The current snackbar content keys.
  */
-export function selectSnackbarContentKey(state) {
-    return state.ui.snackbarContentKey;
+export function selectSnackbars(state) {
+    return state.ui.snackbars;
 }

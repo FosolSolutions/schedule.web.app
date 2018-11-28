@@ -2,6 +2,8 @@
 // Helpers
 //------------------------------------------------------------------------------
 import {
+    HISTORY_PUSH,
+    HISTORY_REPLACE,
     LOCAL_STORAGE,
     SESSION_STORAGE,
 } from "utils/constants";
@@ -172,4 +174,25 @@ export function writeWebStorage(storageType, key, value, expiry = -1) {
     const stringVal = JSON.stringify(storageObject);
 
     window[storageType].setItem(key, stringVal);
+}
+
+/**
+ * Update history with the specified path, state and method.
+ *
+ * @param {string} relativePath  The relative path, no leading /.
+ * @param {string} historyMethod The HISTORY_* method constant.
+ * @param {string} stateObj      The state object to store.
+ */
+export function updateHistory(relativePath, historyMethod = HISTORY_PUSH, stateObj = {}) {
+    const historyAPIArgs = [
+        stateObj,
+        "",
+        `/${relativePath}`,
+    ];
+
+    if (historyMethod === HISTORY_PUSH) {
+        window.history.pushState(...historyAPIArgs);
+    } else if (historyMethod === HISTORY_REPLACE) {
+        window.history.replaceState(...historyAPIArgs);
+    }
 }

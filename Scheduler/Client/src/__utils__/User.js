@@ -1,57 +1,16 @@
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { capitalizeFirstLetterOnly, stringToHslColor } from "utils/generalUtils";
+import { Participant } from "utils/Participant";
 
 //------------------------------------------------------------------------------
 
-export class User {
+export class User extends Participant {
     constructor(data) {
-        this.id = data.id;
-        this.key = data.key;
-        this.email = data.email;
-        this.firstName = data.firstName;
-        this.lastName = data.lastName;
-        this.ownedAccounts = data.ownedAccounts;
-        this.accounts = data.accounts;
-        this.attributes = data.attributes;
-        this.oauthAccounts = data.oauthAccounts;
-        this.addedOn = data.addedOn;
-        this.rowVersion = data.rowVersion;
-
-        this.avatarColor = stringToHslColor(`${this.firstName}${this.lastName}`, 60, 70);
-    }
-
-    getAvatarColor() {
-        return this.avatarColor;
-    }
-
-    getId() {
-        return this.id;
-    }
-
-    getKey() {
-        return this.key;
-    }
-
-    getEmail() {
-        return this.email;
-    }
-
-    getFirstName() {
-        return this.firstName;
-    }
-
-    getLastName() {
-        return this.lastName;
-    }
-
-    getDisplayName() {
-        return `${capitalizeFirstLetterOnly(this.firstName)} ${capitalizeFirstLetterOnly(this.lastName).charAt(0)}.`;
-    }
-
-    getFullName() {
-        return `${capitalizeFirstLetterOnly(this.firstName)} ${capitalizeFirstLetterOnly(this.lastName)}`;
+        super(data);
+        this.ownedAccounts = data.ownedAccounts.map((ownedAccount) => ownedAccount.id);
+        this.accounts = data.accounts.map((account) => account.id);
+        this.oauthAccounts = data.oauthAccounts.map((oAuthAccount) => oAuthAccount.id);
     }
 
     getOwnedAccounts() {
@@ -64,13 +23,5 @@ export class User {
 
     getOauthAccounts() {
         return this.oauthAccounts;
-    }
-
-    getAddedOn() {
-        return this.addedOn;
-    }
-
-    getRowVersion() {
-        return this.rowVersion;
     }
 }

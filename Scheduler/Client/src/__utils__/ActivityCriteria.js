@@ -1,34 +1,27 @@
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { Calendar } from "utils/Calendar";
+import { EventActivity } from "utils/EventActivity";
 
 //------------------------------------------------------------------------------
 
-export class Calendars {
+export class ActivityCriteria {
     constructor(data) {
-        const calendars = data.byId;
+        const openings = data.byId;
         const allIds = data.allIds;
 
         this.all = new Map();
 
-        allIds.forEach((calendarId) => {
-            const activity = new Calendar(calendars[calendarId]);
-            this.all.set(calendarId, activity);
+        allIds.forEach((openingId) => {
+            const activity = new EventActivity(openings[openingId]);
+            this.all.set(openingId, activity);
         });
     }
 
     /**
-     * @return {Map} All calendars.
+     * @return {Map} All openings.
      */
     getAll() {
         return this.all;
-    }
-
-    /**
-     * @return {Map} Array of calendars.
-     */
-    getAllValues() {
-        return [...this.all.values()];
     }
 }
