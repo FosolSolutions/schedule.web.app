@@ -19,8 +19,8 @@ namespace Scheduler
     public class Startup
     {
         #region Variables
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly ILogger _logger;
+        //private readonly ILoggerFactory _loggerFactory;
+        //private readonly ILogger _logger;
         #endregion
 
         #region Properties

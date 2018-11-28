@@ -1,0 +1,171 @@
+﻿
+@section Scripts {
+	<script type="text/javascript">
+		const api = 'https://coeventapi.azurewebsites.net';
+		const routes = {
+			api: {
+				GET_MODEL: '/api/model/{0}'
+			},
+			calendar: {
+				GET_ALL: '/data/calendars',
+				GET: '/data/calendar/{0}',
+				UPDATE: '/manage/calendar'
+			}
+		};
+
+		function template(text) {
+			var result = text;
+			var len = arguments.length;
+			for (let i = 1; i < len; i++) {
+				for (let pname in arguments[i]) {
+					result = result.replace(new RegExp('\\{' + pname + '}','gm'), arguments[i][pname])
+				}
+			}
+			return result;
+		}
+
+		function endpoint(route) {
+			var url = api + route;
+			var len = arguments.length;
+			for (let i = 1; i < len; i++) {
+				var index = i - 1;
+				url = url.replace(new RegExp('\\{' + index + '}', 'gi'), arguments[i]);
+			}
+			return url;
+		}
+
+		const main = document.getElementById('main');
+
+		$.ajaxSetup({
+			type: 'GET',
+			crossDomain: true,
+			dataType: 'json',
+			xhrFields: {
+				withCredentials: true
+			},
+			error: (xhr, status, error) => {
+				var json = JSON.parse(xhr.responseText);
+				alert(json.message);
+			}
+		});
+
+		function getCalendars() {
+			$.ajax({
+				url: endpoint(routes.calendar.GET_ALL)
+			}).done((data, status, xhr) => {
+				var html = '<ul>';
+				for (var i = 0; i < data.length; i++) {
+					html += '<li><a href="#" data-id="' + data[i].id + '" onclick="getCalendar(this)">' + data[i].name + '</a><p>' + data[i].description + '</p></li>';
+				}
+				html += '</ul>';
+				main.innerHTML = html;
+			});
+		}
+
+		function generateHtmlForm(type, data) {
+			// Get the model definition for the specified type.
+			$.ajax({
+				url: endpoint(routes.api.GET_MODEL, type)
+			}).done((model, status, xhr) => {
+				var hidden_props = ['rowVersion', 'addedById', 'updatedById'];
+				var html = '<form id="' + type + '">';
+				for (var prop in model) {
+					var type = 'text';
+					var readonly = '';
+					switch (model[prop].type) {
+						case ('Int32'):
+							type = 'number';
+							break;
+						case ('Guid'):
+							readonly = 'readonly';
+						case ('String'):
+						default:
+							break;
+					}
+					if (hidden_props.includes(prop)) type = 'hidden';
+
+					if (type == 'hidden') {
+						html += template('<input id="{name}" type="{type}" value="{value}" {readonly}/>', { name: prop, type: type, value: data[prop], readonly: readonly });
+					} else {
+						if (model[prop].isArray) {
+						} else if (model[prop].isEnum) {
+							html += '<div><span>' + prop + ':</span><select>';
+							html += template('<option value="{' + prop + '}">{' + prop + '}</option>', data)
+							html += '</select></div>';
+						} else {
+							html += template('<div><span>{name}:</span><input id="{name}" type="{type}" value="{value}" {readonly}/></div>', { name: prop, type: type, value: data[prop], readonly: readonly });
+						}
+					}
+				}
+				html += '<input id="save" type="button" value="Save" onclick="updateCalendar()"/>';
+				html += '<input id="delete" type="button" value="Delete" onclick="deleteCalendar()"/>';
+				html += '</form>';
+				main.innerHTML = html;
+			});
+		}
+
+		function setCalendar(calendar) {
+			var html = template(`<form id="calendar">
+					<div><span>Id:</span><input id="id" type="text" value="{id}" readonly/></div>
+					<div><span>Key:</span><input id="key" type="text" value="{key}" readonly/></div>
+					<div><span>Account Id:</span><input id="accountId" type="text" value="{accountId}" readonly/></div>
+					<div><span>Name:</span><input id="name=" type="text" value="{name}"/></div>
+					<div><span>description:</span><input id="description" type="text" value="{description}"/></div>
+					<div><span>State:</span><input id="state=" type="text" value="{state}" readonly/></div>
+					<div><span>Criteria Rule:</span><input id="criteriaRule=" type="text" value="{criteriaRule}" readonly/></div>
+					<div><span>Added By:</span><input id="addedById" type="text" value="{addedById}" readonly/></div>
+					<div><span>Added On:</span><input id="addedOn" type="text" value="{addedOn}" readonly/></div>
+					<div><span>Updated By:</span><input id="updatedById" type="text" value="{updatedById}" readonly/></div>
+					<div><span>Updated On:</span><input id="updatedOn" type="text" value="{updatedOn}" readonly/></div>
+					<input id="rowVersion" type="hidden" value="{rowVersion}"/>
+					<input id="save" type="button" value="Save" onclick="updateCalendar()"/>
+					<input id="delete" type="button" value="Delete" onclick="deleteCalendar()"/>
+					</form >`, calendar);
+			main.innerHTML = html;
+		}
+
+		function getCalendar(element) {
+			var id = element.getAttribute('data-id');
+
+			$.ajax({
+				url: endpoint(routes.calendar.GET, id)
+			}).done((data, status, xhr) => {
+				generateHtmlForm('calendar', data);
+			});
+		}
+
+		function formToJson($form) {
+			var values = $form.serializeArray();
+			var result = {};
+
+			for (let i = 0; i < values.length; i++) {
+				result[values[i]['name']] = values[i]['value'];
+			}
+
+			return result;
+		}
+
+		function updateCalendar(element) {
+			var $form = $('#calendar');
+
+			var data = formToJson($form);
+
+			$.ajax({
+				type: 'PUT',
+				url: endpoint(routes.calendar.UPDATE),
+				contentType: 'application/json',
+				data: data
+			}).done((data, status, xhr) => {
+				setCalendar(data);
+			});
+		}
+
+		$(document).ready(() => {
+			getCalendars();
+		});
+	</script>
+}
+
+<div id="main">
+
+</div>
