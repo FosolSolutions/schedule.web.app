@@ -7,21 +7,44 @@
 			api: {
 				GET_MODEL: '/api/model/{0}'
 			},
+			auth: {
+				PARTICIPANT: '/auth/signin/participant/{0}'
+			},
 			calendar: {
 				GET_ALL: '/data/calendars',
 				GET: '/data/calendar/{0}',
 				ADD: '/manage/calendar',
 				UPDATE: '/manage/calendar',
 				DELETE: '/manage/calendar'
+			},
+			event: {
+				GET_ALL: '/data/calendar/{0}/events',
+				GET: '/data/calendar/event/{0}',
+				ADD: '/manage/calendar/event',
+				UPDATE: '/manage/calendar/event',
+				DELETE: '/manage/calendar/event'
+			},
+			participant: {
+				GET_ALL: '/manage/calendar/{0}/participants?quantity=200',
+				GET: '/manage/participant/{0}',
+				ADD: '/manage/participant',
+				UPDATE: '/manage/participant',
+				DELETE: '/manage/participant',
+				INVITE: '/manage/participant/invite/{0}'
 			}
 		};
+
+		var $filter;
+		var $main;
+		var $actions;
 
 		function template(text) {
 			var result = text;
 			var len = arguments.length;
 			for (let i = 1; i < len; i++) {
 				for (let pname in arguments[i]) {
-					result = result.replace(new RegExp('\\{' + pname + '}','gm'), arguments[i][pname])
+					var value = arguments[i][pname] === undefined ? '' : arguments[i][pname];
+					result = result.replace(new RegExp('\\{' + pname + '}', 'gm'), value)
 				}
 			}
 			return result;
@@ -37,8 +60,6 @@
 			return url;
 		}
 
-		const main = document.getElementById('main');
-
 		$.ajaxSetup({
 			type: 'GET',
 			crossDomain: true,
@@ -52,19 +73,70 @@
 			}
 		});
 
+		function setup(type, url, action, key, value) {
+			return createDropdown(type, url, key, value).then(dropdown => {
+				var html = '<div>' + dropdown;
+				html += template('<button type="button" onclick="{action}">Load</button>', { action });
+				html += '</div>'
+				$filter.html(html);
+			});
+		}
+
+		function setupCalendars() {
+			return setup('calendar', endpoint(routes.calendar.GET_ALL), 'load(this, \'calendar\')', 'id', 'name');
+		}
+
+		function setupParticipants() {
+			return setup('calendar', endpoint(routes.calendar.GET_ALL), 'loadParticipants(this)', 'id', 'name');
+		}
+
+		function loadParticipants(element) {
+			var args = $(element).parent().find('#calendar_filter').val().split(',');
+			args.unshift(routes.participant.GET_ALL);
+			return setup('participant', endpoint.apply(this, args), 'load(this, \'participant\'); addParticipantFeatures(this)', 'id', 'lastName}, {firstName');
+		}
+
+		function addParticipantFeatures(element) {
+			var html = '<div>';
+			html += '<button type="button" onclick="signin(routes.auth.PARTICIPANT)">Signin</button>';
+			html += '<button type="button" onclick="invite(routes.participant.INVITE))">Invite</button>';
+			html += '</div>';
+			$actions.html(html);
+		}
+
+		function signin(route) {
+			var key = $main.find('input[name=\'key\']').val();
+			return $.ajax({
+				url: endpoint(route, key)
+			}).done((data) => {
+				alert('success');
+			});
+		}
+
+		function invite(route) {
+			var id = $main.find('input[name=\'id\']').val();
+			return $.ajax({
+				type: 'PUT',
+				url: endpoint(route, key)
+			}).done((data) => {
+				alert(data);
+			});
+		}
+
 		/**
-		 * Get all the calendars for the currently signed in user/participant. 
+		 * Get all the calendars for the currently signed in user/participant.
 		 **/
-		function getCalendars() {
-			$.ajax({
-				url: endpoint(routes.calendar.GET_ALL)
-			}).done((data, status, xhr) => {
-				var html = '<ul>';
+		function createDropdown(type, url, key, value) {
+			const data_type = type;
+			return $.ajax({
+				url: url
+			}).then((data, status, xhr) => {
+				var html = template('<select id="{type}_filter">', { type: data_type });
 				for (var i = 0; i < data.length; i++) {
-					html += '<li><a href="#" data-type="calendar" data-key="' + data[i].id + '" onclick="get(this, routes[\'calendar\'].GET)">' + data[i].name + '</a><p>' + data[i].description + '</p></li>';
+					html += template('<option value="{' + key + '}">{' + value + '}</option>', data[i]);
 				}
-				html += '</ul>';
-				main.innerHTML = html;
+				html += '</select>';
+				return html;
 			});
 		}
 
@@ -116,28 +188,28 @@
 
 					//var hidden_props = ['rowVersion', 'addedById', 'updatedById'];
 					//if (hidden_props.includes(prop)) type = 'hidden';
-
+					var value = data[prop];
 					if (type == 'hidden') {
-						html += template('<input name="{name}" type="{type}" value="{value}" {readonly}/>', { name: prop, type: type, value: data[prop], readonly: readonly });
+						html += template('<input name="{name}" type="{type}" value="{value}" {readonly}/>', { name: prop, type: type, value: value, readonly: readonly });
 					} else {
 						if (model[prop].isArray) {
 						} else if (model[prop].isEnum) {
 							html += template('<div><span>{name}:</span><select name="{name}">', { name: prop });
 							for (let evalue in model[prop].values) {
-								html += template('<option value="{value}" {selected}>{name}</option>', { name: evalue, value: evalue, selected: evalue.toUpperCase() === data[prop].toUpperCase() ? 'selected' : '' });
+								html += template('<option value="{value}" {selected}>{name}</option>', { name: evalue, value: evalue, selected: evalue.toUpperCase() === value.toUpperCase() ? 'selected' : '' });
 							}
 							html += '</select></div>';
 						} else {
-							html += template('<div><span>{name}:</span><input name="{name}" type="{type}" value="{value}" {readonly}/></div>', { name: prop, type: type, value: data[prop], readonly: readonly });
+							html += template('<div><span>{name}:</span><input name="{name}" type="{type}" value="{value}" {readonly}/></div>', { name: prop, type: type, value: value, readonly: readonly });
 						}
 					}
 				}
-				html += '<input type="button" value="Clear" onclick="clean(\'{type}\')"/>';
-				html += '<input type="button" value="Add" onclick="add(\'{type}\', routes[\'{type}\'].ADD)"/>';
-				html += '<input type="button" value="Save" onclick="update(\'{type}\', routes[\'{type}\'].UPDATE)"/>';
-				html += '<input type="button" value="Delete" onclick="remove(\'{type}\', routes[\'{type}\'].DELETE)"/>';
+				html += '<button type="button" onclick="clean(\'{type}\')">Clear</button>';
+				html += '<button type="button" onclick="add(\'{type}\', routes[\'{type}\'].ADD)">Add</button>';
+				html += '<button type="button" onclick="update(\'{type}\', routes[\'{type}\'].UPDATE)">Save</button>';
+				html += '<button type="button" onclick="remove(\'{type}\', routes[\'{type}\'].DELETE)">Delete</button>';
 				html += '</form>';
-				main.innerHTML = template(html, { type: data_type });
+				$main.html(template(html, { type: data_type }));
 			});
 		}
 
@@ -152,6 +224,17 @@
 			return result;
 		}
 
+		function load(element, type) {
+			var args = $(element).parent().find('#' + type + '_filter').val().split(',');
+			args.unshift(routes[type].GET);
+
+			return $.ajax({
+				url: endpoint.apply(this, args)
+			}).then((data, status, xhr) => {
+				generateHtmlForm(type, data);
+			});
+		}
+
 		function get(element, url) {
 			var type = element.getAttribute('data-type');
 			var args = element.getAttribute('data-key').split(',');
@@ -159,7 +242,7 @@
 
 			$.ajax({
 				url: endpoint.apply(this, args)
-			}).done((data, status, xhr) => {
+			}).then((data, status, xhr) => {
 				generateHtmlForm(type, data);
 			});
 		}
@@ -173,72 +256,86 @@
 		}
 
 		function add(type, url) {
+			var data_type = type;
 			var $form = $('#' + type);
 
 			var data = formToObject($form);
 
-			$.ajax({
+			return $.ajax({
 				type: 'POST',
 				url: endpoint(url),
 				contentType: 'application/json',
 				data: JSON.stringify(data)
-			}).done((data, status, xhr) => {
-				generateHtmlForm(type, data);
+			}).then((data, status, xhr) => {
+				generateHtmlForm(data_type, data);
 			});
 		}
 
 		function update(type, url) {
+			var data_type = type;
 			var $form = $('#' + type);
 
 			var data = formToObject($form);
 
-			$.ajax({
+			return $.ajax({
 				type: 'PUT',
 				url: endpoint(url),
 				contentType: 'application/json',
 				data: JSON.stringify(data)
-			}).done((data, status, xhr) => {
-				generateHtmlForm(type, data);
+			}).then((data, status, xhr) => {
+				generateHtmlForm(data_type, data);
 			});
 		}
 
 		function remove(type, url) {
+			var data_type = type;
 			var $form = $('#' + type);
 
 			var data = formToObject($form);
 
-			$.ajax({
+			return $.ajax({
 				type: 'DELETE',
 				url: endpoint(url),
 				contentType: 'application/json',
 				data: JSON.stringify(data)
-			}).done((data, status, xhr) => {
-				generateHtmlForm(type, data);
+			}).then((data, status, xhr) => {
+				generateHtmlForm(data_type, data);
 			});
 		}
 
 		function bindNav() {
+			$filter = $('#filter');
+			$main = $('#main');
+			$actions = $('#actions');
+
 			$('#error').on('click', (event) => {
 				$(event.target).html('');
 			});
 
 			$('#calendars').on('click', () => {
-				getCalendars();
+				setupCalendars();
+				$main.html('');
 			});
 
 			$('#events').on('click', () => {
+				setupEvents();
+				$main.html('');
+			});
 
+			$('#participants').on('click', () => {
+				setupParticipants();
+				$main.html('');
 			});
 		}
 
 		$(document).ready(() => {
-			getCalendars();
 			bindNav();
 		});
 	</script>
 }
 
-<div>
+<div id="menu">
+	<span><a href="/dashboard">Home</a></span>
 	<span id="calendars"><a href="#">Calendars</a></span>
 	<span id="events"><a href="#">Events</a></span>
 	<span id="activities"><a href="#">Activities</a></span>
@@ -247,6 +344,8 @@
 	<span id="questions"><a href="#">Questions</a></span>
 </div>
 
+<div id="filter"></div>
+<div id="actions"></div>
 <div id="error"></div>
 <div id="main">
 
