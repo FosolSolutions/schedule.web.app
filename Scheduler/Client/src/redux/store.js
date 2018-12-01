@@ -12,7 +12,8 @@ export function configureStore() {
     // Connect to the dev tools extension if available, otherwise return the
     // store
     const enhancers = compose(
-        window.devToolsExtension ? window.devToolsExtension() : (f) => f,
+        // eslint-disable-next-line
+        window.__REDUX_DEVTOOLS_EXTENSION__ ? window.__REDUX_DEVTOOLS_EXTENSION__() : (f) => f,
     );
     const store = createStoreWithMiddleware(rootReducer, {}, enhancers);
 

@@ -4,6 +4,12 @@
 import { OpeningQuestion } from "utils/OpeningQuestion";
 import { ActivityCriterion } from "utils/ActivityCriterion";
 import { OpeningApplication } from "utils/OpeningApplication";
+import { Participant } from "utils/Participant";
+import { Tag } from "utils/Tag";
+import {
+    OPENING_NAME_SPEAKER,
+    TAG_KEY_TITLE,
+} from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -32,9 +38,15 @@ export class ActivityOpening {
         this.applications = data.applications.map(
             (application) => new OpeningApplication(application),
         );
+        this.participants = data.participants.map(
+            (participant) => new Participant(participant),
+        );
+        this.tags = data.tags.map(
+            (tag) => new Tag(tag),
+        );
 
-        // Un-implemented
-        this.tags = data.tags;
+        // Hardcoded functionality
+        this.hasQuesitons = (this.name === OPENING_NAME_SPEAKER);
     }
 
     getId() {
@@ -73,6 +85,10 @@ export class ActivityOpening {
         return this.description;
     }
 
+    getParticipants() {
+        return this.participants;
+    }
+
     getApplications() {
         return this.applications;
     }
@@ -83,6 +99,25 @@ export class ActivityOpening {
 
     getTags() {
         return this.tags;
+    }
+
+    getTitle() {
+        let returnVal = null;
+
+        for (let index = 0; index < this.tags.length; index += 1) {
+            const tag = this.tags[index];
+
+            if (tag.getKey() === TAG_KEY_TITLE) {
+                returnVal = tag.getValue();
+                break;
+            }
+        }
+
+        return returnVal;
+    }
+
+    getHasQuestions() {
+        return this.hasQuesitons;
     }
 
     getQuestions() {

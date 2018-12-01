@@ -3,14 +3,14 @@
 //------------------------------------------------------------------------------
 import axios from "axios";
 import format from "date-fns/format";
-import isEmpty from "lodash/isEmpty";
+import isUndefined from "lodash/isUndefined";
 import endOfMonth from "date-fns/endOfMonth";
 
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
 import {
-    selectCalendars,
+    selectCurrentCalendar,
     selectCurrentOpeningId,
     selectCurrentQuestionId,
 } from "redux/reducers/calendarReducer";
@@ -24,14 +24,18 @@ import {
     FETCH_CALENDARS_SUCCESS,
     FETCH_CALENDARS_ERROR,
     FETCH_CALENDARS_FAILURE,
-    FETCH_CALENDAR,
-    FETCH_CALENDAR_ERROR,
-    FETCH_CALENDAR_FAILURE,
-    FETCH_CALENDAR_SUCCESS,
     FETCH_EVENTS,
     FETCH_EVENTS_SUCCESS,
     FETCH_EVENTS_FAILURE,
     FETCH_EVENTS_ERROR,
+    FETCH_ACTIVITIES,
+    FETCH_ACTIVITIES_SUCCESS,
+    FETCH_ACTIVITIES_FAILURE,
+    FETCH_ACTIVITIES_ERROR,
+    FETCH_OPENINGS,
+    FETCH_OPENINGS_SUCCESS,
+    FETCH_OPENINGS_FAILURE,
+    FETCH_OPENINGS_ERROR,
     FETCH_OPENING,
     FETCH_OPENING_SUCCESS,
     FETCH_OPENING_FAILURE,
@@ -51,7 +55,6 @@ import {
 import {
     PATH_DATA_CALENDARS,
     PATH_DATA_CALENDAR,
-    PATH_DATA_EVENTS,
     PATH_DATA_APPLY,
     PATH_DATA_OPENING,
     PATH_DATA_UNAPPLY,
@@ -59,13 +62,20 @@ import {
 import {
     SNACKBAR_NETWORK_ERROR,
     DATE_START_ECCLESIAL_SCHEDULE,
-    SNACKBAR_DYNAMIC_CALENDAR_ERROR,
+    SNACKBAR_DYNAMIC_CALENDARS_ERROR,
     SNACKBAR_DYNAMIC_EVENTS_ERROR,
     SNACKBAR_DYNAMIC_OPENING_ERROR,
+    SNACKBAR_DYNAMIC_ACTIVITIES_ERROR,
+    SNACKBAR_DYNAMIC_OPENINGS_ERROR,
     ARRAY_COMMAND_PUSH,
+    SORT_DATE,
+    SORT_ORDER_ASC,
+    SORT_ALPHABETICAL,
+    ERROR_MESSAGE_UNKNOWN,
 } from "utils/constants";
 import { CalendarEventsNormalizer } from "utils/CalendarEventsNormalizer";
-import { normalizeArrayData } from "utils/appDataUtils";
+import { noOp } from "utils/generalUtils";
+import { DataNormalizer } from "utils/DataNormalizer";
 
 //------------------------------------------------------------------------------
 
@@ -83,7 +93,7 @@ import { normalizeArrayData } from "utils/appDataUtils";
  *
  * @return {Function}           Action-dispatching thunk.
  */
-export function applyToOpening(answers, openingId, rowVersion, onSuccess) {
+export function applyToOpening(answers, openingId, rowVersion, onSuccess = noOp) {
     return (dispatch) => {
         dispatch({
             type: APPLY_TO_OPENING,
@@ -116,7 +126,13 @@ export function applyToOpening(answers, openingId, rowVersion, onSuccess) {
                 }
             })
             .catch((error) => {
-                handleErrorResponse(APPLY_TO_OPENING_ERROR, dispatch, error);
+                const parsedError = getParsedErrorDetails(error);
+
+                if (parsedError.errorMsg !== ERROR_MESSAGE_UNKNOWN) {
+                    handleErrorResponse(APPLY_TO_OPENING_ERROR, dispatch, parsedError);
+                } else {
+                    throw error;
+                }
             });
     };
 }
@@ -124,9 +140,11 @@ export function applyToOpening(answers, openingId, rowVersion, onSuccess) {
 /**
  * Fetch the calendars from the calendars endpoint.
  *
+ * @param  {Function} onSuccess Success callback function.
+ *
  * @return {Function} Action-dispatching thunk.
  */
-export function fetchCalendars() {
+export function fetchCalendars(onSuccess = noOp) {
     return (dispatch) => {
         dispatch({
             type: FETCH_CALENDARS,
@@ -139,12 +157,17 @@ export function fetchCalendars() {
         })
             .then((response) => {
                 const status = response.status;
+                let normalizer;
 
                 if (status === 200) {
+                    normalizer = new DataNormalizer(response.data);
+
                     dispatch({
                         type: FETCH_CALENDARS_SUCCESS,
-                        calendars: normalizeArrayData(response.data),
+                        calendars: normalizer.getNormalizedData(),
                     });
+
+                    onSuccess();
                 } else {
                     dispatch({
                         type: FETCH_CALENDARS_FAILURE,
@@ -152,66 +175,13 @@ export function fetchCalendars() {
                 }
             })
             .catch((error) => {
-                handleErrorResponse(FETCH_CALENDARS_ERROR, dispatch, error);
-            });
-    };
-}
+                const parsedError = getParsedErrorDetails(error);
 
-/**
- * Fetch the current calendar including events in the specified date range.
- *
- * @param  {Date} startOn Start date.
- * @param  {Date} endOn   End date.
- *
- * @return {Function}     Action-dispatching thunk.
- */
-export function fetchCalendarInRange(startOn, endOn) {
-    return (dispatch, getState) => {
-        const calendars = selectCalendars(getState()).getAll();
-        const currentCalendar = (isEmpty(calendars))
-            ? null
-            : calendars.values().next().value;
-        const calendarId = (
-            currentCalendar !== null &&
-            currentCalendar.getId() !== null
-        ) ? currentCalendar.getId() : 1;
-        const dateFormat = "yyyy-MM-dd";
-        const startParam = (startOn === null) ? "" : `starton=${format(startOn, dateFormat)}&`;
-        const endParam = `endon=${format(endOn, dateFormat)}`;
-        const PATH = `${PATH_DATA_CALENDAR}/${calendarId}?${startParam}${endParam}`;
-
-        dispatch({
-            type: FETCH_CALENDAR,
-        });
-
-        axios
-            .get(
-                PATH,
-                {
-                    withCredentials: true,
-                },
-            )
-            .then((response) => {
-                let normalizedEvents;
-
-                if (response.status === 200) {
-                    normalizedEvents = normalizeEventsData(response.data.events);
-
-                    dispatch({
-                        type: FETCH_CALENDAR_SUCCESS,
-                        id: calendarId,
-                        calendar: response.data,
-                        events: normalizedEvents.events,
-                    });
-                    dispatch(fetchEvents(normalizedEvents.events.allIds));
+                if (parsedError.errorMsg !== ERROR_MESSAGE_UNKNOWN) {
+                    handleErrorResponse(FETCH_CALENDARS_ERROR, dispatch, parsedError);
                 } else {
-                    dispatch({
-                        type: FETCH_CALENDAR_FAILURE,
-                    });
+                    throw error;
                 }
-            })
-            .catch((error) => {
-                handleErrorResponse(FETCH_CALENDAR_ERROR, dispatch, error);
             });
     };
 }
@@ -223,25 +193,32 @@ export function fetchCalendarInRange(startOn, endOn) {
  */
 export function fetchEcclesialCalendar() {
     return (dispatch) => {
-        dispatch(
-            fetchCalendarInRange(
+        const onSuccessCallback = () => dispatch(
+            fetchEventsInRange(
                 DATE_START_ECCLESIAL_SCHEDULE,
                 endOfMonth(DATE_START_ECCLESIAL_SCHEDULE),
+                true,
             ),
         );
+
+        dispatch(fetchCalendars(onSuccessCallback));
     };
 }
 
 /**
- * Fetch the events, with full activity, opening, participant data.
+ * Fetch the events within the specified date range.
  *
- * @param  {Array} eventIds The event IDs to fetch full data for.
+ * @param  {Date}    startOn            Start date.
+ * @param  {Date}    endOn              End date.
+ * @param  {boolean} fetchNextOnSuccess Whether to fetch activities on success.
  *
- * @return {Function}       Action-dispatching thunk.
+ * @return {Function}     Action-dispatching thunk.
  */
-export function fetchEvents(eventIds) {
-    return (dispatch) => {
-        const PATH = `${PATH_DATA_EVENTS}?ids=${eventIds.join()}`;
+export function fetchEventsInRange(startOn, endOn, fetchNextOnSuccess = false) {
+    return (dispatch, getState) => {
+        const currentCalendar = selectCurrentCalendar(getState());
+        const calendarId = currentCalendar.getId();
+        const PATH = `${PATH_DATA_CALENDAR}/${calendarId}/events?${getDateRangeQueryString(startOn, endOn)}`;
 
         dispatch({
             type: FETCH_EVENTS,
@@ -254,18 +231,25 @@ export function fetchEvents(eventIds) {
         })
             .then((response) => {
                 const status = response.status;
-                let normalizedData;
+                let normalizer;
 
                 if (status === 200) {
-                    normalizedData = normalizeEventsData(response.data);
+                    normalizer = new CalendarEventsNormalizer(
+                        response.data,
+                        null,
+                        SORT_DATE,
+                        "startOn",
+                        SORT_ORDER_ASC,
+                    );
+
                     dispatch({
                         type: FETCH_EVENTS_SUCCESS,
-                        events: normalizedData.events,
-                        activities: normalizedData.activities,
-                        openings: normalizedData.openings,
+                        events: normalizer.getNormalizedData(),
                     });
 
-                    dispatch(fetchOpenings(normalizedData.openings.allIds));
+                    if (fetchNextOnSuccess) {
+                        dispatch(fetchActivitiesInRange(startOn, endOn, true));
+                    }
                 } else {
                     dispatch({
                         type: FETCH_EVENTS_FAILURE,
@@ -273,7 +257,136 @@ export function fetchEvents(eventIds) {
                 }
             })
             .catch((error) => {
-                handleErrorResponse(FETCH_EVENTS_ERROR, dispatch, error);
+                const parsedError = getParsedErrorDetails(error);
+
+                if (parsedError.errorMsg !== ERROR_MESSAGE_UNKNOWN) {
+                    handleErrorResponse(FETCH_EVENTS_ERROR, dispatch, parsedError);
+                } else {
+                    throw error;
+                }
+            });
+    };
+}
+
+/**
+ * Fetch the activities within the specified date range.
+ *
+ * @param  {Date}    startOn            Start date.
+ * @param  {Date}    endOn              End date.
+ * @param  {boolean} fetchNextOnSuccess Whether to fetch openings on success.
+ *
+ * @return {Function}                   Action-dispatching thunk.
+ */
+export function fetchActivitiesInRange(startOn, endOn, fetchNextOnSuccess) {
+    return (dispatch, getState) => {
+        const currentCalendar = selectCurrentCalendar(getState());
+        const calendarId = currentCalendar.getId();
+        const PATH = `${PATH_DATA_CALENDAR}/${calendarId}/activities?${getDateRangeQueryString(startOn, endOn)}`;
+
+        dispatch({
+            type: FETCH_ACTIVITIES,
+        });
+
+        axios({
+            method: "get",
+            url: PATH,
+            withCredentials: true,
+        })
+            .then((response) => {
+                const status = response.status;
+                let normalizer;
+
+                if (status === 200) {
+                    normalizer = new DataNormalizer(
+                        response.data,
+                        "eventId",
+                        SORT_ALPHABETICAL,
+                        "name",
+                        SORT_ORDER_ASC,
+                    );
+
+                    dispatch({
+                        type: FETCH_ACTIVITIES_SUCCESS,
+                        activities: normalizer.getNormalizedData(),
+                        activitiesByEvent: normalizer.getParentMap(),
+                    });
+
+                    if (fetchNextOnSuccess) {
+                        dispatch(fetchOpeningsInRange(startOn, endOn));
+                    }
+                } else {
+                    dispatch({
+                        type: FETCH_ACTIVITIES_FAILURE,
+                    });
+                }
+            })
+            .catch((error) => {
+                const parsedError = getParsedErrorDetails(error);
+
+                if (parsedError.errorMsg !== ERROR_MESSAGE_UNKNOWN) {
+                    handleErrorResponse(FETCH_ACTIVITIES_ERROR, dispatch, parsedError);
+                } else {
+                    throw error;
+                }
+            });
+    };
+}
+
+/**
+ * Fetch the openings within the specified date range.
+ *
+ * @param  {Date} startOn Start date.
+ * @param  {Date} endOn   End date.
+ *
+ * @return {Function}     Action-dispatching thunk.
+ */
+export function fetchOpeningsInRange(startOn, endOn) {
+    return (dispatch, getState) => {
+        const currentCalendar = selectCurrentCalendar(getState());
+        const calendarId = currentCalendar.getId();
+        const PATH = `${PATH_DATA_CALENDAR}/${calendarId}/openings?${getDateRangeQueryString(startOn, endOn)}`;
+
+        dispatch({
+            type: FETCH_OPENINGS,
+        });
+
+        axios({
+            method: "get",
+            url: PATH,
+            withCredentials: true,
+        })
+            .then((response) => {
+                const status = response.status;
+                let normalizer;
+
+                if (status === 200) {
+                    normalizer = new DataNormalizer(
+                        response.data,
+                        "activityId",
+                        SORT_ALPHABETICAL,
+                        "name",
+                        SORT_ORDER_ASC,
+                    );
+
+                    dispatch({
+                        type: FETCH_OPENINGS_SUCCESS,
+                        openings: normalizer.getNormalizedData(),
+                        openingsByActivity: normalizer.getParentMap(),
+                    });
+                } else {
+                    dispatch({
+                        type: FETCH_OPENINGS_FAILURE,
+                    });
+                }
+            })
+            .catch((error) => {
+                const parsedError = getParsedErrorDetails(error);
+
+                if (parsedError.errorMsg !== ERROR_MESSAGE_UNKNOWN) {
+                    handleErrorResponse(FETCH_OPENINGS_ERROR, dispatch, parsedError);
+                } else {
+                    throw error;
+                }
             });
     };
 }
@@ -297,10 +410,11 @@ export function fetchOpenings(openingIds) {
  * Recursively fetch the openings.
  *
  * @param  {number} openingId The opening ID to fetch full data for.
+ * @param  {number} onSuccess Callback on success.
  *
  * @return {Function}         Action-dispatching thunk.
  */
-export function fetchOpening(openingId) {
+export function fetchOpening(openingId, onSuccess = noOp) {
     return (dispatch) => {
         dispatch({
             type: FETCH_OPENING,
@@ -315,7 +429,7 @@ export function fetchOpening(openingId) {
                 if (response.status === 200) {
                     const questions = response.data.questions;
 
-                    if (typeof questions !== "undefined" && questions.length > 0) {
+                    if (!isUndefined(questions) && questions.length > 0) {
                         hydrateAnswerMap(response.data, dispatch);
                     }
 
@@ -323,6 +437,8 @@ export function fetchOpening(openingId) {
                         type: FETCH_OPENING_SUCCESS,
                         opening: response.data,
                     });
+
+                    onSuccess();
                 } else {
                     dispatch({
                         type: FETCH_OPENING_FAILURE,
@@ -330,7 +446,13 @@ export function fetchOpening(openingId) {
                 }
             })
             .catch((error) => {
-                handleErrorResponse(FETCH_OPENING_ERROR, dispatch, error);
+                const parsedError = getParsedErrorDetails(error);
+
+                if (parsedError.errorMsg !== ERROR_MESSAGE_UNKNOWN) {
+                    handleErrorResponse(FETCH_OPENING_ERROR, dispatch, parsedError);
+                } else {
+                    throw error;
+                }
             });
     };
 }
@@ -344,7 +466,7 @@ export function fetchOpening(openingId) {
  *
  * @return {Function}        Action-dispatching thunk.
  */
-export function unapplyFromOpening(openingId, rowVersion, onSuccess = () => {}) {
+export function unapplyFromOpening(openingId, rowVersion, onSuccess = noOp) {
     return (dispatch) => {
         dispatch({
             type: UNAPPLY_FROM_OPENING,
@@ -366,6 +488,7 @@ export function unapplyFromOpening(openingId, rowVersion, onSuccess = () => {}) 
                 if (status === 200) {
                     dispatch({
                         type: UNAPPLY_FROM_OPENING_SUCCESS,
+                        opening: response.data,
                     });
                     onSuccess();
                 } else {
@@ -375,7 +498,17 @@ export function unapplyFromOpening(openingId, rowVersion, onSuccess = () => {}) 
                 }
             })
             .catch((error) => {
-                handleErrorResponse(UNAPPLY_FROM_OPENING_ERROR, dispatch, error);
+                const parsedError = getParsedErrorDetails(error);
+
+                if (parsedError.errorMsg !== ERROR_MESSAGE_UNKNOWN) {
+                    handleErrorResponse(
+                        UNAPPLY_FROM_OPENING_ERROR,
+                        dispatch,
+                        parsedError,
+                    );
+                } else {
+                    throw error;
+                }
             });
     };
 }
@@ -452,57 +585,98 @@ export function setAnswer(openingId, questionId, answer = "") {
 // Private Implementation Details
 //------------------------------------------------------------------------------
 /**
+ * Get the date range query string (using "startOn", "endOn" params), with no
+ * leading "?".
+ *
+ * @param  {Date|null} startOn The start Date (optional).
+ * @param  {Date}      endOn   The end Date.
+ *
+ * @return {string}            The query string as described above.
+ */
+function getDateRangeQueryString(startOn, endOn) {
+    const dateFormat = "yyyy-MM-dd";
+    const startParam = (startOn === null) ? "" : `starton=${format(startOn, dateFormat)}&`;
+    const endParam = `endon=${format(endOn, dateFormat)}`;
+
+    return `${startParam}${endParam}`;
+}
+
+/**
+ * Parse the error object and return an object with the following keys:
+ *   - {boolean} dynamicSnackbarError Whether to show the error message verbatim
+ *                                    to the user.
+ *   - {boolean} showSnacbar          Whether to show a snackbar.
+ *   - {string}  errorMsg             The message.
+ *
+ * @param  {Object} error The XHR error object
+ *
+ * @return {Object}      The return object described above
+ */
+function getParsedErrorDetails(error) {
+    const returnVal = {
+        dynamicSnackbarError: false,
+        showSnackbar: false,
+        errorMsg: undefined,
+    };
+
+    if (!isUndefined(error.response) && !isUndefined(error.response.data)) {
+        if (error.response.status === 401) {
+            returnVal.errorMsg = "";
+        } else {
+            returnVal.dynamicSnackbarError = true;
+            returnVal.errorMsg = error.response.data.message;
+            returnVal.showSnackbar = true;
+        }
+    } else if (
+        !isUndefined(error.response) &&
+        !isUndefined(error.response.status) &&
+        !isUndefined(error.response.statusText)
+    ) {
+        if (error.response.status !== 401) {
+            returnVal.showSnackbar = true;
+        }
+
+        returnVal.errorMsg = `${error.response.status}: ${error.response.statusText}`;
+    } else if (!isUndefined(error.message) && !isUndefined(returnVal.errorMsg)) {
+        returnVal.errorMsg = error.message;
+        returnVal.showSnackbar = true;
+    } else {
+        returnVal.errorMsg = ERROR_MESSAGE_UNKNOWN;
+        returnVal.showSnackbar = true;
+    }
+
+    return returnVal;
+}
+
+/**
  * Handle calendar-related endpoint error responses.
  *
  * @param {string}   errorActionType The action type of the error.
  * @param {Function} dispatch        Redux dispatch method.
- * @param {Object}   error           The returned error object.
+ * @param {Object}   parsedError     The parsed error object.
  */
-function handleErrorResponse(errorActionType, dispatch, error) {
-    let dynamicSnackbarError = false;
-    let showSnackbar = false;
+function handleErrorResponse(errorActionType, dispatch, parsedError) {
     let snackbarContentKey;
-    let errorMsg;
-
-    if (typeof error.response !== "undefined" && typeof error.response.data !== "undefined") {
-        if (error.response.status === 401) {
-            errorMsg = "";
-        } else {
-            dynamicSnackbarError = true;
-            errorMsg = error.response.data.message;
-            showSnackbar = true;
-        }
-    } else if (
-        typeof error.response !== "undefined" &&
-        typeof error.response.status !== "undefined" &&
-        typeof error.response.statusText !== "undefined"
-    ) {
-        if (error.response.status !== 401) {
-            showSnackbar = true;
-        }
-
-        errorMsg = `${error.response.status}: ${error.response.statusText}`;
-    } else if (typeof error.message !== "undefined" && typeof errorMsg !== "undefined") {
-        errorMsg = error.message;
-        showSnackbar = true;
-    } else {
-        errorMsg = "Unknown Error";
-        showSnackbar = true;
-    }
 
     dispatch({
         type: errorActionType,
-        error: errorMsg,
+        error: parsedError.errorMsg,
     });
 
-    if (showSnackbar && errorMsg !== "") {
-        if (dynamicSnackbarError) {
+    if (parsedError.showSnackbar && parsedError.errorMsg !== "") {
+        if (parsedError.dynamicSnackbarError) {
             switch (errorActionType) {
-                case FETCH_CALENDAR_ERROR:
-                    snackbarContentKey = SNACKBAR_DYNAMIC_CALENDAR_ERROR;
+                case FETCH_CALENDARS_ERROR:
+                    snackbarContentKey = SNACKBAR_DYNAMIC_CALENDARS_ERROR;
                     break;
                 case FETCH_EVENTS_ERROR:
                     snackbarContentKey = SNACKBAR_DYNAMIC_EVENTS_ERROR;
+                    break;
+                case FETCH_ACTIVITIES_ERROR:
+                    snackbarContentKey = SNACKBAR_DYNAMIC_ACTIVITIES_ERROR;
+                    break;
+                case FETCH_OPENINGS_ERROR:
+                    snackbarContentKey = SNACKBAR_DYNAMIC_OPENINGS_ERROR;
                     break;
                 case APPLY_TO_OPENING_ERROR:
                 case FETCH_OPENING_ERROR:
@@ -519,49 +693,10 @@ function handleErrorResponse(errorActionType, dispatch, error) {
             ARRAY_COMMAND_PUSH,
             {
                 key: snackbarContentKey,
-                text: errorMsg,
+                text: parsedError.errorMsg,
             },
         ));
     }
-}
-
-/**
- * Normalize the raw events data (requires special handling for now).
- *
- * @param {Array} rawEvents Array of events with nested activities and
- *                          openings. Raw return JSON.
- *
- * @return {Object}         Object with three properties each matching the
- *                          return spec of normalizeArrayData (with one
- *                          exception - the normalized events has "allIds",
- *                          "bibleClassIds", "bibleTalkIds", "hallCleaningIds"
- *                          and "memorialMeetingIds"):
- *                              - events     {Object} Normalized events
- *                              - activities {Object} Normalized activities
- *                              - openings   {Object} Normalized openings
- *
- */
-export function normalizeEventsData(rawEvents) {
-    const normalizedEvents = new CalendarEventsNormalizer(rawEvents);
-
-    return {
-        events: {
-            byId: normalizedEvents.getEvents(),
-            allIds: normalizedEvents.getAllEventIds(),
-            bibleClassIds: normalizedEvents.getBibleClassIds(),
-            bibleTalkIds: normalizedEvents.getBibleTalkIds(),
-            hallCleaningIds: normalizedEvents.getHallCleaningIds(),
-            memorialMeetingIds: normalizedEvents.getMemorialMeetingIds(),
-        },
-        activities: {
-            byId: normalizedEvents.getActivities(),
-            allIds: normalizedEvents.getActivityIds(),
-        },
-        openings: {
-            byId: normalizedEvents.getOpenings(),
-            allIds: normalizedEvents.getOpeningIds(),
-        },
-    };
 }
 
 /**
@@ -572,7 +707,7 @@ export function normalizeEventsData(rawEvents) {
  */
 function hydrateAnswerMap(rawOpening, dispatch) {
     rawOpening.questions.forEach((question) => {
-        if (typeof rawOpening.id !== "undefined" && typeof question.id !== "undefined") {
+        if (!isUndefined(rawOpening.id) && !isUndefined(question.id)) {
             dispatch(setAnswer(rawOpening.id, question.id));
         }
     });

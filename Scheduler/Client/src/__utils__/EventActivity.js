@@ -6,7 +6,7 @@ import { ActivityCriterion } from "utils/ActivityCriterion";
 //------------------------------------------------------------------------------
 
 export class EventActivity {
-    constructor(data) {
+    constructor(data, openings) {
         const startDate = new Date(data.startOn);
         const endDate = new Date(data.endOn);
 
@@ -23,9 +23,18 @@ export class EventActivity {
         this.updatedById = data.updatedById;
         this.updatedOn = data.updatedOn;
         this.rowVersion = data.rowVersion;
-        this.openings = data.openings;
-        // Can't normalize criteria as their IDs aren't unique
-        this.criteria = data.criteria.map((criteria) => new ActivityCriterion(criteria));
+        this.openings = openings;
+
+        // Can't normalize criteria as their IDs aren't unique. Also, [null]
+        // from the backend means no criteria for now. Should move this to a
+        // validation class.
+        if (data.criteria.length === 1 && data.criteria[0] === null) {
+            this.criteria = [];
+        } else {
+            this.criteria = data.criteria.map(
+                (criteria) => new ActivityCriterion(criteria),
+            );
+        }
     }
 
     getId() {

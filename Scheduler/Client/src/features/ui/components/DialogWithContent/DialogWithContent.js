@@ -20,6 +20,11 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import styles from "features/ui/components/DialogWithContent/dialogWithContent.scss";
 
 //------------------------------------------------------------------------------
+// Helpers
+//------------------------------------------------------------------------------
+import { noOp } from "utils/generalUtils";
+
+//------------------------------------------------------------------------------
 
 export default class DialogWithContent extends React.Component {
     constructor(props) {
@@ -57,11 +62,11 @@ export default class DialogWithContent extends React.Component {
                 onClick: () => this.handleClickOpen(),
                 onClose: () => this.handleClose(),
             };
-            const IconConstructor = this.props.launchButton;
+            const ButtonConstructor = this.props.launchButton;
             const noProgressButton = (
-                <IconConstructor {...launchButtonProps}>
-                    {this.props.buttonIcon}
-                </IconConstructor>
+                <ButtonConstructor {...launchButtonProps}>
+                    {this.props.buttonContent}
+                </ButtonConstructor>
             );
             return (this.props.withProgress && this.props.progress)
                 ? (
@@ -114,8 +119,7 @@ DialogWithContent.propTypes = {
     // -------------------------------------------------------------------------
     // Data propTypes
     // -------------------------------------------------------------------------
-    // Required when iconButton = true
-    buttonIcon: PropTypes.node,
+    buttonContent: PropTypes.node.isRequired,
     launchButtonProps: PropTypes.object,
     cancelText: PropTypes.string,
     children: PropTypes.node,
@@ -127,6 +131,7 @@ DialogWithContent.propTypes = {
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
+    launchButton: PropTypes.func.isRequired,
     handleOpen: PropTypes.func,
     handleClose: PropTypes.func,
     handleCancel: PropTypes.func,
@@ -134,15 +139,14 @@ DialogWithContent.propTypes = {
 };
 
 DialogWithContent.defaultProps = {
-    buttonContent: "",
-    buttonProps: {},
+    launchButtonProps: {},
     cancelText: "Cancel",
     dialogTitle: "",
     progress: false,
     submitText: "Submit",
     withProgress: false,
-    handleCancel: () => {},
-    handleSubmit: () => {},
-    handleOpen: () => {},
-    handleClose: () => {},
+    handleCancel: noOp,
+    handleSubmit: noOp,
+    handleOpen: noOp,
+    handleClose: noOp,
 };

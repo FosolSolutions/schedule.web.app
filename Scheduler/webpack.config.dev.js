@@ -18,7 +18,7 @@ const devServerPath = `//${domain}:${devServerPort}`;
 
 module.exports = {
     cache: true,
-    devtool: "eval",
+    devtool: "eval-source-map",
 
     entry: [
         "react-hot-loader/patch",

@@ -34,7 +34,9 @@ import styles from "features/ui/components/ConsecutiveSnackbars/consecutiveSnack
 import {
     ARRAY_COMMAND_SHIFT,
     SNACKBAR_NETWORK_ERROR,
-    SNACKBAR_DYNAMIC_CALENDAR_ERROR,
+    SNACKBAR_DYNAMIC_CALENDARS_ERROR,
+    SNACKBAR_DYNAMIC_ACTIVITIES_ERROR,
+    SNACKBAR_DYNAMIC_OPENINGS_ERROR,
     SNACKBAR_DYNAMIC_OPENING_ERROR,
     SNACKBAR_DYNAMIC_EVENTS_ERROR,
     SNACKBAR_DYNAMIC_USER_ERROR,
@@ -82,9 +84,11 @@ export class ConsecutiveSnackbars extends React.Component {
 
         switch (currentSnackbar.key) {
             case SNACKBAR_NETWORK_ERROR:
-            case SNACKBAR_DYNAMIC_CALENDAR_ERROR:
-            case SNACKBAR_DYNAMIC_OPENING_ERROR:
+            case SNACKBAR_DYNAMIC_CALENDARS_ERROR:
             case SNACKBAR_DYNAMIC_EVENTS_ERROR:
+            case SNACKBAR_DYNAMIC_ACTIVITIES_ERROR:
+            case SNACKBAR_DYNAMIC_OPENINGS_ERROR:
+            case SNACKBAR_DYNAMIC_OPENING_ERROR:
             case SNACKBAR_DYNAMIC_USER_ERROR:
                 snackbarClassNames = `${styles.errorSnack}`;
                 break;

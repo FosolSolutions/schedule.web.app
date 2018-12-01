@@ -32,7 +32,6 @@ export const PATH_MANAGE_PARTICIPANT = `${managePath}/participant`;
 // Data Paths ------------------------------------------------------------------
 export const PATH_DATA_CALENDARS = `${dataPath}/calendars`;
 export const PATH_DATA_CALENDAR = `${dataPath}/calendar`;
-export const PATH_DATA_EVENTS = `${PATH_DATA_CALENDAR}/events`;
 export const PATH_DATA_EVENT = `${PATH_DATA_CALENDAR}/event`;
 export const PATH_DATA_OPENING = `${PATH_DATA_EVENT}/activity/opening`;
 export const PATH_DATA_APPLY = `${PATH_DATA_OPENING}/apply`;
