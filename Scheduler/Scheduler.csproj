@@ -24,9 +24,14 @@
     <Folder Include="wwwroot\client\__assets__\" />
     <Folder Include="wwwroot\client\__assets__\fonts\" />
     <Folder Include="wwwroot\client\__assets__\images\" />
-    <Folder Include="wwwroot\js\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Update="Areas\Admin\Views\Home\Index.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\Participant\Index.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Areas\Admin\Views\Shared\_Layout.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
