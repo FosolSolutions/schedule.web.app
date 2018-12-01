@@ -1,68 +1,39 @@
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import isBefore from "date-fns/isBefore";
-import cloneDeep from "lodash/cloneDeep";
-
-//------------------------------------------------------------------------------
-// Helpers
-//------------------------------------------------------------------------------
 import {
     EVENT_NAME_BIBLE_CLASS,
     EVENT_NAME_BIBLE_TALK,
     EVENT_NAME_HALL_CLEANING,
     EVENT_NAME_MEMORIAL_MEETING,
 } from "utils/constants";
+import { DataNormalizer } from "utils/DataNormalizer";
 
 //------------------------------------------------------------------------------
 
-export class CalendarEventsNormalizer {
-    constructor(events) {
-        const sortedRawEvents = events
-            .sort(
-                (a, b) => {
-                    const aIsBeforeB = isBefore(
-                        new Date(a.startOn),
-                        new Date(b.startOn),
-                    );
+export class CalendarEventsNormalizer extends DataNormalizer {
+    constructor(
+        data,
+        parentMapPropertyName = null,
+        sort = null,
+        sortPropertyName = null,
+        sortOrder = null,
+    ) {
+        super(
+            data,
+            parentMapPropertyName,
+            sort,
+            sortPropertyName,
+            sortOrder,
+        );
 
-                    if (aIsBeforeB) { return -1; }
-                    if (!aIsBeforeB) { return 1; }
-                    return 0;
-                },
-            );
-        const sortedActivitiesMap = new Map();
-        const sortedOpeningsMap = new Map();
-
-        this.events = {};
-        this.allEventIds = [];
         this.bibleClassIds = [];
         this.bibleTalkIds = [];
         this.hallCleaningIds = [];
         this.memorialMeetingIds = [];
 
-        this.activities = {};
-        this.activityIds = [];
-        this.openings = {};
-        this.openingIds = [];
-
-        sortedRawEvents.forEach((rawEvent) => {
-            const id = rawEvent.id;
-            const sortedActivities = rawEvent.activities
-                .sort((a, b) => {
-                    if (a.name < b.name) { return -1; }
-                    if (a.name > b.name) { return 1; }
-                    return 0;
-                });
-            sortedActivitiesMap.set(
-                id,
-                rawEvent.activities.map((activity) => activity.id),
-            );
-
-            this.events[id] = rawEvent;
-            this.allEventIds.push(id);
-
-            switch (rawEvent.name) {
+        this.allItemIds.forEach((id) => {
+            switch (this.items[id].name) {
                 case EVENT_NAME_BIBLE_CLASS:
                     this.bibleClassIds.push(id);
                     break;
@@ -77,82 +48,7 @@ export class CalendarEventsNormalizer {
                     break;
                 default:
             }
-
-            sortedActivities
-                .forEach((activity) => {
-                    const sortedOpenings = activity.openings
-                        .sort((a, b) => {
-                            if (a.name < b.name) { return -1; }
-                            if (a.name > b.name) { return 1; }
-                            return 0;
-                        });
-                    sortedOpeningsMap.set(
-                        activity.id,
-                        activity.openings.map((opening) => opening.id),
-                    );
-                    this.activityIds.push(activity.id);
-                    this.activities[activity.id] = cloneDeep(activity);
-                    sortedOpenings
-                        .forEach((opening) => {
-                            this.openingIds.push(opening.id);
-                            this.openings[opening.id] = cloneDeep(opening);
-                        });
-                });
         });
-
-        this.allEventIds.forEach(
-            (eventId) => {
-                this.events[eventId].activities = sortedActivitiesMap.get(eventId);
-            },
-        );
-
-        this.activityIds.forEach(
-            (activityId) => {
-                this.activities[activityId].openings = sortedOpeningsMap.get(activityId);
-            },
-        );
-    }
-
-    /**
-     * @return {Object} All events keyed by id.
-     */
-    getActivities() {
-        return this.activities;
-    }
-
-    /**
-     * @return {Array} All activity ids (sorted by name).
-     */
-    getActivityIds() {
-        return this.activityIds;
-    }
-
-    /**
-     * @return {Object} All events keyed by id.
-     */
-    getEvents() {
-        return this.events;
-    }
-
-    /**
-     * @return {Object} All openings keyed by id.
-     */
-    getOpenings() {
-        return this.openings;
-    }
-
-    /**
-     * @return {Array} All opening ids (sorted by name).
-     */
-    getOpeningIds() {
-        return this.openingIds;
-    }
-
-    /**
-     * @return {Array} All event ids (sorted by date).
-     */
-    getAllEventIds() {
-        return this.allEventIds;
     }
 
     /**
@@ -181,5 +77,24 @@ export class CalendarEventsNormalizer {
      */
     getMemorialMeetingIds() {
         return this.memorialMeetingIds;
+    }
+
+    /**
+     * Get the normalized data object. Keys:
+     *  - {Object} byId   The items, keyed by id
+     *  - {Array}  allIds The item ids sorted by sortPropertyName if provided
+     *  - {Array}  ...    The item ids for each of the properties above.
+     *
+     * @return {Object} The normalized data object
+     */
+    getNormalizedData() {
+        return {
+            byId: this.items,
+            allIds: this.allItemIds,
+            bibleClassIds: this.bibleClassIds,
+            bibleTalkIds: this.bibleTalkIds,
+            hallCleaningIds: this.hallCleaningIds,
+            memorialMeetingIds: this.memorialMeetingIds,
+        };
     }
 }

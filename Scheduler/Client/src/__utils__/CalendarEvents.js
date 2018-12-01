@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
-// Helpers
+// Third-party
 //------------------------------------------------------------------------------
+import isUndefined from "lodash/isUndefined";
 import isSameDay from "date-fns/isSameDay";
 import isWithinInterval from "date-fns/isWithinInterval";
 
@@ -21,6 +22,7 @@ export class CalendarEvents {
     constructor(data) {
         const eventTypesArray = [];
         const events = data.byId;
+        const activityObjectMap = data.childrenById;
 
         this.allIds = data.allIds;
         this.all = new Map();
@@ -32,7 +34,10 @@ export class CalendarEvents {
         this.memorialMeetingEvents = new Map();
 
         this.allIds.forEach((eventId) => {
-            const event = new CalendarEvent(events[eventId]);
+            const activities = (!isUndefined(activityObjectMap[eventId]))
+                ? activityObjectMap[eventId]
+                : [];
+            const event = new CalendarEvent(events[eventId], activities);
             this.all.set(eventId, event);
 
             switch (event.getName()) {

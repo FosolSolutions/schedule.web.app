@@ -25,6 +25,7 @@ import Validator, {
     VALIDATION_VALID,
     VALIDATION_INVALID,
 } from "utils/Validator";
+import { noOp } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
 
@@ -300,7 +301,7 @@ ValidatedTextField.defaultProps = {
     syncValidatorRules: [],
     value: "",
     variant: "outlined",
-    onEnter: () => {},
-    onFocus: () => {},
-    storeStatusSetter: () => {},
+    onEnter: noOp,
+    onFocus: noOp,
+    storeStatusSetter: noOp,
 };

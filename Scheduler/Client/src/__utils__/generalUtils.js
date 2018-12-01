@@ -1,4 +1,9 @@
 //------------------------------------------------------------------------------
+// Third-party
+//------------------------------------------------------------------------------
+import isBefore from "date-fns/isBefore";
+
+//------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
 import {
@@ -6,6 +11,8 @@ import {
     HISTORY_REPLACE,
     LOCAL_STORAGE,
     SESSION_STORAGE,
+    SORT_ORDER_ASC,
+    SORT_ORDER_DESC,
 } from "utils/constants";
 
 //------------------------------------------------------------------------------
@@ -105,6 +112,53 @@ export function deleteStorage() {
 }
 
 /**
+ * Return a sorting function that given two objects, returns -1 if the first
+ * object is alphabetically before the second object. Returns 1 if after, 0 if
+ * same.
+ *
+ * @param  {string} propertyName Property name to at which the value exists to
+ *                               sort alphabetically by.
+ * @param  {string} order        A SORT_ORDER_* constant.
+ *
+ * @return {Function}            Sorting function.
+ */
+export function getAlphaObjectSorter(propertyName, order = SORT_ORDER_ASC) {
+    const sortMultiplier = getSortMultiplier(order);
+
+    return (a, b) => {
+        if (a[propertyName] < b[propertyName]) { return (-1 * sortMultiplier); }
+        if (a[propertyName] > b[propertyName]) { return (1 * sortMultiplier); }
+        return 0;
+    };
+}
+
+/**
+ * Return a sorting function that given two objects, returns -1 if the first
+ * object's date is before the second object. Returns 1 if after, 0 if same.
+ *
+ * @param  {string} propertyName Property name to at which the Date value exists
+ *                               to sort by. Property must be date format that
+ *                               can be passed to Date constructor.
+ * @param  {string} order        A SORT_ORDER_* constant.
+ *
+ * @return {Function}            Sorting function.
+ */
+export function getDateObjectSorter(propertyName, order = SORT_ORDER_ASC) {
+    const sortMultiplier = getSortMultiplier(order);
+
+    return (a, b) => {
+        const aIsBeforeB = isBefore(
+            new Date(a[propertyName]),
+            new Date(b[propertyName]),
+        );
+
+        if (aIsBeforeB) { return (-1 * sortMultiplier); }
+        if (!aIsBeforeB) { return (1 * sortMultiplier); }
+        return 0;
+    };
+}
+
+/**
  * Get the number of seconds in the passed number of days
  *
  * @param  {number} days The number of days
@@ -113,6 +167,15 @@ export function deleteStorage() {
  */
 export function getDaySeconds(days) {
     return (days * 24 * 60 * 60);
+}
+
+/**
+ * No-op function.
+ *
+ * @return {undefined} Undefined
+ */
+export function noOp() {
+    return undefined;
 }
 
 /**
@@ -195,4 +258,28 @@ export function updateHistory(relativePath, historyMethod = HISTORY_PUSH, stateO
     } else if (historyMethod === HISTORY_REPLACE) {
         window.history.replaceState(...historyAPIArgs);
     }
+}
+
+//------------------------------------------------------------------------------
+// Private Implementation Details
+//------------------------------------------------------------------------------
+/**
+ * Return the appropriate sort multiplier (1 or -1) for the passed sort order.
+ *
+ * @param  {string} order A SORT_ORDER_* constant.
+ *
+ * @return {number}       1 or -1
+ */
+function getSortMultiplier(order) {
+    let sortMultiplier;
+
+    if (order === SORT_ORDER_ASC) {
+        sortMultiplier = 1;
+    } else if (order === SORT_ORDER_DESC) {
+        sortMultiplier = -1;
+    } else {
+        sortMultiplier = 1;
+    }
+
+    return sortMultiplier;
 }

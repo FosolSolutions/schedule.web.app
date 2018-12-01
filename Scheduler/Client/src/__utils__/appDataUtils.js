@@ -152,31 +152,3 @@ export function getEventIdsByRange(events, startOn, endOn) {
 
     return eventsToMap.map((event) => event.getId());
 }
-
-// Data normalization helpers --------------------------------------------------
-/**
- * Build and return a normalized data structure from the passed array of
- * objects (each containing at least an id property).
- *
- * @param {Array} rawData         Array of data objects, with at least one
- *                                property (id).
- *
- * @return {Object}               Normalized data. Includes byId object and
- *                                allIds array.
- */
-export function normalizeArrayData(rawData) {
-    const byId = {};
-    const allIds = [];
-
-    rawData.forEach((rawDatum) => {
-        const id = rawDatum.id;
-
-        byId[id] = rawDatum;
-        allIds.push(id);
-    });
-
-    return {
-        byId,
-        allIds,
-    };
-}

@@ -1,5 +1,5 @@
 export class CalendarEvent {
-    constructor(data) {
+    constructor(data, activities) {
         this.id = data.id;
         this.calendarId = data.calendarId;
         this.key = data.key;
@@ -13,7 +13,7 @@ export class CalendarEvent {
         this.updatedOn = data.updatedOn;
         this.rowVersion = data.rowVersion;
         this.criteria = data.criteria.map((criteria) => criteria.id);
-        this.activities = data.activities;
+        this.activities = activities;
     }
 
     getId() {

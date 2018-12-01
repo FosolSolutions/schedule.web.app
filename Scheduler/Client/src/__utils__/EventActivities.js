@@ -1,4 +1,9 @@
 //------------------------------------------------------------------------------
+// Third-party
+//------------------------------------------------------------------------------
+import isUndefined from "lodash/isUndefined";
+
+//------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
 import { EventActivity } from "utils/EventActivity";
@@ -8,12 +13,16 @@ import { EventActivity } from "utils/EventActivity";
 export class EventActivities {
     constructor(data) {
         const activities = data.byId;
+        const activityObjectMap = data.childrenById;
 
         this.ids = data.allIds;
         this.all = new Map();
 
         this.ids.forEach((activityId) => {
-            const activity = new EventActivity(activities[activityId]);
+            const openings = (!isUndefined(activityObjectMap[activityId]))
+                ? activityObjectMap[activityId]
+                : [];
+            const activity = new EventActivity(activities[activityId], openings);
             this.all.set(activityId, activity);
         });
     }

@@ -141,6 +141,16 @@
     background-color: $primaryLight;
 }
 
+.opening {
+    white-space: nowrap;
+}
+
+.overflowWrap {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .openingWithName {
     align-items: center;
     display: flex;
@@ -197,9 +207,60 @@
     font-size: 1.8em;
 }
 
-.answer {
+.applyButtonContent {
+    align-items: center;
+    display: flex;
+}
+
+.openingTitle {
+    display: inline-block;
     font-style: italic;
     margin-left: 1em;
+    width: calc(100% - 3.5rem);
+}
+
+.editableTitleWrap {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.editableTitleIcon {
+    color: inherit;
+    font-size: 1.1em;
+    margin-right: 0.25em;
+    transition: color $uiTransitionDuration $uiTransitionFunction;
+}
+
+.editableTitle {
+    border-bottom: 1px dotted;
+    transition: border-bottom $uiTransitionDuration $uiTransitionFunction;
+}
+
+.titleButton {
+    display: block;
+    padding: 0;
+    text-align: left;
+    text-transform: none;
+    width: 100%;
+
+    &:hover,
+    &:active,
+    &:focus {
+        background: transparent;
+    }
+
+    &:hover,
+    &:active {
+        .editableTitle {
+            border-bottom: 1px dotted $secondaryMain;
+        }
+
+        .editableTitleIcon {
+            color: $secondaryMain;
+        }
+    }
 }
 
 .nameWithAvatar {

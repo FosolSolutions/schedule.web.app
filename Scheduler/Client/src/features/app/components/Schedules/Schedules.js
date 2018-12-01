@@ -6,13 +6,12 @@ import React from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import isEmpty from "lodash/isEmpty";
+import isUndefined from "lodash/isUndefined";
 import format from "date-fns/format";
 import isSameMonth from "date-fns/isSameMonth";
 import addMonths from "date-fns/addMonths";
-import isSameDay from "date-fns/isSameDay";
 import isBefore from "date-fns/isBefore";
 import { Route } from "react-router-dom";
-import classNames from "classnames";
 
 //------------------------------------------------------------------------------
 // Redux Support
@@ -36,9 +35,7 @@ import {
 } from "redux/reducers/userReducer";
 import {
     applyToOpening,
-    fetchEcclesialCalendar,
-    fetchEvents,
-    fetchOpenings,
+    fetchOpening,
     setAnswer,
     setAnswerFromState,
     setCurrentOpeningId,
@@ -109,40 +106,42 @@ export class Schedules extends React.Component {
     constructor(props) {
         super(props);
 
-        this.initialEventsLoaded = props.activities.getAllIds().length > 0;
-        this.initialOpeningsLoaded = false;
-
-        // Keep track of unapplied openings until reload, as unapply endpoint
-        // doesn't send back full data, thus it's return value isn't applied
         this.state = {
-            unappliedOpenings: [],
+            openOpeningDialogId: null,
         };
-
-        if (
-            !this.initialEventsLoaded &&
-            !isEmpty(props.calendars.getAllValues())
-        ) {
-            // this.loadEvents();
-        }
 
         this.questionValidatorRules = [
             required("Response"),
         ];
-        this.inputRefs = {};
     }
 
     componentDidUpdate(prevProps) {
+        const openOpening = this.state.openOpeningDialogId;
+
         if (
-            (
-                !this.initialEventsLoaded &&
-                !isEmpty(this.props.calendars.getAllValues())
-            ) ||
-            (
-                this.initialEventsLoaded &&
-                !isSameDay(prevProps.scheduleEndDate, this.props.scheduleEndDate)
-            )
+            this.state.openOpeningDialogId !== null &&
+            prevProps.openingsIsLoading &&
+            !this.props.openingsIsLoading
         ) {
-            // this.loadEvents();
+            const opening = this.props.openings.getOpening(openOpening);
+            const openingId = opening.getId();
+            const applications = opening.getApplications();
+            const userApplication = applications.filter(
+                (application) => (
+                    application.getParticipant().getId() === this.props.user.getId()
+                ),
+            );
+
+            if (userApplication.length > 0) {
+                userApplication[0].getAnswers().forEach((answer) => {
+                    const questionId = answer.getQuestionId();
+                    const answerText = answer.getText();
+
+                    if (this.props.answers[openingId][questionId] !== answerText) {
+                        this.props.setAnswer(openingId, questionId, answerText);
+                    }
+                });
+            }
         }
     }
 
@@ -150,15 +149,6 @@ export class Schedules extends React.Component {
         return buildRelativePath(
             PAGE_ID_SCHEDULES,
             [getEventPath(eventType)],
-        );
-    }
-
-    loadEvents() {
-        this.props.fetchEvents(
-            this.props.events.getIdsByRange(
-                this.props.scheduleStartDate,
-                this.props.scheduleEndDate,
-            ),
         );
     }
 
@@ -173,28 +163,12 @@ export class Schedules extends React.Component {
                 options: [],
             }))
             : [];
-        const onSuccess = (this.state.unappliedOpenings.includes(openingId))
-            ? () => {
-                const clonedKeys = this.state.unappliedOpenings.slice();
 
-                clonedKeys.splice(clonedKeys.indexOf(openingId), 1);
-                this.setState({
-                    unappliedOpenings: clonedKeys,
-                });
-            }
-            : () => {};
-
-        this.props.applyToOpening(answers, openingId, rowVersion, onSuccess);
+        this.props.applyToOpening(answers, openingId, rowVersion);
     }
 
-    handleUnapplyButtonClick(openingId, rowVersion, onSuccess = () => {}) {
-        const clonedKeys = this.state.unappliedOpenings.slice();
-
-        clonedKeys.push(openingId);
+    handleUnapplyButtonClick(openingId, rowVersion, onSuccess) {
         this.props.unapplyFromOpening(openingId, rowVersion, onSuccess);
-        this.setState({
-            unappliedOpenings: clonedKeys,
-        });
     }
 
     handleQuestionFocus(openingId, questionId) {
@@ -204,23 +178,9 @@ export class Schedules extends React.Component {
 
     handleOpenQuestionDialog(opening) {
         const openingId = opening.getId();
-        const applications = opening.getApplications();
-        const userApplication = applications.filter(
-            (application) => (
-                application.getParticipant().getId() === this.props.user.getId()
-            ),
-        );
 
-        if (userApplication.length > 0) {
-            userApplication[0].getAnswers().forEach((answer) => {
-                const questionId = answer.getQuestionId();
-                const answerText = answer.getText();
-
-                if (this.props.answers[openingId][questionId] !== answerText) {
-                    this.props.setAnswer(openingId, questionId, answerText);
-                }
-            });
-        }
+        this.setState({ openOpeningDialogId: openingId });
+        this.props.fetchOpening(openingId);
     }
 
     handleQuestionDialogSubmit(opening) {
@@ -244,18 +204,10 @@ export class Schedules extends React.Component {
         }
     }
 
-    setInputRef(id, ref) {
-        if (typeof this.inputRefs[id] === "undefined") {
-            this.inputRefs[id] = [ref];
-        } else {
-            this.inputRefs[id].push(ref);
-        }
-    }
-
     render() {
         const calendar = this.props.calendars.getAllValues()[0];
         const allActivities = this.props.activities.getAll();
-        const calendarIsUndefined = (typeof calendar === "undefined");
+        const calendarIsUndefined = isUndefined(calendar);
         const accountName = calendarIsUndefined ? "Loading..." : calendar.getAccountName();
         const accountColor = calendarIsUndefined
             ? stringToHslColor(accountName)
@@ -341,59 +293,48 @@ export class Schedules extends React.Component {
                 openingsMarkup = openings.map(
                     (opening) => renderOpening(opening, criteria, true),
                 );
-            } else {
+            } else if (openings.length === 1) {
                 openingsMarkup = renderOpening(openings[0], criteria, false);
+            } else {
+                openingsMarkup = false;
             }
 
             return openingsMarkup;
         };
         const renderOpening = (opening, activityCriteria, withName) => {
             const openingId = opening.getId();
-            const openingName = withName ? opening.getName() : false;
-            const isOpeningName = openingName !== false;
+            const applyText = "Apply";
+            const openingButtonText = withName ? opening.getName() : applyText;
+            const isOpeningName = openingButtonText !== applyText;
             const userMeetsCriteria = meetsCriteria(
-                activityCriteria, this.props.userAttributes,
+                activityCriteria,
+                this.props.userAttributes,
             );
             const applications = opening.getApplications();
-            const isFilled = (
-                applications.length === opening.getMaxParticipants() &&
-                !this.state.unappliedOpenings.includes(openingId)
-            );
+            const isFilled = applications.length === opening.getMaxParticipants();
             const questions = opening.getQuestions();
             const dialogApplyButtonProps = {
-                className: styles.applyIconButton,
+                className: styles.applyButton,
                 disabled: !userMeetsCriteria,
             };
             const buttonProps = {
                 ...dialogApplyButtonProps,
-                className: isOpeningName ? styles.applyButton : styles.applyIconButton,
                 onClick: () => this.handleApplyButtonClick(
                     openingId,
                     opening.getRowVersion(),
                 ),
             };
-            const openingClassNames = classNames({
-                [styles.openingWithName]: isOpeningName,
-            });
-            const iconProps = userMeetsCriteria
-                ? { className: styles.applyButtonIcon }
-                : { className: styles.applyButtonIconDisabled };
-            const applyButtonMarkup = !isOpeningName
+            const applyButtonContent = (
+                <span className={styles.applyButtonContent}>
+                    <AddCircleIcon className={styles.applyButtonIcon} />
+                    {openingButtonText}
+                </span>
+            );
+            const applyButtonMarkup = userMeetsCriteria
                 ? (
                     <div className={styles.progressWrapper}>
-                        <IconButton {...buttonProps} >
-                            <AddCircleIcon {...iconProps} />
-                        </IconButton>
-                        {
-                            (this.props.openingsIsLoading === openingId)
-                                ? renderOpeningProgress()
-                                : false
-                        }
-                    </div>
-                ) : (
-                    <div className={styles.progressWrapper}>
                         <Button {...buttonProps} >
-                            <AddCircleIcon {...iconProps} /> {openingName}
+                            {applyButtonContent}
                         </Button>
                         {
                             (this.props.openingsIsLoading === openingId)
@@ -401,29 +342,32 @@ export class Schedules extends React.Component {
                                 : false
                         }
                     </div>
-                );
-            const dialogButtonMarkup = renderQuestionsDialog(
-                opening,
-                questions,
-                <AddCircleIcon {...iconProps} />,
-                dialogApplyButtonProps,
-            );
-            const control = (questions.length > 0)
+                )
+                : false;
+            const dialogButtonMarkup = userMeetsCriteria
+                ? renderQuestionsDialog(
+                    opening,
+                    questions,
+                    dialogApplyButtonProps,
+                    null,
+                    applyButtonContent,
+                )
+                : false;
+            const control = (opening.getHasQuestions())
                 ? dialogButtonMarkup
                 : applyButtonMarkup;
+            const nameArg = (isOpeningName) ? openingButtonText : false;
 
             return (
                 <div
-                    className={openingClassNames}
+                    className={styles.opening}
                     key={`opening${opening.getId()}`}
                 >
                     {
                         renderOpeningParticipants(
                             applications,
                             opening,
-                            openingName,
-                            iconProps,
-                            dialogApplyButtonProps,
+                            nameArg,
                         )
                     }
                     {(!isFilled) ? control : false}
@@ -437,17 +381,35 @@ export class Schedules extends React.Component {
                 size={22}
             />
         );
-        const renderQuestionsDialog = (opening, questions, icon, launchButtonProps) => {
+        const renderQuestionsDialog = (
+            opening,
+            questions,
+            launchButtonProps,
+            icon = null,
+            content = null,
+        ) => {
             const openingId = opening.getId();
-            const questionMarkup = renderOpeningQuestions(openingId, questions);
+            const questionMarkup = (questions.length > 0)
+                ? renderOpeningQuestions(openingId, questions)
+                : (
+                    <div className={styles.progressWrap}>
+                        <CircularProgress
+                            thickness={6}
+                            size={22}
+                        />
+                    </div>
+                );
+            const buttonContent = (icon === null) ? content : icon;
+            const launchButton = (icon === null) ? Button : IconButton;
 
             return (
                 <DialogWithContent
-                    launchButton={IconButton}
-                    buttonIcon={icon}
+                    launchButton={launchButton}
+                    buttonContent={buttonContent}
                     launchButtonProps={launchButtonProps}
                     progress={renderOpeningProgress()}
                     dialogTitle="Please answer the following questions:"
+                    handleClose={() => this.setState({ openOpeningDialogId: null })}
                     handleOpen={() => this.handleOpenQuestionDialog(opening)}
                     handleSubmit={() => this.handleQuestionDialogSubmit(opening)}
                     withProgress={this.props.openingsIsLoading === openingId}
@@ -459,27 +421,31 @@ export class Schedules extends React.Component {
         const renderOpeningQuestions = (
             openingId,
             questions,
-        ) => questions.map((question) => (
-            <ValidatedTextField
-                key={`opening${openingId}_question${question.getId()}`}
-                id={`opening${openingId}_question${question.getId()}`}
-                data-id={openingId}
-                inputLabelProps={{ shrink: true }}
-                label={question.getText()}
-                ref={(ref) => this.setInputRef(openingId, ref)}
-                syncValidatorRules={this.questionValidatorRules}
-                value={this.props.answers[openingId][question.getId()]}
-                variant="standard"
-                onFocus={() => this.handleQuestionFocus(openingId, question.getId())}
-                storeValueSetter={this.props.setAnswerFromState}
-            />
-        ));
+        ) => questions.map((question) => {
+            const questionId = question.getId();
+            const value = (
+                !isUndefined(this.props.answers[openingId]) &&
+                !isUndefined(this.props.answers[openingId][questionId])
+            ) ? this.props.answers[openingId][questionId] : "";
+            return (
+                <ValidatedTextField
+                    key={`opening${openingId}_question${questionId}`}
+                    id={`opening${openingId}_question${questionId}`}
+                    data-id={openingId}
+                    inputLabelProps={{ shrink: true }}
+                    label={question.getText()}
+                    syncValidatorRules={this.questionValidatorRules}
+                    value={value}
+                    variant="standard"
+                    onFocus={() => this.handleQuestionFocus(openingId, questionId)}
+                    storeValueSetter={this.props.setAnswerFromState}
+                />
+            );
+        });
         const renderOpeningParticipants = (
             applications,
             opening,
             openingName,
-            iconProps,
-            launchButtonProps,
         ) => applications.map(
             (application) => {
                 const participant = application.getParticipant();
@@ -493,7 +459,7 @@ export class Schedules extends React.Component {
                     lastName,
                     avatarColor: isMe ? null : COLOR_SECONDARY_EXTRA_LIGHT,
                 };
-                const key = `${openingId}_${participant.getId()}_opening_participant`;
+                const title = opening.getTitle();
                 const wrappedAvatar = (
                     <span className={styles.avatarWrap}>
                         {
@@ -517,48 +483,56 @@ export class Schedules extends React.Component {
                         <InitialsAvatar {...avatarProps} />
                     </span>
                 );
-                const answerMarkup = application.getAnswers().map((answer) => (
-                    <span
-                        key={`opening${openingId}_answer${answer.getQuestionId()}`}
-                        className={styles.answer}
-                    >
-                        {answer.getText()}
-                        {
-                            (isMe)
-                                ? renderQuestionsDialog(
-                                    opening,
-                                    questions,
-                                    <EditIcon {...iconProps} />,
-                                    launchButtonProps,
-                                )
-                                : false
-                        }
+                const titleButtonContent = (
+                    <span className={styles.editableTitleWrap}>
+                        <EditIcon className={styles.editableTitleIcon} />
+                        <span className={styles.editableTitle}>{title}</span>
                     </span>
-                ));
-                const openingNameMarkup = (
-                    openingName !== false &&
-                    !this.state.unappliedOpenings.includes(openingId)
-                )
+                );
+                const launchButtonProps = {
+                    className: styles.titleButton,
+                    disableRipple: true,
+                };
+                const titleMarkup = (title !== null)
+                    ? (
+                        <span
+                            className={styles.openingTitle}
+                            key={`${openingId}_title`}
+                        >
+                            {
+                                (isMe)
+                                    ? renderQuestionsDialog(
+                                        opening,
+                                        questions,
+                                        launchButtonProps,
+                                        null,
+                                        titleButtonContent,
+                                    )
+                                    : title
+                            }
+                        </span>
+                    )
+                    : false;
+                const openingNameMarkup = openingName !== false
                     ? <span
                         key={`opening${openingId}_name`}
-                        className={styles.nameWithAvatar}>
+                        className={styles.nameWithAvatar}
+                    >
                         {openingName}
                     </span>
                     : false;
 
-                return (!this.state.unappliedOpenings.includes(openingId))
-                    ? [
-                        <Tooltip
-                            key={key}
-                            placement="top"
-                            title={`${participant.getDisplayName()}`}
-                        >
-                            {wrappedAvatar}
-                        </Tooltip>,
-                        openingNameMarkup,
-                        answerMarkup,
-                    ]
-                    : false;
+                return [
+                    <Tooltip
+                        key={`${openingId}_${participant.getId()}_opening_participant`}
+                        placement="top"
+                        title={`${participant.getDisplayName()}`}
+                    >
+                        {wrappedAvatar}
+                    </Tooltip>,
+                    openingNameMarkup,
+                    titleMarkup,
+                ];
             },
         );
         const loadMoreButton = () => {
@@ -705,9 +679,7 @@ export default withRouter(connect((state) => ({
     userAttributes: selectUserAttributes(state),
 }), {
     applyToOpening,
-    fetchEcclesialCalendar,
-    fetchEvents,
-    fetchOpenings,
+    fetchOpening,
     setAnswer,
     setAnswerFromState,
     setDrawerIsOpen,
@@ -744,9 +716,7 @@ Schedules.propTypes = {
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     applyToOpening: PropTypes.func.isRequired,
-    fetchEcclesialCalendar: PropTypes.func.isRequired,
-    fetchEvents: PropTypes.func.isRequired,
-    fetchOpenings: PropTypes.func.isRequired,
+    fetchOpening: PropTypes.func.isRequired,
     setAnswer: PropTypes.func.isRequired,
     setAnswerFromState: PropTypes.func.isRequired,
     setCurrentOpeningId: PropTypes.func.isRequired,

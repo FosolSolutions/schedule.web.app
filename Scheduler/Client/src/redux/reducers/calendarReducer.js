@@ -12,6 +12,8 @@ import {
     APPLY_TO_OPENING_FAILURE,
     APPLY_TO_OPENING_SUCCESS,
     FETCH_CALENDAR,
+    FETCH_ACTIVITIES,
+    FETCH_OPENINGS,
     FETCH_EVENTS,
     FETCH_CALENDARS,
     FETCH_CALENDARS_ERROR,
@@ -23,6 +25,12 @@ import {
     FETCH_EVENTS_ERROR,
     FETCH_EVENTS_FAILURE,
     FETCH_EVENTS_SUCCESS,
+    FETCH_OPENINGS_ERROR,
+    FETCH_OPENINGS_FAILURE,
+    FETCH_OPENINGS_SUCCESS,
+    FETCH_ACTIVITIES_ERROR,
+    FETCH_ACTIVITIES_FAILURE,
+    FETCH_ACTIVITIES_SUCCESS,
     FETCH_OPENING,
     FETCH_OPENING_ERROR,
     FETCH_OPENING_FAILURE,
@@ -49,11 +57,11 @@ import { Calendars } from "utils/Calendars";
 const initialStateData = {
     byId: {},
     allIds: [],
+    childrenById: [],
 };
 
 const initialEventsStateData = {
-    byId: {},
-    allIds: [],
+    ...initialStateData,
     bibleClassIds: [],
     bibleTalkIds: [],
     hallCleaningIds: [],
@@ -148,6 +156,64 @@ export default function calendarReducer(state = initialCalendarsState, action) {
                             },
                             allIds: { $push: [action.opening.id] },
                         },
+                    },
+                });
+            }
+            break;
+        case FETCH_ACTIVITIES:
+            returnVal = update(state, {
+                activities: {
+                    isLoading: { $set: true },
+                },
+            });
+            break;
+        case FETCH_ACTIVITIES_ERROR:
+            returnVal = update(state, {
+                activities: {
+                    isLoading: { $set: false },
+                    error: { $set: action.error },
+                },
+            });
+            break;
+        case FETCH_ACTIVITIES_FAILURE:
+            returnVal = update(state, {
+                activities: {
+                    isLoading: { $set: false },
+                    error: { $set: null },
+                },
+            });
+            break;
+        case FETCH_ACTIVITIES_SUCCESS:
+            if (state.activities.data.allIds.length === 0) {
+                returnVal = update(state, {
+                    events: {
+                        data: {
+                            childrenById: { $set: action.activitiesByEvent },
+                        },
+                    },
+                    activities: {
+                        data: {
+                            byId: { $set: action.activities.byId },
+                            allIds: { $set: action.activities.allIds },
+                        },
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                    },
+                });
+            } else {
+                returnVal = update(state, {
+                    events: {
+                        data: {
+                            childrenById: { $merge: action.activitiesByEvent },
+                        },
+                    },
+                    activities: {
+                        data: {
+                            allIds: { $push: action.activities.allIds },
+                            byId: { $merge: action.activities.byId },
+                        },
+                        isLoading: { $set: false },
+                        error: { $set: null },
                     },
                 });
             }
@@ -265,22 +331,15 @@ export default function calendarReducer(state = initialCalendarsState, action) {
             });
             break;
         case FETCH_EVENTS_SUCCESS:
-            if (
-                state.events.data.allIds.length === 0 &&
-                state.activities.data.allIds.length === 0 &&
-                state.openings.data.allIds.length === 0
-            ) {
+            if (state.events.data.allIds.length === 0) {
                 returnVal = update(state, {
                     events: {
-                        data: { $set: action.events },
+                        data: {
+                            byId: { $set: action.events.byId },
+                            allIds: { $set: action.events.allIds },
+                        },
                         isLoading: { $set: false },
                         error: { $set: null },
-                    },
-                    activities: {
-                        data: { $set: action.activities },
-                    },
-                    openings: {
-                        data: { $set: action.openings },
                     },
                 });
             } else {
@@ -292,18 +351,6 @@ export default function calendarReducer(state = initialCalendarsState, action) {
                         },
                         isLoading: { $set: false },
                         error: { $set: null },
-                    },
-                    activities: {
-                        data: {
-                            allIds: { $push: action.activities.allIds },
-                            byId: { $merge: action.activities.byId },
-                        },
-                    },
-                    openings: {
-                        data: {
-                            allIds: { $push: action.openings.allIds },
-                            byId: { $merge: action.openings.byId },
-                        },
                     },
                 });
             }
@@ -359,6 +406,61 @@ export default function calendarReducer(state = initialCalendarsState, action) {
                 });
             }
             break;
+        case FETCH_OPENINGS:
+            returnVal = update(state, {
+                events: {
+                    isLoading: { $set: true },
+                },
+            });
+            break;
+        case FETCH_OPENINGS_ERROR:
+            returnVal = update(state, {
+                openings: {
+                    isLoading: { $set: false },
+                    error: { $set: action.error },
+                },
+            });
+            break;
+        case FETCH_OPENINGS_FAILURE:
+            returnVal = update(state, {
+                openings: {
+                    isLoading: { $set: false },
+                    error: { $set: null },
+                },
+            });
+            break;
+        case FETCH_OPENINGS_SUCCESS:
+            if (state.openings.data.allIds.length === 0) {
+                returnVal = update(state, {
+                    activities: {
+                        data: {
+                            childrenById: { $set: action.openingsByActivity },
+                        },
+                    },
+                    openings: {
+                        data: { $set: action.openings },
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                    },
+                });
+            } else {
+                returnVal = update(state, {
+                    activities: {
+                        data: {
+                            childrenById: { $merge: action.openingsByActivity },
+                        },
+                    },
+                    openings: {
+                        data: {
+                            allIds: { $push: action.openings.allIds },
+                            byId: { $merge: action.openings.byId },
+                        },
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                    },
+                });
+            }
+            break;
         case UNAPPLY_FROM_OPENING:
             returnVal = update(state, {
                 openings: {
@@ -383,12 +485,32 @@ export default function calendarReducer(state = initialCalendarsState, action) {
             });
             break;
         case UNAPPLY_FROM_OPENING_SUCCESS:
-            returnVal = update(state, {
-                openings: {
-                    isLoading: { $set: false },
-                    error: { $set: null },
-                },
-            });
+            if (typeof state.openings.data.byId[action.opening.id] !== "undefined") {
+                returnVal = update(state, {
+                    openings: {
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                        data: {
+                            byId: {
+                                [action.opening.id]: { $set: action.opening },
+                            },
+                        },
+                    },
+                });
+            } else {
+                returnVal = update(state, {
+                    openings: {
+                        isLoading: { $set: false },
+                        error: { $set: null },
+                        data: {
+                            byId: {
+                                [action.opening.id]: { $set: action.opening },
+                            },
+                            allIds: { $push: [action.opening.id] },
+                        },
+                    },
+                });
+            }
             break;
         case SET_ANSWER:
             openingId = action.openingId;
@@ -467,6 +589,19 @@ export function selectApplicationError(state) {
  */
 export function selectCalendars(state) {
     return new Calendars(state.calendars.calendars.data);
+}
+
+/**
+ * Current calendar selector. Currently this just returns the first calendar, as
+ * multiple calendars are not supported yet.
+ *
+ * @param  {Object} state Store state object.
+ *
+ * @return {Calendar}     The current (first) calendar.
+ */
+export function selectCurrentCalendar(state) {
+    const calendars = selectCalendars(state).getAll();
+    return calendars.values().next().value;
 }
 
 /**

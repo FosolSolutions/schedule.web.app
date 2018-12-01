@@ -5,6 +5,11 @@ import Enzyme from "enzyme";
 import EnzymeAdapter from "enzyme-adapter-react-16";
 
 //------------------------------------------------------------------------------
+// Helpers
+//------------------------------------------------------------------------------
+import { noOp } from "utils/generalUtils";
+
+//------------------------------------------------------------------------------
 
 // Configure Enzyme adapter
 Enzyme.configure({ adapter: new EnzymeAdapter() });
@@ -14,7 +19,7 @@ Enzyme.configure({ adapter: new EnzymeAdapter() });
 //------------------------------------------------------------------------------
 // Jest comes with jsdom-mocked browser environment built-in, but we need to
 // mock any of our own globals by attaching them to the jsdom "global" object
-global.ga = () => {};
+global.ga = noOp;
 
 //------------------------------------------------------------------------------
 // Mocked native browser features
@@ -25,7 +30,7 @@ require("mock-local-storage");
 require("intersection-observer");
 global.window.requestAnimationFrame = require("raf");
 
-global.window.scrollTo = () => {};
+global.window.scrollTo = noOp;
 
 //------------------------------------------------------------------------------
 // Date/Timezone setup
@@ -47,8 +52,8 @@ global.Date = class extends global.TimezoneAwareDate {
                 nativeDate.getHours(),
                 nativeDate.getMinutes(),
                 nativeDate.getSeconds(),
-                nativeDate.getMilliseconds()
-            )
+                nativeDate.getMilliseconds(),
+            ),
         );
 
         // Ideally we'd just do
