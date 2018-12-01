@@ -1,50 +1,69 @@
 ﻿$(document).ready(() => {
+	const $actions = $('#actions');
 	const $filter = $('#filters');
 	const $main = $('#main');
 
-	init({
-		api: SETTINGS.api_local
-	}).then(() => {
-		return createDropdown({ name: 'calendar', url: endpoint(routes.manage.calendar.getCalendars.route), key: 'id', text: 'name' }).done(calendars => {
+	init().then(() => {
+		// Dropdown with calendars available to current user.
+		return createDropdown({ name: 'calendar', url: endpoint(routes.manage.calendar.getCalendars.route), value: 'id', caption: 'name' }).done(calendars => {
 			$filter.html(calendars);
 			var btn_loadParticipants = $('<button type="button">Load</button>').on('click', (event) => {
-				var calendarId = $(event.target).parent().find('select').val();
-				createDropdown({ name: 'participant', url: endpoint(routes.manage.participant.getParticipantsForCalendar.route, { calendarid: calendarId }), key: 'id', text: 'lastName}, {firstName' }).done(participants => {
+
+				// Dropdown with participants in selected calendar.
+				var params = { calendarid: $(event.target).parent().find('select').val() };
+				createDropdown({ name: 'participant', url: endpoint(routes.manage.participant.getParticipantsForCalendar.route + '?quantity=200', params), value: 'id', caption: 'lastName}, {firstName', attr: [ 'key' ] }).done(participants => {
 					var participant = $filter.find('select[name=\'participant\']');
 					
 					if (participant.length) participant.replaceWith(participants);
 					else {
+						var search = $('<input name="search" type="text"></input>').on('input', (event) => {
+							var text = $(event.target).val();
+							var participant = $filter.find('select[name=\'participant\']');
+							var options = participant.find('option');
+							options.each( (i, element) => {
+								if ($(element).text().toLowerCase().includes(text.toLowerCase())) {
+									participant.val($(element).val());
+									return false;
+								}
+							});
+						});
+						$filter.append(search);
+
 						$filter.append(participants);
 
-						var btn_loadParticipant = $('<button type="button">Load</button>').on('click', (event) => {
-							var keys = { id: $(event.target).parent().find('select').val() };
-							load({ type: 'participant', url: endpoint(routes.manage.participant.getParticipant.route, keys) }).done(form => {
-								$main.html(form);
-
-								$('button[name=\'clear\']').on('click', (event) => {
-									clear('participant');
-								});
-								$('button[name=\'add\']').on('click', (event) => {
-									add('participant', routes.manage.participant.addParticipant.route);
-								});
-								$('button[name=\'save\']').on('click', (event) => {
-									update('participant', routes.manage.participant.updateParticipant.route);
-								});
-								$('button[name=\'remove\']').on('click', (event) => {
-									remove('participant', routes.manage.participant.deleteParticipant.route);
+						// Load
+						var btn_load = $('<button type="button">Load</button>').on('click', (event) => {
+							var params = { id: $(event.target).parent().find('select[name=\'participant\']').val() };
+							load({ type: 'participant', url: endpoint(routes.manage.participant.getParticipant.route, params) }).done(form => {
+								refreshForm({
+									form: form,
+									div: $main,
+									type: 'participant',
+									addUrl: endpoint(routes.manage.participant.addParticipant.route),
+									updateUrl: endpoint(routes.manage.participant.updateParticipant.route),
+									deleteUrl: endpoint(routes.manage.participant.deleteParticipant.route)
 								});
 							});
 						});
-						$filter.append(btn_loadParticipant);
+						$filter.append(btn_load);
 
+						// Sigin
 						var btn_signin = $('<button type="button">Signin</button>').on('click', (event) => {
-							var keys = { key: $main.find('input[name=\'key\']').val() };
+							var params = { key: $filter.find('select[name=\'participant\']').find(':selected').data('key') };
+							get(endpoint(routes._.auth.signinParticipant.route, params)).done(data => {
+								window.open('/dashboard', '_blank');
+							});
+						});
+						$actions.append(btn_signin);
 
-							get(endpoint(routes._.auth.signinParticipant.route, keys)).done(data => {
+						// Invite
+						var btn_invite = $('<button type="button">Invite</button>').on('click', (event) => {
+							var params = { id: $filter.find('select[name=\'participant\']').val() };
+							put(endpoint(routes.manage.participant.inviteParticipant.route, params)).done(data => {
 								alert('success');
 							});
 						});
-						$filter.append('</br>').append(btn_signin);
+						$actions.append(btn_invite);
 					}
 				});
 			});

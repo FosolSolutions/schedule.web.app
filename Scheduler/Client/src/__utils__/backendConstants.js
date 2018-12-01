@@ -3,7 +3,7 @@ const backendConstants = window.Scheduler.constants;
 //------------------------------------------------------------------------------
 // Private implementation details
 //------------------------------------------------------------------------------
-const rootRequestPath = "https://localhost:44375"; // "https://coeventapi.azurewebsites.net";
+const rootRequestPath = "https://coeventapi.azurewebsites.net"; // "https://localhost:44375";
 const authPath = `${rootRequestPath}/auth`;
 const dataPath = `${rootRequestPath}/data`;
 const managePath = `${rootRequestPath}/manage`;
