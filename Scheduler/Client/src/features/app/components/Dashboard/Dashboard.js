@@ -140,7 +140,9 @@ export class Dashboard extends React.PureComponent {
                             className={styles.cardHeader}
                             title={
                                 <header className={styles.cardHeaderHeader}>
-                                    <span className={styles.cardHeaderPrimary}>Welcome</span>
+                                    <span className={styles.cardHeaderPrimary}>
+                                        Welcome
+                                    </span>
                                 </header>
                             }
                             disableTypography
