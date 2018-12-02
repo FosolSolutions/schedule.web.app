@@ -4,9 +4,6 @@ module.exports = function babelConfig(api) {
         [
             "@babel/env",
             {
-                targets: "> 0.25%, not dead",
-            },
-            {
                 useBuiltIns: "entry",
             },
         ],
