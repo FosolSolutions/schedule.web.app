@@ -82,6 +82,9 @@ export default class DialogWithContent extends React.Component {
             <div className={styles.wrap}>
                 {launchButton()}
                 <Dialog
+                    classes={{
+                        paper: styles.paper,
+                    }}
                     open={this.state.open}
                     onClose={() => this.handleClose()}
                     aria-labelledby="formDialogTitle"

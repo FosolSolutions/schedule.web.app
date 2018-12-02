@@ -1,6 +1,9 @@
 //------------------------------------------------------------------------------
 // Public Interface
 //------------------------------------------------------------------------------
+// Externally-determined, locally implemented paths ----------------------------
+export const PATH_EMAIL_SIGNIN = "auth/signin/participant";
+
 // Client Storage --------------------------------------------------------------
 export const LOCAL_STORAGE = "localStorage";
 export const SESSION_STORAGE = "sessionStorage";

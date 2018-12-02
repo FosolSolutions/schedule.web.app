@@ -41,17 +41,16 @@ import {
 import {
     deleteFromWebStorage,
     readWebStorage,
-    updateHistory,
     writeWebStorage,
 } from "utils/generalUtils";
 import {
     CLIENT_KEY_IS_AUTHENTICATED,
-    HISTORY_REPLACE,
     LOCAL_STORAGE,
     SNACKBAR_NETWORK_ERROR,
     SNACKBAR_DYNAMIC_USER_ERROR,
     ARRAY_COMMAND_PUSH,
 } from "utils/constants";
+import history from "utils/history";
 import { UserNormalizer } from "utils/UserNormalizer";
 
 //------------------------------------------------------------------------------
@@ -250,7 +249,12 @@ export function signOff() {
             .then((response) => {
                 if (response.status === 200) {
                     dispatch({ type: SIGN_OFF_SUCCESS });
-                    updateHistory("", HISTORY_REPLACE);
+                    history.replace("/");
+
+                    // This is gross... Shouldn't be necessary, but logging in
+                    // again without a page reload fails to trigger the startup
+                    // XHR calls.
+                    window.location.reload();
                 } else {
                     dispatch({ type: SIGN_OFF_FAILURE });
                 }
@@ -278,7 +282,7 @@ function handleErrorResponse(errorActionType, dispatch, error) {
     let errorMsg;
 
     // Send the user to the login page.
-    updateHistory("", HISTORY_REPLACE);
+    history.replace("/");
 
     if (typeof error.response !== "undefined" && typeof error.response.data !== "undefined") {
         if (error.response.status === 401 && errorActionType === FETCH_IDENTITY_ERROR) {

@@ -122,7 +122,7 @@
 }
 
 .dateCol {
-    width: 80px;
+    width: 86px;
 }
 
 .tableCell,
@@ -163,7 +163,8 @@
 }
 
 .openingProgressIconButton,
-.openingProgressTextButton {
+.openingProgressTextButton,
+.openingProgressUnapplyButton {
     color: $secondaryMid;
     position: absolute;
 }
@@ -176,6 +177,12 @@
 .openingProgressTextButton {
     left: 0.35em;
     top: 0.7em;
+}
+
+.openingProgressUnapplyButton {
+    right: -8px;
+    top: -6px;
+    z-index: 1;
 }
 
 .applyButton,
@@ -191,6 +198,10 @@
     .applyButtonIcon {
         margin-right: 0.1em;
     }
+
+    &:disabled {
+        color: $baseText;
+    }
 }
 
 .applyIconButton {
@@ -202,8 +213,7 @@
     color: $secondaryMain;
 }
 
-.applyButtonIcon,
-.applyButtonIconDisabled {
+.applyButtonIcon {
     font-size: 1.8em;
 }
 
@@ -279,17 +289,27 @@
     margin: 0.25em 0;
 }
 
+.avatarTooltip {
+    font-size: 0.75rem;
+}
+
 .unapplyButton {
+    color: darken($baseTextLight, 20%);
     padding: 0;
     position: absolute;
     right: -7px;
     top: -5px;
     z-index: 1;
+
+    &:disabled {
+        color: darken($baseTextLight, 10%);
+    }
 }
 
 .unapplyIcon {
     font-size: 1.3rem;
     opacity: 0.5;
+    transition: color $uiTransitionDuration $uiTransitionFunction;
 
     &:hover {
         color: $errorLight;

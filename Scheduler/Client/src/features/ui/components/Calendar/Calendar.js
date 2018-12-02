@@ -23,7 +23,10 @@ import classNames from "classnames";
 import {
     selectCalendars,
     selectEvents,
+    selectActivities,
+    selectOpenings,
 } from "redux/reducers/calendarReducer";
+import { selectUser } from "redux/reducers/userReducer";
 import {
     selectCurrentCalendarMonth,
     selectDrawerIsOpen,
@@ -39,6 +42,7 @@ import {
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import IconButton from "@material-ui/core/IconButton";
+import Tooltip from "@material-ui/core/Tooltip";
 
 //------------------------------------------------------------------------------
 // Assets
@@ -78,6 +82,65 @@ export class Calendar extends React.PureComponent {
     today() {
         this.setState({ selectedDate: new Date() });
         this.props.setCurrentCalendarMonth(new Date());
+    }
+
+    getMyTasks(events) {
+        const returnVal = [];
+        let activities = [];
+        let openings = [];
+        let openingObjects = [];
+
+        events.forEach((event) => {
+            const newActivities = event.getActivities();
+            activities = activities.slice().concat(newActivities);
+        });
+
+        activities.forEach((activity) => {
+            const newOpenings = this.props.activities.getActivity(activity).getOpenings();
+            openings = openings.slice().concat(newOpenings);
+        });
+        openingObjects = openings.map(
+            (opening) => this.props.openings.getOpening(opening),
+        );
+        openingObjects.forEach((openingObject) => {
+            const openingName = openingObject.getName();
+            const activity = this.props.activities.getActivity(
+                openingObject.getActivityId(),
+            );
+            const eventName = this.props.events.getEvent(activity.getEventId()).getName();
+
+            openingObject.getParticipants().forEach((participant) => {
+                if (participant.getId() === this.props.user.getId()) {
+                    returnVal.push({
+                        eventName,
+                        openingName,
+                    });
+                }
+            });
+        });
+
+        return returnVal;
+    }
+
+    getTaskText(myTasks, includeEventName = true) {
+        let returnVal = (myTasks.length > 1) ? "My tasks: " : "My task: ";
+
+        myTasks.forEach((task, index) => {
+            let separator;
+            const eventFragment = `${task.eventName}: `;
+
+            if (index > 0) {
+                separator = ", ";
+            } else {
+                separator = "";
+            }
+
+            returnVal += `${separator}`;
+            returnVal += (includeEventName) ? eventFragment : "";
+            returnVal += `${task.openingName}`;
+        });
+
+        return returnVal;
     }
 
     render() {
@@ -178,6 +241,7 @@ export class Calendar extends React.PureComponent {
                         [styles.disabled]: !isSameMonth(day, monthStart),
                         [styles.selected]: isSameDay(day, this.state.selectedDate),
                     });
+
                     days.push(
                         <div
                             className={dayClassNames}
@@ -205,11 +269,46 @@ export class Calendar extends React.PureComponent {
         const renderEvents = (eventsToRender, day) => {
             const eventsMarkup = [];
             eventsToRender.forEach((event) => {
+                const myTasks = this.getMyTasks([event]);
+                const taskText = this.getTaskText(myTasks, false);
                 const eventName = event.getName();
                 const eventClassNames = classNames({
                     [styles.event]: true,
                     [styles.past]: isBefore(day, this.state.selectedDate),
+                    [styles.myEventWrap]: myTasks.length > 0,
                 });
+                const eventDot = (
+                    <i
+                        className={styles.accountDot}
+                        style={{
+                            backgroundColor:
+                                calendar.getAccountColor(),
+                        }}
+                    />
+                );
+                const eventMarkup = (myTasks.length > 0)
+                    ? (
+                        <Tooltip
+                            classes={{
+                                tooltip: styles.taskTooltip,
+                            }}
+                            placement="top"
+                            title={taskText}
+                        >
+                            <span className={styles.myEvent}>
+                                {eventDot}
+                                {eventName}
+                            </span>
+                        </Tooltip>
+                    )
+                    : (
+                        <span>
+                            {eventDot}
+                            {eventName}
+                        </span>
+                    );
+
+                // TODO: Render a DialogWithContent here for each event
 
                 if (isSameMonth(this.props.currentCalendarMonth, event.getStartDate())) {
                     eventsMarkup.push(
@@ -218,14 +317,7 @@ export class Calendar extends React.PureComponent {
                                 className={eventClassNames}
                                 key={eventName}
                             >
-                                <i
-                                    className={styles.accountDot}
-                                    style={{
-                                        backgroundColor:
-                                            calendar.getAccountColor(),
-                                    }}
-                                />
-                                {eventName}
+                                {eventMarkup}
                             </div>
                         ),
                     );
@@ -247,10 +339,13 @@ export class Calendar extends React.PureComponent {
 
 // Export the redux-connected component
 export default connect((state) => ({
+    activities: selectActivities(state),
+    openings: selectOpenings(state),
     calendars: selectCalendars(state),
     currentCalendarMonth: selectCurrentCalendarMonth(state),
     drawerIsOpen: selectDrawerIsOpen(state),
     events: selectEvents(state),
+    user: selectUser(state),
 }), {
     setCurrentCalendarMonth,
     setDrawerIsOpen,
@@ -265,6 +360,9 @@ Calendar.propTypes = {
     currentCalendarMonth: PropTypes.object.isRequired,
     drawerIsOpen: PropTypes.bool.isRequired,
     events: PropTypes.object.isRequired,
+    activities: PropTypes.object.isRequired,
+    openings: PropTypes.object.isRequired,
+    user: PropTypes.object.isRequired,
 
     // -------------------------------------------------------------------------
     // Method propTypes

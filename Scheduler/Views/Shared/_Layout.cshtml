@@ -48,9 +48,9 @@
 
         @RenderBody()
 
-        <environment include="Development">
+        <!-- <environment include="Development"> -->
             <script src="https://localhost:3001/bundle.js"></script>
-        </environment>
+        <!-- </environment> -->
         <environment exclude="Development">
             <script asp-src-include="~/client/runtime.*.js"></script>
             <script asp-src-include="~/client/vendor.*.js"></script>

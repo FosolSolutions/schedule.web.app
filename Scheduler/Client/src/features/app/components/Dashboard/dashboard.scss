@@ -5,11 +5,34 @@
 }
 
 .cardHeader {
+    background-color: $primaryMain;
+    border-bottom: 1px solid $neutralDark;
+    color: $baseBackground;
     font-family: $bodyTypeface !important;
 }
 
-.heading {
+.cardHeaderPrimary,
+.cardHeaderSecondary {
+    display: block;
+}
+
+.cardHeaderPrimary {
+    font-size: 1.25em;
+}
+
+.cardHeaderSecondary {
+    color: $primaryLight;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.contentHeading {
+    font-size: 1rem;
     margin: 0.5em 0 1em;
+}
+
+.headerActionIcon {
+    color: $baseBackground;
 }
 
 .empty {
@@ -18,4 +41,12 @@
 
 .emptyIcon {
     margin-right: 0.25em;
+}
+
+.listTextOpeningName {
+    font-weight: 600;
+}
+
+.listTextOpeningTitle {
+    font-style: italic;
 }

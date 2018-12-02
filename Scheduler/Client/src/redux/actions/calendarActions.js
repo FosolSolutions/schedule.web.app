@@ -4,7 +4,6 @@
 import axios from "axios";
 import format from "date-fns/format";
 import isUndefined from "lodash/isUndefined";
-import endOfMonth from "date-fns/endOfMonth";
 
 //------------------------------------------------------------------------------
 // Redux Support
@@ -61,6 +60,7 @@ import {
 } from "utils/backendConstants";
 import {
     SNACKBAR_NETWORK_ERROR,
+    DATE_END_ECCLESIAL_SCHEDULE,
     DATE_START_ECCLESIAL_SCHEDULE,
     SNACKBAR_DYNAMIC_CALENDARS_ERROR,
     SNACKBAR_DYNAMIC_EVENTS_ERROR,
@@ -196,7 +196,7 @@ export function fetchEcclesialCalendar() {
         const onSuccessCallback = () => dispatch(
             fetchEventsInRange(
                 DATE_START_ECCLESIAL_SCHEDULE,
-                endOfMonth(DATE_START_ECCLESIAL_SCHEDULE),
+                DATE_END_ECCLESIAL_SCHEDULE,
                 true,
             ),
         );

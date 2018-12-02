@@ -85,6 +85,7 @@
     "core-js": "2.5.7",
     "date-fns": "2.0.0-alpha.21",
     "detect-browser": "3.0.1",
+    "history": "4.7.2",
     "immutability-helper": "2.8.1",
     "intersection-observer": "0.5.1",
     "jss": "9.8.7",

@@ -4,7 +4,10 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
-import { withRouter } from "react-router";
+import {
+    Switch,
+    withRouter,
+} from "react-router";
 import { Route } from "react-router-dom";
 import classNames from "classnames";
 
@@ -31,6 +34,7 @@ import ConsecutiveSnackbars from "features/ui/components/ConsecutiveSnackbars/Co
 // Assets
 //------------------------------------------------------------------------------
 import styles from "features/app/components/MainContent/mainContent.scss";
+import EventBusyIcon from "@material-ui/icons/EventBusy";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -40,6 +44,7 @@ import {
     PAGE_ID_SCHEDULES,
     PAGE_ID_DASHBOARD,
 } from "utils/backendConstants";
+import { PATH_EMAIL_SIGNIN } from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -80,45 +85,83 @@ export class MainContent extends React.Component {
                 <ConsecutiveSnackbars />
             </div>
         );
+        const renderNotFound = () => {
+            const notFound = (
+                <div className={styles.errorWrap}>
+                    <EventBusyIcon className={styles.errorIcon}/>
+                    <h1>
+                        Hmm, looks like that page doesn't exist.
+                    </h1>
+                </div>
+            );
+
+            return (this.props.userIsAuthenticated)
+                ? renderAppContent(notFound)
+                : renderAuthContent(notFound);
+        };
         const renderPageContent = () => {
             const dashboardPath = `/${PAGE_ID_DASHBOARD}`;
+            const emailSigninPath = `/${PATH_EMAIL_SIGNIN}/:participantKey`;
             const rootPath = "/";
             let returnVal = false;
+            let pathMatches;
 
             if (this.props.userIsAuthenticated) {
-                if (this.props.location.pathname === rootPath) {
+                pathMatches = this.props.location.pathname.match(PATH_EMAIL_SIGNIN);
+
+                if (
+                    this.props.location.pathname === rootPath ||
+                    pathMatches !== null
+                ) {
                     this.props.history.replace(dashboardPath);
                 }
 
-                returnVal = [
-                    <Route
-                        key={"calendarView"}
-                        path={`/${PAGE_ID_CALENDAR}`}
-                        render={() => renderAppContent(<Calendar />)}
-                    />,
-                    <Route
-                        key={"schedulesView"}
-                        path={`/${PAGE_ID_SCHEDULES}`}
-                        render={() => renderAppContent(<Schedules />)}
-                    />,
-                    <Route
-                        exact
-                        key={"dashboardView"}
-                        path={dashboardPath}
-                        render={() => renderAppContent(<Dashboard />)}
-                    />,
-                    <Route
-                        exact
-                        key={"rootView"}
-                        path={rootPath}
-                        render={() => renderAppContent(<Dashboard />)}
-                    />,
-                ];
+                returnVal = (
+                    <Switch>
+                        <Route
+                            path={`/${PAGE_ID_CALENDAR}`}
+                            render={() => renderAppContent(<Calendar />)}
+                        />
+                        <Route
+                            path={`/${PAGE_ID_SCHEDULES}`}
+                            render={() => renderAppContent(<Schedules />)}
+                        />
+                        <Route
+                            exact
+                            path={dashboardPath}
+                            render={() => renderAppContent(<Dashboard />)}
+                        />
+                        <Route
+                            exact
+                            path={rootPath}
+                            render={() => renderAppContent(<Dashboard />)}
+                        />
+                        <Route render={() => renderNotFound()} />
+                    </Switch>
+
+                );
             } else if (this.props.fetchIdentityInProgress) {
                 returnVal = renderAppContent();
             } else {
-                returnVal = renderAuthContent(
-                    <Authentication />,
+                returnVal = (
+                    <Switch>
+                        <Route
+                            exact
+                            path={rootPath}
+                            render={() => renderAuthContent(<Authentication />)}
+                        />
+                        <Route
+                            exact
+                            path={emailSigninPath}
+                            render={
+                                (props) => renderAuthContent(
+                                    <Authentication {...props}/>,
+                                )
+                            }
+                        />
+                        <Route render={() => renderNotFound()} />
+                    </Switch>
+
                 );
             }
 

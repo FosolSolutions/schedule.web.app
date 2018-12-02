@@ -63,11 +63,24 @@ export class Authentication extends React.PureComponent {
     constructor(props) {
         super(props);
 
+        this.loginAttempted = false;
+
         const participantKeyInputName = "Participant ID";
 
         this.participantKeyValidatorRules = [
             participantKeyValid(participantKeyInputName),
         ];
+    }
+
+    componentDidMount() {
+        if (
+            this.props.match &&
+            this.props.match.isExact &&
+            this.props.match.params.participantKey
+        ) {
+            this.props.setParticipantKey(this.props.match.params.participantKey);
+            this.props.participantLogin();
+        }
     }
 
     render() {
@@ -178,10 +191,17 @@ Authentication.propTypes = {
     participantKey: PropTypes.string.isRequired,
     userIsAuthenticated: PropTypes.bool.isRequired,
 
+    // React Router ------------------------------------------------------------
+    match: PropTypes.object,
+
     // -------------------------------------------------------------------------
     // Method propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
     participantLogin: PropTypes.func.isRequired,
     setParticipantKey: PropTypes.func.isRequired,
+};
+
+Authentication.defaultProps = {
+    match: null,
 };
