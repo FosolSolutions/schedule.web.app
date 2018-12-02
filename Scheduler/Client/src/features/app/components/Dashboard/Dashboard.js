@@ -89,29 +89,22 @@ export class Dashboard extends React.PureComponent {
             this.props.events.getAllByRange(now, endDate),
         );
         const renderUpcomingTasks = () => myTasks.map((task) => {
-            const listText = [
-                <span
-                    key={task.openingName}
-                    className={styles.listTextOpeningName}
-                >
-                    {task.openingName}
-                </span>,
-                <span
-                    key={task.eventName}
-                    className={styles.listTextEventName}
-                >
-                    &nbsp;({task.eventName})
-                </span>,
-                <span
-                    key={task.openingTitle}
-                    className={styles.listTextOpeningTitle}
-                >
-                    {task.openingTitle}
-                </span>,
-            ];
+            const listText = (
+                <span>
+                    <span className={styles.listTextOpeningName}>
+                        {task.openingName}
+                    </span>
+                    <span className={styles.listTextEventName}>
+                        &nbsp;({task.eventName})
+                    </span>
+                    <span className={styles.listTextOpeningTitle}>
+                        {task.openingTitle}
+                    </span>
+                </span>
+            );
 
             return (
-                <ListItem key={task.date}>
+                <ListItem key={`${task.date}${task.eventName}${task.openingName}`}>
                     <ListItemText
                         primary={listText}
                         secondary={task.date}

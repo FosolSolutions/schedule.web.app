@@ -28,7 +28,12 @@ import styles from "features/app/components/Schedules/schedules.scss";
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { DRAWER_WIDTH } from "utils/constants";
+import {
+    DRAWER_WIDTH,
+    EVENT_NAME_MEMORIAL_MEETING,
+    ACTIVITY_NAME_PRESIDE,
+    ACTIVITY_NAME_PRESIDER,
+} from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -114,19 +119,34 @@ export class Schedules extends React.Component {
         let activityCells = [];
 
         if (this.props.event !== null) {
+            let returnVal;
+
             activities = this.props.event.getActivities().map(
                 (activityId) => allActivities.get(activityId),
             );
             activityCells = activities.map((activity) => {
                 const name = activity.getName();
-                return (
-                    <TableCell
-                        className={styles.headerCell}
-                        key={name}
-                    >
-                        {name}
-                    </TableCell>
-                );
+
+                if (
+                    this.props.event.getName() !== EVENT_NAME_MEMORIAL_MEETING &&
+                    (
+                        name === ACTIVITY_NAME_PRESIDE ||
+                        name === ACTIVITY_NAME_PRESIDER
+                    )
+                ) {
+                    returnVal = false;
+                } else {
+                    returnVal = (
+                        <TableCell
+                            className={styles.headerCell}
+                            key={name}
+                        >
+                            {name}
+                        </TableCell>
+                    );
+                }
+
+                return returnVal;
             });
         }
 

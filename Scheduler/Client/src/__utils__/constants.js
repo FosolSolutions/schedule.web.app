@@ -3,6 +3,7 @@
 //------------------------------------------------------------------------------
 // Externally-determined, locally implemented paths ----------------------------
 export const PATH_EMAIL_SIGNIN = "auth/signin/participant";
+export const PATH_ADMIN = "admin";
 
 // Client Storage --------------------------------------------------------------
 export const LOCAL_STORAGE = "localStorage";
@@ -45,6 +46,10 @@ export const EVENT_NAME_MEMORIAL_MEETING = "Memorial Meeting";
 export const EVENT_NAME_BIBLE_CLASS = "Bible Class";
 export const EVENT_NAME_BIBLE_TALK = "Bible Talk";
 export const EVENT_NAME_HALL_CLEANING = "Hall Cleaning";
+
+// Activity names
+export const ACTIVITY_NAME_PRESIDE = "Preside";
+export const ACTIVITY_NAME_PRESIDER = "Presider";
 
 // Criteria
 export const CRITERIA_RULE_PARTICIPATE = "Participate";

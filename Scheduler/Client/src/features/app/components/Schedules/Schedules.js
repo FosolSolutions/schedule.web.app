@@ -79,6 +79,8 @@ import {
     EVENT_NAME_BIBLE_TALK,
     EVENT_NAME_HALL_CLEANING,
     EVENT_NAME_MEMORIAL_MEETING,
+    ACTIVITY_NAME_PRESIDE,
+    ACTIVITY_NAME_PRESIDER,
 } from "utils/constants";
 import { PAGE_ID_SCHEDULES } from "utils/backendConstants";
 import { stringToHslColor } from "utils/generalUtils";
@@ -256,17 +258,32 @@ export class Schedules extends React.Component {
             );
 
             const activityCells = activities.map((activity) => {
+                let returnVal;
+                const name = activity.getName();
                 const openings = activity.getOpenings().map(
                     (openingId) => this.props.openings.getAll().get(openingId),
                 );
-                return (
-                    <TableCell
-                        className={styles.tableCell}
-                        key={`activity${activity.getId()}`}
-                    >
-                        {renderOpenings(openings, activity)}
-                    </TableCell>
-                );
+
+                if (
+                    event.getName() !== EVENT_NAME_MEMORIAL_MEETING &&
+                (
+                    name === ACTIVITY_NAME_PRESIDE ||
+                    name === ACTIVITY_NAME_PRESIDER
+                )
+                ) {
+                    returnVal = false;
+                } else {
+                    returnVal = (
+                        <TableCell
+                            className={styles.tableCell}
+                            key={`activity${activity.getId()}`}
+                        >
+                            {renderOpenings(openings, activity)}
+                        </TableCell>
+                    );
+                }
+
+                return returnVal;
             });
             const dateCell = (
                 <TableCell

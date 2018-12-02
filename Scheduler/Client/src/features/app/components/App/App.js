@@ -4,7 +4,11 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { connect } from "react-redux";
-import { withRouter } from "react-router";
+import {
+    Switch,
+    withRouter,
+} from "react-router";
+import { Route } from "react-router-dom";
 
 //------------------------------------------------------------------------------
 // Redux Support
@@ -23,6 +27,11 @@ import { selectCalendarsError } from "redux/reducers/calendarReducer";
 //------------------------------------------------------------------------------
 import MainNav from "features/app/components/MainNav/MainNav";
 import MainContent from "features/app/components/MainContent/MainContent";
+
+//------------------------------------------------------------------------------
+// Helpers
+//------------------------------------------------------------------------------
+import { PATH_ADMIN } from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -58,23 +67,33 @@ export class App extends React.PureComponent {
 
     render() {
         const renderAppContent = () => {
-            let returnVal;
+            let appContent;
             if (
                 !this.props.userIsAuthenticated &&
                 !this.props.loginInProgress &&
                 !this.props.fetchIdentityInProgress
             ) {
-                returnVal = (
+                appContent = (
                     <MainContent />
                 );
             } else {
-                returnVal = [
+                appContent = [
                     <MainNav key="mainNav" />,
                     <MainContent key="mainContent" />,
                 ];
             }
 
-            return returnVal;
+            return (
+                <Switch>
+                    <Route
+                        path={`/${PATH_ADMIN}`}
+                        render={() => false}
+                    />
+                    <Route
+                        render={() => appContent}
+                    />
+                </Switch>
+            );
         };
 
         return renderAppContent();
