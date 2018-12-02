@@ -275,6 +275,7 @@ export class Schedules extends React.Component {
                 } else {
                     returnVal = (
                         <TableCell
+                            data-heading={activity.getName()}
                             className={styles.tableCell}
                             key={`activity${activity.getId()}`}
                         >
@@ -287,7 +288,8 @@ export class Schedules extends React.Component {
             });
             const dateCell = (
                 <TableCell
-                    className={styles.tableCell}
+                    data-heading="Date"
+                    className={`${styles.tableCell} ${styles.mobileHeading}`}
                     key={`date${event.getId()}`}
                 >
                     <span>{format(event.getStartDate(), "MMM. dd")}</span>

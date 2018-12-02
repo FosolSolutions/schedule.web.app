@@ -327,3 +327,62 @@
     color: $baseBackground;
     padding-left: 8px;
 }
+
+@include breakpoint(max-width 50em) {
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
+        display: block !important;
+    }
+
+    thead tr {
+        left: -9999px;
+        position: absolute;
+        top: -9999px;
+    }
+
+    tr {
+        height: auto !important;
+    }
+
+    td {
+        border-bottom: 1px solid darken($primaryLight, 5%) !important;
+        min-height: 3em;
+        padding-left: 50% !important;
+        position: relative !important;
+    }
+
+    .mobileHeading {
+        background-color: $primaryMain;
+        color: $baseBackground;
+        font-weight: bold;
+
+        td::before {
+            font-weight: bold;
+        }
+    }
+
+    td::before {
+        left: 6px;
+        padding: 0.5em;
+        position: absolute;
+        top: calc(50% - 1.25em);
+        white-space: nowrap;
+        width: 30%;
+    }
+
+    td span {
+        vertical-align: middle;
+    }
+
+    .tableCell[data-heading]::before {
+        content: attr(data-heading);
+    }
+
+    .tableHeadPlaceholder {
+        display: none !important;
+    }
+}
