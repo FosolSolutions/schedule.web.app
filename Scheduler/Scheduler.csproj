@@ -19,6 +19,8 @@
     <Folder Include="Areas\Data\Controllers\" />
     <Folder Include="Areas\Data\Models\" />
     <Folder Include="Areas\Data\Views\" />
+    <Folder Include="Areas\Schedule\Controllers\" />
+    <Folder Include="Areas\Schedule\Models\" />
     <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="wwwroot\client\" />
     <Folder Include="wwwroot\client\__assets__\" />

@@ -5,6 +5,13 @@
 
 var api;
 var routes;
+const identity = {
+	userId: null,
+	participantId: null,
+	displayName: null,
+	calendarId: null,
+	attributes: []
+};
 
 /**
  * Replaces placeholders {key} with the properties passed as arguments.
@@ -33,6 +40,8 @@ function template(text) {
  * @returns {string} The url to the endpoint.
  */
 function endpoint(route) {
+	if (typeof (route) === 'object') route = route.route || null;
+	if (!route) throw 'Invalid route';
 	if (route && route[0] !== '/') route = '/' + route;
 	var url = api + route;
 	var len = arguments.length;
@@ -234,7 +243,8 @@ function put(url, data) {
 	return $.ajax({
 		type: 'PUT',
 		url: url,
-		data: data
+		data: JSON.stringify(data),
+		contentType: 'application/json'
 	}).done((data, status, xhr) => {
 		return data;
 	});
@@ -244,7 +254,8 @@ function post(url, data) {
 	return $.ajax({
 		type: 'POST',
 		url: url,
-		data: data
+		data: JSON.stringify(data),
+		contentType: 'application/json'
 	}).done((data, status, xhr) => {
 		return data;
 	});
@@ -347,7 +358,8 @@ function init(options) {
 		},
 		error: (xhr, status, error) => {
 			var data = JSON.parse(xhr.responseText);
-			errorDiv.html(data.message);
+			var msg = data.message || 'We\'re very sorry an error has occured.  The request has returned a ' + status;
+			alert(msg);
 		}
 	});
 
@@ -355,8 +367,14 @@ function init(options) {
 		$(event.target).html('');
 	});
 
-	return get(endpoint('/api/endpoints')).done((data) => {
+	return get(endpoint('/api/endpoints')).then(data => {
 		routes = data;
+		return get(endpoint(routes._.auth.currentPrincipal.route));
+	}).done((data) => {
+		identity.participantId = data.id;
+		identity.displayName = data.displayName;
+		identity.calendarId = data.calendarId;
+		identity.attributes = data.attributes;
 	});
 }
 
