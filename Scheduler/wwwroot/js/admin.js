@@ -356,6 +356,9 @@ function init(options) {
 		xhrFields: {
 			withCredentials: true
 		},
+		beforeSend: (xhr, settings) => {
+			$('#loader').show();
+		},
 		error: (xhr, status, error) => {
 			var data = JSON.parse(xhr.responseText);
 			var msg = data.message || 'We\'re very sorry an error has occured.  The request has returned a ' + status;
@@ -376,6 +379,10 @@ function init(options) {
 		identity.calendarId = data.calendarId;
 		identity.attributes = data.attributes;
 	});
+}
+
+function overlay() {
+	$('#loader').toggle();
 }
 
 
