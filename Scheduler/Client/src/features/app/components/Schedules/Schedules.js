@@ -67,8 +67,6 @@ import styles from "features/app/components/Schedules/schedules.scss";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CancelIcon from "@material-ui/icons/Cancel";
 import EditIcon from "@material-ui/icons/Edit";
-import FullscreenExitIcon from "@material-ui/icons/FullscreenExit";
-import FullscreenIcon from "@material-ui/icons/Fullscreen";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -215,9 +213,6 @@ export class Schedules extends React.Component {
         const accountColor = calendarIsUndefined
             ? stringToHslColor(accountName)
             : calendar.getAccountColor();
-        const fullScreenIcon = (this.props.drawerIsOpen)
-            ? <FullscreenIcon />
-            : <FullscreenExitIcon color="secondary" />;
         const firstColumnStyle = {
             width: "86px",
         };
@@ -226,18 +221,6 @@ export class Schedules extends React.Component {
                 className={styles.header}
                 ref={this.headerRef}
             >
-                <div className={styles.preWrap}>
-                    <IconButton
-                        className={styles.fullScreenButton}
-                        onClick={
-                            () => this.props.setDrawerIsOpen(
-                                !this.props.drawerIsOpen,
-                            )
-                        }
-                    >
-                        {fullScreenIcon}
-                    </IconButton>
-                </div>
                 <div className={styles.leftWrap}>
                     <span className={styles.allHeading}>
                         {`${scheduleName} schedule`}

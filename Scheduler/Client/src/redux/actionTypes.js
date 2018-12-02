@@ -38,6 +38,7 @@ export const SET_MAIN_CONTENT_KEY = "SET_MAIN_CONTENT_KEY";
 export const SET_SCHEDULE_END_DATE = "SET_SCHEDULE_END_DATE";
 export const SET_SCHEDULE_START_DATE = "SET_SCHEDULE_START_DATE";
 export const SET_SNACKBAR_CONTENT_KEY = "SET_SNACKBAR_CONTENT_KEY";
+export const SET_SCREEN_WIDTH = "SET_SCREEN_WIDTH";
 
 // -----------------------------------------------------------------------------
 // User action types

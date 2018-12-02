@@ -89,6 +89,7 @@ export const ERROR_MESSAGE_UNKNOWN = "Unknown error";
 
 // Theme constants -------------------------------------------------------------
 export const DRAWER_WIDTH = "250px";
+export const WINDOW_WIDTH_DRAWER_PERSISTENT = 1200;
 
 export const COLOR_PRIMARY_MAIN = "hsl(210, 29%, 29%)";
 export const COLOR_PRIMARY_MID = "hsl(210, 19%, 44%)";

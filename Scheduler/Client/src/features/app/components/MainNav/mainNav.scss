@@ -25,6 +25,7 @@
 .account {
     color: #fff;
     display: flex;
+    flex: 1 1 auto;
     font-size: 0.75em;
     justify-content: flex-start;
 
@@ -35,6 +36,19 @@
     .icon {
         margin-left: -0.25em;
     }
+}
+
+.menu {
+    color: #fff;
+    margin-right: 0.25em;
+}
+
+.floatingMenuButton {
+    bottom: 0;
+    color: #fff;
+    margin: 1em;
+    position: fixed;
+    z-index: 1;
 }
 
 .displayName {

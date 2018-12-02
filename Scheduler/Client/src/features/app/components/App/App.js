@@ -20,6 +20,7 @@ import {
 } from "redux/reducers/userReducer";
 import { fetchEcclesialCalendar } from "redux/actions/calendarActions";
 import { initUserFromCache } from "redux/actions/userActions";
+import { setResponsiveProperties } from "redux/actions/uiActions";
 import { selectCalendarsError } from "redux/reducers/calendarReducer";
 
 //------------------------------------------------------------------------------
@@ -51,6 +52,7 @@ export class App extends React.PureComponent {
     componentDidMount() {
         this.props.fetchEcclesialCalendar();
         this.props.initUserFromCache();
+        this.props.setResponsiveProperties();
     }
 
     componentDidUpdate(prevProps) {
@@ -109,6 +111,7 @@ export default withRouter(connect((state) => ({
 }), {
     fetchEcclesialCalendar,
     initUserFromCache,
+    setResponsiveProperties,
 })(App));
 
 App.propTypes = {
@@ -125,6 +128,7 @@ App.propTypes = {
     // -------------------------------------------------------------------------
     fetchEcclesialCalendar: PropTypes.func.isRequired,
     initUserFromCache: PropTypes.func.isRequired,
+    setResponsiveProperties: PropTypes.func.isRequired,
 };
 
 App.defaultProps = {};

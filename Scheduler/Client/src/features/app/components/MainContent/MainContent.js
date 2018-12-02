@@ -14,7 +14,10 @@ import classNames from "classnames";
 //------------------------------------------------------------------------------
 // Redux Support
 //------------------------------------------------------------------------------
-import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
+import {
+    selectDrawerIsOpen,
+    selectScreenWidth,
+} from "redux/reducers/uiReducer";
 import {
     selectFetchIdentityInProgress,
     selectIsAuthenticated,
@@ -44,7 +47,10 @@ import {
     PAGE_ID_SCHEDULES,
     PAGE_ID_DASHBOARD,
 } from "utils/backendConstants";
-import { PATH_EMAIL_SIGNIN } from "utils/constants";
+import {
+    PATH_EMAIL_SIGNIN,
+    WINDOW_WIDTH_DRAWER_PERSISTENT,
+} from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -55,7 +61,10 @@ export class MainContent extends React.Component {
     render() {
         const appPageStyles = classNames({
             [styles.appPage]: true,
-            [styles.narrow]: this.props.drawerIsOpen,
+            [styles.narrow]: (
+                this.props.drawerIsOpen &&
+                this.props.screenWidth > WINDOW_WIDTH_DRAWER_PERSISTENT
+            ),
         });
         /**
          * Render the main app content.
@@ -176,6 +185,7 @@ export class MainContent extends React.Component {
 export default withRouter(connect((state) => ({
     drawerIsOpen: selectDrawerIsOpen(state),
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
+    screenWidth: selectScreenWidth(state),
     userIsAuthenticated: selectIsAuthenticated(state),
 }), {
     setDrawerIsOpen,
@@ -188,6 +198,7 @@ MainContent.propTypes = {
     // Redux -------------------------------------------------------------------
     drawerIsOpen: PropTypes.bool.isRequired,
     fetchIdentityInProgress: PropTypes.bool.isRequired,
+    screenWidth: PropTypes.any,
     userIsAuthenticated: PropTypes.bool.isRequired,
 
     // React Router ------------------------------------------------------------
