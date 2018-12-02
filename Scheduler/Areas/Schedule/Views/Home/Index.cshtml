@@ -4,34 +4,134 @@
 }
 
 <style>
-	td {
-		border-top: 1px solid grey;
-		border-left: 1px solid grey;
+	table {
+		width: 100%;
+		border-collapse: collapse;
 	}
 
-	.schedule {
-		border: 1px solid grey;
+	.month {
+		color: white;
+		background-color: darkgray !important;
 	}
 
-	.activity {
+	.events {
 	}
+		.events thead th:nth-child(1) {
+			width: 50px;
+		}
+
+		.events thead th:nth-child(2) {
+			width: 150px;
+		}
+
+		.events thead th:nth-child(7) {
+			width: 255px;
+		}
+
+		.events thead th:nth-child(8) {
+			width: 380px;
+		}
+
+		.events tr:nth-child(odd) {
+			background-color: ghostwhite;
+		}
+
+		.events tr:nth-child(even) {
+			background-color: #e9e9e9;
+		}
+
+	.activities {
+		background-color: transparent;
+	}
+		.activities tr{
+			background-color: transparent !important;
+		}
+
+		.activities tr td {
+			background-color: transparent !important;
+		}
+
+		.activities tr td div {
+			background-color: transparent;
+		}
+
+		.activities td:nth-child(1) {
+			width: 125px;
+		}
+
+		.activities td:nth-child(2) {
+			width: 125px;
+		}
+
+		.activities td:nth-child(5) {
+			width: 255px;
+		}
+
+		.activities td:nth-child(6) {
+			width: 380px;
+		}
 
 	button {
 		cursor: pointer;
 	}
 
 	button[name='apply'] {
-		width: 120px;
+		width: 125px;
 	}
 
 	button[name='unapply'] {
-		width: 120px;
-		background-color: green;
+		width: 125px;
+		background-color: darkseagreen;
 	}
 
-	.active {
-		width: 120px;
+	.participant {
+		width: 125px;
 	}
-</style>
 
-<div id="main"></div>
+	.loader {
+		border: 16px solid #f3f3f3; /* Light grey */
+		border-top: 16px solid #3498db; /* Blue */
+		border-radius: 50%;
+		width: 120px;
+		height: 120px;
+		animation: spin 2s linear infinite;
+
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		/*margin-top: -60em; set to a negative number 1/2 of your height*/
+		/* margin-left: -60em; set to a negative number 1/2 of your width*/
+	}
+
+	@@keyframes spin {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}
+
+	.overlay {
+		position: fixed; /* Sit on top of the page content */
+		display: none; /* Hidden by default */
+		width: 100%; /* Full width (cover the whole page) */
+		height: 100%; /* Full height (cover the whole page) */
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+		z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+		cursor: pointer; /* Add a pointer on hover */
+	}
+	</style>
+
+<div id="main">
+	<ul>
+		<li><a href="#meetings">Meetings</a></li>
+		<li><a href="#cleaning">Cleaning</a></li>
+	</ul>
+	<div id="meetings"></div>
+	<div id="cleaning"></div>
+</div>
+
+<div id="loader" class="overlay">
+	<div class="loader"></div>
+</div>
