@@ -7,6 +7,7 @@ import { OpeningApplication } from "utils/OpeningApplication";
 import { Participant } from "utils/Participant";
 import { Tag } from "utils/Tag";
 import {
+    OPENING_NAME_SPEAK,
     OPENING_NAME_SPEAKER,
     TAG_KEY_TITLE,
 } from "utils/constants";
@@ -46,7 +47,10 @@ export class ActivityOpening {
         );
 
         // Hardcoded functionality
-        this.hasQuesitons = (this.name === OPENING_NAME_SPEAKER);
+        this.hasQuesitons = (
+            this.name === OPENING_NAME_SPEAKER ||
+            this.name === OPENING_NAME_SPEAK
+        );
     }
 
     getId() {

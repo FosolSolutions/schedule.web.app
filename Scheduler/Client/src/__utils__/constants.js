@@ -80,6 +80,7 @@ export const CRITERIA_LOGICAL_OPERATOR_OR = "Or";
 
 // Openings
 export const OPENING_NAME_SPEAKER = "Speaker";
+export const OPENING_NAME_SPEAK = "Speak";
 
 // Tags
 export const TAG_KEY_TITLE = "Title";
