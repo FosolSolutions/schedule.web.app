@@ -363,6 +363,7 @@ function init(options) {
 			var data = JSON.parse(xhr.responseText);
 			var msg = data.message || 'We\'re very sorry an error has occured.  The request has returned a ' + status;
 			alert(msg);
+			overlay();
 		}
 	});
 
