@@ -25,6 +25,7 @@ import {
     MANAGE_PARTICIPANT_SUCCESS,
     SET_IS_AUTHENTICATED,
     SET_PARTICIPANT_ID,
+    SET_IOS_CORS_ERROR,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
@@ -60,6 +61,7 @@ export const initialUserState = {
     participantKey: "",
     signOffInProgress: false,
     isAuthenticated: false,
+    iosCors: false,
 
     user: initialUserData,
     attributes: {
@@ -194,6 +196,11 @@ export default function userReducer(
                 participantKey: { $set: action.participantKey },
             });
             break;
+        case SET_IOS_CORS_ERROR:
+            returnVal = update(state, {
+                iosCors: { $set: true },
+            });
+            break;
         default:
             returnVal = state;
     }
@@ -300,4 +307,15 @@ export function selectUser(state) {
 export function selectUserAttributes(state) {
     const attributeData = state.user.attributes;
     return attributeData.allIds.map((id) => new UserAttribute(attributeData.byId[id]));
+}
+
+/**
+ * iosCors selector
+ *
+ * @param  {Object} state     Store state object
+ *
+ * @return {boolean}          Whether the user has encountered iOs CORS error
+ */
+export function selectIosCors(state) {
+    return state.user.iosCors;
 }

@@ -21,6 +21,7 @@ import {
 import {
     selectFetchIdentityInProgress,
     selectIsAuthenticated,
+    selectIosCors,
 } from "redux/reducers/userReducer";
 import { setDrawerIsOpen } from "redux/actions/uiActions";
 
@@ -95,11 +96,14 @@ export class MainContent extends React.Component {
             </div>
         );
         const renderNotFound = () => {
+            const message = (this.props.iosCors)
+                ? `To use this application, either turn off the "Prevent Cross-Site Tracking" option in Settings > Safari (then reload the page), or try using Chrome for iOS.`
+                : "Hmm, something went wrong. Try logging in again.";
             const notFound = (
                 <div className={styles.errorWrap}>
                     <EventBusyIcon className={styles.errorIcon}/>
                     <h1>
-                        Hmm, looks like that page doesn't exist.
+                        {message}
                     </h1>
                 </div>
             );
@@ -187,6 +191,7 @@ export default withRouter(connect((state) => ({
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     screenWidth: selectScreenWidth(state),
     userIsAuthenticated: selectIsAuthenticated(state),
+    iosCors: selectIosCors(state),
 }), {
     setDrawerIsOpen,
 })(MainContent));
@@ -200,6 +205,7 @@ MainContent.propTypes = {
     fetchIdentityInProgress: PropTypes.bool.isRequired,
     screenWidth: PropTypes.any,
     userIsAuthenticated: PropTypes.bool.isRequired,
+    iosCors: PropTypes.bool.isRequired,
 
     // React Router ------------------------------------------------------------
     history: PropTypes.object,

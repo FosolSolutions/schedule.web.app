@@ -70,3 +70,8 @@ export const UNAPPLY_FROM_OPENING_ERROR = "UNAPPLY_FROM_OPENING_ERROR";
 export const UNAPPLY_FROM_OPENING_FAILURE = "UNAPPLY_FROM_OPENING_FAILURE";
 export const UNAPPLY_FROM_OPENING_SUCCESS = "UNAPPLY_FROM_OPENING_SUCCESS";
 export const SET_PARTICIPANT_ID = "SET_PARTICIPANT_ID";
+
+// -----------------------------------------------------------------------------
+// Other
+// -----------------------------------------------------------------------------
+export const SET_IOS_CORS_ERROR = "SET_IOS_CORS_ERROR";

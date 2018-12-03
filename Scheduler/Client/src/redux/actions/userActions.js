@@ -2,6 +2,7 @@
 // Third Party
 //------------------------------------------------------------------------------
 import axios from "axios";
+import { detect } from "detect-browser";
 
 //------------------------------------------------------------------------------
 // Redux Support
@@ -25,6 +26,7 @@ import {
     SIGN_OFF_SUCCESS,
     SET_IS_AUTHENTICATED,
     SET_PARTICIPANT_ID,
+    SET_IOS_CORS_ERROR,
 } from "redux/actionTypes";
 import { selectParticipantKey } from "redux/reducers/userReducer";
 import { setSnackbarContent } from "redux/actions/uiActions";
@@ -280,6 +282,27 @@ function handleErrorResponse(errorActionType, dispatch, error) {
     let dynamicSnackbarError = false;
     let snackbarContentKey;
     let errorMsg;
+    let isIosCorsError = false;
+    const cachedIsAuthenticated = readWebStorage(
+        LOCAL_STORAGE,
+        CLIENT_KEY_IS_AUTHENTICATED,
+    );
+    const browser = detect();
+
+    if (browser) {
+        if (
+            browser.name === "ios" &&
+            cachedIsAuthenticated &&
+            errorActionType === MANAGE_PARTICIPANT_ERROR &&
+            typeof error.response !== "undefined" &&
+            error.response.status === 401
+        ) {
+            isIosCorsError = true;
+            dispatch({
+                type: SET_IOS_CORS_ERROR,
+            });
+        }
+    }
 
     // Send the user to the login page.
     history.replace("/");
@@ -319,7 +342,7 @@ function handleErrorResponse(errorActionType, dispatch, error) {
     });
     dispatch(setIsAuthenticated(false));
 
-    if (showSnackbar && errorMsg !== "") {
+    if (showSnackbar && errorMsg !== "" && !isIosCorsError) {
         if (dynamicSnackbarError) {
             snackbarContentKey = SNACKBAR_DYNAMIC_USER_ERROR;
         } else {
