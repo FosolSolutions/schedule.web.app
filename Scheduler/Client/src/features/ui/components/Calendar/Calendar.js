@@ -50,8 +50,6 @@ import Tooltip from "@material-ui/core/Tooltip";
 import styles from "features/ui/components/Calendar/calendar.scss";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
-import FullscreenExitIcon from "@material-ui/icons/FullscreenExit";
-import FullscreenIcon from "@material-ui/icons/Fullscreen";
 
 //------------------------------------------------------------------------------
 
@@ -145,20 +143,10 @@ export class Calendar extends React.PureComponent {
 
     render() {
         const calendar = this.props.calendars.getAllValues()[0];
-        const fullScreenIcon = (this.props.drawerIsOpen)
-            ? <FullscreenIcon />
-            : <FullscreenExitIcon color="secondary" />;
         const renderHeader = () => {
             const dateFormat = "MMMM yyyy";
             return (
                 <div className={styles.header}>
-                    <div className={styles.preWrap}>
-                        <IconButton onClick={
-                            () => this.props.setDrawerIsOpen(!this.props.drawerIsOpen)
-                        }>
-                            {fullScreenIcon}
-                        </IconButton>
-                    </div>
                     <div className={styles.leftWrap}>
                         <Button
                             className={styles.today}

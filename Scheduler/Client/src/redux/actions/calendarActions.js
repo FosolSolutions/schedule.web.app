@@ -596,7 +596,7 @@ export function setAnswer(openingId, questionId, answer = "") {
 function getDateRangeQueryString(startOn, endOn) {
     const dateFormat = "yyyy-MM-dd";
     const startParam = (startOn === null) ? "" : `starton=${format(startOn, dateFormat)}&`;
-    const endParam = `endon=${format(endOn, dateFormat)}`;
+    const endParam = `endon=${format(endOn, dateFormat)} 23:59:59`;
 
     return `${startParam}${endParam}`;
 }
