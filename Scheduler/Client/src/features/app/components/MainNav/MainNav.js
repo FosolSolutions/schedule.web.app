@@ -108,6 +108,14 @@ export class MainNav extends React.Component {
         this.setState({ userMenuAnchorEl: null });
     }
 
+    handleNavItemClick(path) {
+        this.props.history.push(path);
+
+        if (this.props.screenWidth < WINDOW_WIDTH_DRAWER_PERSISTENT) {
+            this.props.setDrawerIsOpen(false);
+        }
+    }
+
     render() {
         const user = this.props.user;
         const userIsNull = (this.props.user.getId() === null);
@@ -207,7 +215,7 @@ export class MainNav extends React.Component {
                         <ListItem
                             button
                             className={homeNavListClassNames}
-                            onClick={() => this.props.history.push(`/${PAGE_ID_DASHBOARD}`)}
+                            onClick={() => this.handleNavItemClick(`/${PAGE_ID_DASHBOARD}`)}
                         >
                             <ListItemIcon className={styles.listItemIcon}>
                                 <Home />
@@ -216,13 +224,13 @@ export class MainNav extends React.Component {
                                 className={styles.listItemText}
                                 disableTypography={true}
                             >
-                            Dashboard
+                                Dashboard
                             </ListItemText>
                         </ListItem>
                         <ListItem
                             button
                             className={calendarNavListClassNames}
-                            onClick={() => this.props.history.push(`/${PAGE_ID_CALENDAR}`)}
+                            onClick={() => this.handleNavItemClick(`/${PAGE_ID_CALENDAR}`)}
                         >
                             <ListItemIcon className={styles.listItemIcon}>
                                 <Event />
@@ -231,7 +239,7 @@ export class MainNav extends React.Component {
                                 className={styles.listItemText}
                                 disableTypography={true}
                             >
-                            Calendar
+                                Calendar
                             </ListItemText>
                         </ListItem>
                         <ScheduleList />
