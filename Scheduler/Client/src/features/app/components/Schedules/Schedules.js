@@ -113,7 +113,8 @@ export class Schedules extends React.Component {
         if (
             this.state.openOpeningDialogId !== null &&
             !this.props.openingsIsLoading &&
-            !nextProps.openingsIsLoading
+            !nextProps.openingsIsLoading &&
+            this.props.location.pathname === nextProps.location.pathname
         ) {
             returnVal = false;
         }
