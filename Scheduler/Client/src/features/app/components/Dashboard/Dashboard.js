@@ -5,7 +5,6 @@ import React from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import format from "date-fns/format";
-import addMonths from "date-fns/addMonths";
 
 //------------------------------------------------------------------------------
 // Redux Support
@@ -33,6 +32,10 @@ import ListItemText from "@material-ui/core/ListItemText";
 // Assets
 //------------------------------------------------------------------------------
 import styles from "features/app/components/Dashboard/dashboard.scss";
+import {
+    DATE_END_ECCLESIAL_SCHEDULE,
+    DATE_START_ECCLESIAL_SCHEDULE,
+} from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -83,10 +86,10 @@ export class Dashboard extends React.PureComponent {
     }
 
     render() {
-        const now = new Date();
-        const endDate = addMonths(now, 2);
+        const startDate = DATE_START_ECCLESIAL_SCHEDULE;
+        const endDate = DATE_END_ECCLESIAL_SCHEDULE;
         const myTasks = this.getMyTasks(
-            this.props.events.getAllByRange(now, endDate),
+            this.props.events.getAllByRange(startDate, endDate),
         );
         const renderUpcomingTasks = () => myTasks.map((task) => {
             const listText = (
@@ -163,7 +166,7 @@ export class Dashboard extends React.PureComponent {
                             title={
                                 <header className={styles.cardHeaderHeader}>
                                     <span className={styles.cardHeaderPrimary}>{`At a glance`}</span>
-                                    <span className={styles.cardHeaderSecondary}>{`My tasks (${format(now, "MMMM")} - ${format(endDate, "MMMM")})`}</span>
+                                    <span className={styles.cardHeaderSecondary}>{`My tasks (${format(startDate, "MMMM d")} - ${format(endDate, "MMMM d")})`}</span>
                                 </header>
                             }
                         />

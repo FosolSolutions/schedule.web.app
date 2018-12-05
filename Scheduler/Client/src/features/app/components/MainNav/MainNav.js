@@ -148,7 +148,7 @@ export class MainNav extends React.Component {
                 <Drawer
                     className={styles.drawer}
                     classes={{
-                        paper: classNames(styles.paper, styles.noOverflowVert),
+                        paper: styles.paper,
                     }}
                     key="navDrawer"
                     open={this.props.drawerIsOpen}

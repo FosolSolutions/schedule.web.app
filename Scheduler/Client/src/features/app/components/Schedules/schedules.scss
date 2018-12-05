@@ -142,7 +142,8 @@
 }
 
 .opening {
-    white-space: nowrap;
+    align-items: center;
+    display: flex;
 }
 
 .overflowWrap {
@@ -225,7 +226,10 @@
 .openingTitle {
     display: inline-block;
     font-style: italic;
-    margin-left: 1em;
+    margin-left: 0.5em;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     width: calc(100% - 3.5rem);
 }
 
@@ -351,14 +355,17 @@
     td {
         border-bottom: 1px solid darken($primaryLight, 5%) !important;
         min-height: 3em;
-        padding-left: 50% !important;
+        padding-left: 40% !important;
         position: relative !important;
     }
 
     .mobileHeading {
+        align-items: center;
         background-color: $primaryMain;
         color: $baseBackground;
+        display: flex;
         font-weight: bold;
+        padding: 1em;
 
         td::before {
             font-weight: bold;
@@ -367,15 +374,13 @@
 
     td::before {
         left: 6px;
+        overflow: hidden;
         padding: 0.5em;
         position: absolute;
+        text-overflow: ellipsis;
         top: calc(50% - 1.25em);
         white-space: nowrap;
-        width: 30%;
-    }
-
-    td span {
-        vertical-align: middle;
+        width: 40%;
     }
 
     .tableCell[data-heading]::before {
