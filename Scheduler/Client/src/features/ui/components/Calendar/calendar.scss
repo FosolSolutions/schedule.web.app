@@ -131,6 +131,7 @@
     padding: 0.15em 0.25em;
     position: relative;
     text-overflow: ellipsis;
+    user-select: none;
     white-space: nowrap;
     width: 100%;
 }

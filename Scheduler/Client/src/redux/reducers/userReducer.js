@@ -25,7 +25,7 @@ import {
     MANAGE_PARTICIPANT_SUCCESS,
     SET_IS_AUTHENTICATED,
     SET_PARTICIPANT_ID,
-    SET_IOS_CORS_ERROR,
+    SET_SAFARI_CORS_ERROR,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ export const initialUserState = {
     participantKey: "",
     signOffInProgress: false,
     isAuthenticated: false,
-    iosCors: false,
+    safariCors: false,
 
     user: initialUserData,
     attributes: {
@@ -196,9 +196,9 @@ export default function userReducer(
                 participantKey: { $set: action.participantKey },
             });
             break;
-        case SET_IOS_CORS_ERROR:
+        case SET_SAFARI_CORS_ERROR:
             returnVal = update(state, {
-                iosCors: { $set: true },
+                safariCors: { $set: true },
             });
             break;
         default:
@@ -310,12 +310,12 @@ export function selectUserAttributes(state) {
 }
 
 /**
- * iosCors selector
+ * safariCors selector
  *
  * @param  {Object} state     Store state object
  *
- * @return {boolean}          Whether the user has encountered iOs CORS error
+ * @return {boolean}          Whether the user has encountered safari CORS error
  */
-export function selectIosCors(state) {
-    return state.user.iosCors;
+export function selectSafariCors(state) {
+    return state.user.safariCors;
 }

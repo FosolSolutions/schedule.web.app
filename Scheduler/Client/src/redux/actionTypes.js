@@ -74,4 +74,4 @@ export const SET_PARTICIPANT_ID = "SET_PARTICIPANT_ID";
 // -----------------------------------------------------------------------------
 // Other
 // -----------------------------------------------------------------------------
-export const SET_IOS_CORS_ERROR = "SET_IOS_CORS_ERROR";
+export const SET_SAFARI_CORS_ERROR = "SET_SAFARI_CORS_ERROR";

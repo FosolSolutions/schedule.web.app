@@ -148,9 +148,9 @@ export class Dashboard extends React.PureComponent {
                                 Victoria Ecclesial Schedule Sign-up for Winter/Spring 2019
                             </h3>
                             <ul>
-                                <li>{`To view the schedule and volunteer for openings, use left sidebar "Ecclesial Schedule" navigation.`}</li>
-                                <li>{`Any of your tasks coming up soon will be shown below.`}</li>
-                                <li>{`Use the "Calendar" sidebar navigation to view all the scheduled events, with your tasks highlighted.`}</li>
+                                <li>{`To view the schedule and volunteer for openings, use the left sidebar "Ecclesial Schedule" navigation.`}</li>
+                                <li>{`A summary of your upcoming tasks is shown below.`}</li>
+                                <li>{`Use the "Calendar" (via left sidebar navigation) to view all the scheduled events in calendar format, with your tasks highlighted.`}</li>
                             </ul>
                         </CardContent>
                     </Card>

@@ -2,7 +2,6 @@
 // Third Party
 //------------------------------------------------------------------------------
 import axios from "axios";
-import { detect } from "detect-browser";
 
 //------------------------------------------------------------------------------
 // Redux Support
@@ -26,7 +25,7 @@ import {
     SIGN_OFF_SUCCESS,
     SET_IS_AUTHENTICATED,
     SET_PARTICIPANT_ID,
-    SET_IOS_CORS_ERROR,
+    SET_SAFARI_CORS_ERROR,
 } from "redux/actionTypes";
 import { selectParticipantKey } from "redux/reducers/userReducer";
 import { setSnackbarContent } from "redux/actions/uiActions";
@@ -42,6 +41,7 @@ import {
 } from "utils/backendConstants";
 import {
     deleteFromWebStorage,
+    getBrowser,
     readWebStorage,
     writeWebStorage,
 } from "utils/generalUtils";
@@ -51,6 +51,8 @@ import {
     SNACKBAR_NETWORK_ERROR,
     SNACKBAR_DYNAMIC_USER_ERROR,
     ARRAY_COMMAND_PUSH,
+    BROWSER_NAME_SAFARI_IOS,
+    BROWSER_NAME_SAFARI_DESKTOP,
 } from "utils/constants";
 import history from "utils/history";
 import { UserNormalizer } from "utils/UserNormalizer";
@@ -282,24 +284,27 @@ function handleErrorResponse(errorActionType, dispatch, error) {
     let dynamicSnackbarError = false;
     let snackbarContentKey;
     let errorMsg;
-    let isIosCorsError = false;
+    let isSafariCorsError = false;
     const cachedIsAuthenticated = readWebStorage(
         LOCAL_STORAGE,
         CLIENT_KEY_IS_AUTHENTICATED,
     );
-    const browser = detect();
+    const browser = getBrowser();
 
     if (browser) {
         if (
-            browser.name === "ios" &&
+            (
+                browser.name === BROWSER_NAME_SAFARI_IOS ||
+                browser.name === BROWSER_NAME_SAFARI_DESKTOP
+            ) &&
             cachedIsAuthenticated &&
             errorActionType === MANAGE_PARTICIPANT_ERROR &&
             typeof error.response !== "undefined" &&
             error.response.status === 401
         ) {
-            isIosCorsError = true;
+            isSafariCorsError = true;
             dispatch({
-                type: SET_IOS_CORS_ERROR,
+                type: SET_SAFARI_CORS_ERROR,
             });
         }
     }
@@ -342,7 +347,7 @@ function handleErrorResponse(errorActionType, dispatch, error) {
     });
     dispatch(setIsAuthenticated(false));
 
-    if (showSnackbar && errorMsg !== "" && !isIosCorsError) {
+    if (showSnackbar && errorMsg !== "" && !isSafariCorsError) {
         if (dynamicSnackbarError) {
             snackbarContentKey = SNACKBAR_DYNAMIC_USER_ERROR;
         } else {

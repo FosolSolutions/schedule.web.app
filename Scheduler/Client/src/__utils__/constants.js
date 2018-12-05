@@ -5,6 +5,11 @@
 export const PATH_EMAIL_SIGNIN = "auth/signin/participant";
 export const PATH_ADMIN = "admin";
 
+// Browser Detection -----------------------------------------------------------
+export const BROWSER_PROPERTY_UNDETECTED = "BROWSER_PROPERTY_UNDETECTED";
+export const BROWSER_NAME_SAFARI_IOS = "ios";
+export const BROWSER_NAME_SAFARI_DESKTOP = "safari";
+
 // Client Storage --------------------------------------------------------------
 export const LOCAL_STORAGE = "localStorage";
 export const SESSION_STORAGE = "sessionStorage";

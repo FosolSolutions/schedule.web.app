@@ -21,7 +21,7 @@ import {
 import {
     selectFetchIdentityInProgress,
     selectIsAuthenticated,
-    selectIosCors,
+    selectSafariCors,
 } from "redux/reducers/userReducer";
 import { setDrawerIsOpen } from "redux/actions/uiActions";
 
@@ -49,9 +49,11 @@ import {
     PAGE_ID_DASHBOARD,
 } from "utils/backendConstants";
 import {
+    BROWSER_NAME_SAFARI_IOS,
     PATH_EMAIL_SIGNIN,
     WINDOW_WIDTH_DRAWER_PERSISTENT,
 } from "utils/constants";
+import { getBrowser } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
 
@@ -96,13 +98,17 @@ export class MainContent extends React.Component {
             </div>
         );
         const renderNotFound = () => {
-            const message = (this.props.iosCors)
-                ? `To use this application, either turn off the "Prevent Cross-Site Tracking" option in Settings > Safari (then reload the page), or try using Chrome for iOS.`
+            const browser = getBrowser();
+            const safariCorsMessage = (browser.name === BROWSER_NAME_SAFARI_IOS)
+                ? `To use this application, either turn off the "Prevent Cross-Site Tracking" option in Settings > Safari (then try logging in again), or try using Chrome for iOS.`
+                : `To use this application, either turn off the "Prevent Cross-Site Tracking" option in Preferences > Privacy (then try logging in again), or try using Google Chrome.`;
+            const message = (this.props.safariCors)
+                ? safariCorsMessage
                 : "Hmm, something went wrong. Try logging in again.";
             const notFound = (
                 <div className={styles.errorWrap}>
                     <EventBusyIcon className={styles.errorIcon}/>
-                    <h1>
+                    <h1 className={styles.errorHeading}>
                         {message}
                     </h1>
                 </div>
@@ -191,7 +197,7 @@ export default withRouter(connect((state) => ({
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     screenWidth: selectScreenWidth(state),
     userIsAuthenticated: selectIsAuthenticated(state),
-    iosCors: selectIosCors(state),
+    safariCors: selectSafariCors(state),
 }), {
     setDrawerIsOpen,
 })(MainContent));
@@ -205,7 +211,7 @@ MainContent.propTypes = {
     fetchIdentityInProgress: PropTypes.bool.isRequired,
     screenWidth: PropTypes.any,
     userIsAuthenticated: PropTypes.bool.isRequired,
-    iosCors: PropTypes.bool.isRequired,
+    safariCors: PropTypes.bool.isRequired,
 
     // React Router ------------------------------------------------------------
     history: PropTypes.object,
