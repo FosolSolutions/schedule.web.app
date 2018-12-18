@@ -10,7 +10,8 @@ namespace Scheduler.Areas.Admin.Controllers
 	[Route("[area]/[controller]")]
 	public class HomeController : Controller
 	{
-		public IActionResult Index()
+		[HttpGet("")]
+		public async Task<IActionResult> Index()
 		{
 			return View();
 		}
