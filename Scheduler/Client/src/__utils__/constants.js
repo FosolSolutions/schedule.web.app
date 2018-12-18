@@ -1,6 +1,15 @@
 //------------------------------------------------------------------------------
 // Public Interface
 //------------------------------------------------------------------------------
+// Externally-determined, locally implemented paths ----------------------------
+export const PATH_EMAIL_SIGNIN = "auth/signin/participant";
+export const PATH_ADMIN = "admin";
+
+// Browser Detection -----------------------------------------------------------
+export const BROWSER_PROPERTY_UNDETECTED = "BROWSER_PROPERTY_UNDETECTED";
+export const BROWSER_NAME_SAFARI_IOS = "ios";
+export const BROWSER_NAME_SAFARI_DESKTOP = "safari";
+
 // Client Storage --------------------------------------------------------------
 export const LOCAL_STORAGE = "localStorage";
 export const SESSION_STORAGE = "sessionStorage";
@@ -43,6 +52,10 @@ export const EVENT_NAME_BIBLE_CLASS = "Bible Class";
 export const EVENT_NAME_BIBLE_TALK = "Bible Talk";
 export const EVENT_NAME_HALL_CLEANING = "Hall Cleaning";
 
+// Activity names
+export const ACTIVITY_NAME_PRESIDE = "Preside";
+export const ACTIVITY_NAME_PRESIDER = "Presider";
+
 // Criteria
 export const CRITERIA_RULE_PARTICIPATE = "Participate";
 export const CRITERIA_KEY_SKILL = "Skill";
@@ -72,6 +85,7 @@ export const CRITERIA_LOGICAL_OPERATOR_OR = "Or";
 
 // Openings
 export const OPENING_NAME_SPEAKER = "Speaker";
+export const OPENING_NAME_SPEAK = "Speak";
 
 // Tags
 export const TAG_KEY_TITLE = "Title";
@@ -81,6 +95,7 @@ export const ERROR_MESSAGE_UNKNOWN = "Unknown error";
 
 // Theme constants -------------------------------------------------------------
 export const DRAWER_WIDTH = "250px";
+export const WINDOW_WIDTH_DRAWER_PERSISTENT = 1200;
 
 export const COLOR_PRIMARY_MAIN = "hsl(210, 29%, 29%)";
 export const COLOR_PRIMARY_MID = "hsl(210, 19%, 44%)";

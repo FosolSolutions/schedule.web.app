@@ -15,25 +15,31 @@ import {
     SET_SNACKBAR_CONTENT_KEY,
     SET_SCHEDULE_END_DATE,
     SET_SCHEDULE_START_DATE,
+    SET_SCREEN_WIDTH,
 } from "redux/actionTypes";
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
-import { DATE_START_ECCLESIAL_SCHEDULE } from "utils/constants";
+import {
+    DATE_START_ECCLESIAL_SCHEDULE,
+    WINDOW_WIDTH_DRAWER_PERSISTENT,
+} from "utils/constants";
 
 //------------------------------------------------------------------------------
 
 const initialStartDate = (isBefore(new Date(), DATE_START_ECCLESIAL_SCHEDULE))
     ? DATE_START_ECCLESIAL_SCHEDULE
     : new Date();
+const initialScreenWidth = window.innerWidth;
 
 export const initialUiState = {
     currentCalendarMonth: new Date(),
     scheduleStartDate: initialStartDate,
     scheduleEndDate: endOfMonth(initialStartDate),
-    drawerIsOpen: true,
+    drawerIsOpen: initialScreenWidth > WINDOW_WIDTH_DRAWER_PERSISTENT,
     mainContentKey: "",
+    screenWidth: initialScreenWidth,
     snackbars: new Map(),
 };
 
@@ -80,6 +86,11 @@ export default function uiReducer(
         case SET_SNACKBAR_CONTENT_KEY:
             returnVal = update(state, {
                 snackbars: { $set: action.snackbars },
+            });
+            break;
+        case SET_SCREEN_WIDTH:
+            returnVal = update(state, {
+                screenWidth: { $set: action.screenWidth },
             });
             break;
         default:
@@ -144,7 +155,6 @@ export function selectScheduleStartDate(state) {
     return state.ui.scheduleStartDate;
 }
 
-
 /**
  * snackbarContentKey selector
  *
@@ -154,4 +164,15 @@ export function selectScheduleStartDate(state) {
  */
 export function selectSnackbars(state) {
     return state.ui.snackbars;
+}
+
+/**
+ * screenWidth selector
+ *
+ * @param  {Object} state Store state object
+ *
+ * @return {Array}       The current screen width.
+ */
+export function selectScreenWidth(state) {
+    return state.ui.screenWidth;
 }

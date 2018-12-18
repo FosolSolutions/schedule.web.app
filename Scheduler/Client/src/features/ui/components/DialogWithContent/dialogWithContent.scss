@@ -1,9 +1,19 @@
 @import "../../../../__assets__/styles/sassResources";
 
+.paper {
+    min-width: 300px;
+}
+
 .progressWrap {
     position: relative;
 }
 
 .dialogButton {
     font-weight: 600;
+}
+
+@include breakpoint(43.75em) {
+    .paper {
+        min-width: 400px;
+    }
 }

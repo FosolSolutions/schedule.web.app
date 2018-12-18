@@ -7,6 +7,7 @@ import {
     SET_SCHEDULE_END_DATE,
     SET_SCHEDULE_START_DATE,
     SET_SNACKBAR_CONTENT_KEY,
+    SET_SCREEN_WIDTH,
 } from "redux/actionTypes";
 import { selectSnackbars } from "redux/reducers/uiReducer";
 
@@ -109,6 +110,32 @@ export function setSnackbarContent(arrayCommand, snackbarContent) {
         });
     };
 }
+
+/**
+ * Dispatch SET_SCREEN_WIDTH action.
+ *
+ * @return {Function} Action-dispatching thunk
+ */
+export function setResponsiveProperties() {
+    return (dispatch) => {
+        const updateScreenWidthProperties = () => {
+            dispatch({
+                type: SET_SCREEN_WIDTH,
+                screenWidth: window.innerWidth,
+            });
+        };
+        let resizeTimer;
+
+        updateScreenWidthProperties();
+
+        window.addEventListener("resize", () => {
+            // Throttle resize event so it doesn't overwhelm Chrome/Safari
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(updateScreenWidthProperties, 200);
+        });
+    };
+}
+
 
 //------------------------------------------------------------------------------
 // Private Implementation Details

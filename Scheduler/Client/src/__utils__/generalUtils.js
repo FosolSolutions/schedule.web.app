@@ -2,6 +2,7 @@
 // Third-party
 //------------------------------------------------------------------------------
 import isBefore from "date-fns/isBefore";
+import { detect } from "detect-browser";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -13,6 +14,7 @@ import {
     SESSION_STORAGE,
     SORT_ORDER_ASC,
     SORT_ORDER_DESC,
+    BROWSER_PROPERTY_UNDETECTED,
 } from "utils/constants";
 
 //------------------------------------------------------------------------------
@@ -130,6 +132,28 @@ export function getAlphaObjectSorter(propertyName, order = SORT_ORDER_ASC) {
         if (a[propertyName] > b[propertyName]) { return (1 * sortMultiplier); }
         return 0;
     };
+}
+
+/**
+ * Get the detected browser object. Values should be stored as constants.
+ * Reference for possible values:
+ * https://github.com/DamonOehlman/detect-browser/blob/master/index.js
+ *
+ * Return object keys:
+ *   - {string} name    The browser name.
+ *   - {string} os      The browser os.
+ *   - {string} version The browser version
+ *
+ * @return {Object} The browser detection object as described above.
+ */
+export function getBrowser() {
+    const BROWSER_OBJECT_UNDETECTED = {
+        name: BROWSER_PROPERTY_UNDETECTED,
+        os: BROWSER_PROPERTY_UNDETECTED,
+        version: BROWSER_PROPERTY_UNDETECTED,
+    };
+
+    return detect() || BROWSER_OBJECT_UNDETECTED;
 }
 
 /**

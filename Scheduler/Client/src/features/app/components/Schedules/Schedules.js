@@ -8,9 +8,6 @@ import { withRouter } from "react-router";
 import isEmpty from "lodash/isEmpty";
 import isUndefined from "lodash/isUndefined";
 import format from "date-fns/format";
-import isSameMonth from "date-fns/isSameMonth";
-import addMonths from "date-fns/addMonths";
-import isBefore from "date-fns/isBefore";
 import { Route } from "react-router-dom";
 
 //------------------------------------------------------------------------------
@@ -37,9 +34,6 @@ import {
     applyToOpening,
     fetchOpening,
     setAnswer,
-    setAnswerFromState,
-    setCurrentOpeningId,
-    setCurrentQuestionId,
     unapplyFromOpening,
 } from "redux/actions/calendarActions";
 import {
@@ -62,8 +56,8 @@ import TableCell from "@material-ui/core/TableCell";
 import Tooltip from "@material-ui/core/Tooltip";
 
 import InitialsAvatar from "features/ui/components/InitialsAvatar/InitialsAvatar";
+import OpeningQuestions from "features/app/components/OpeningQuestions/OpeningQuestions";
 import ScheduleTableHeader from "features/app/components/ScheduleTableHeader/ScheduleTableHeader";
-import ValidatedTextField from "features/ui/components/ValidatedTextField/ValidatedTextField";
 import DialogWithContent from "features/ui/components/DialogWithContent/DialogWithContent";
 
 //------------------------------------------------------------------------------
@@ -73,20 +67,18 @@ import styles from "features/app/components/Schedules/schedules.scss";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CancelIcon from "@material-ui/icons/Cancel";
 import EditIcon from "@material-ui/icons/Edit";
-import FullscreenExitIcon from "@material-ui/icons/FullscreenExit";
-import FullscreenIcon from "@material-ui/icons/Fullscreen";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 //------------------------------------------------------------------------------
 // Helpers
 //------------------------------------------------------------------------------
 import {
     COLOR_SECONDARY_EXTRA_LIGHT,
-    DATE_END_ECCLESIAL_SCHEDULE,
     EVENT_NAME_BIBLE_CLASS,
     EVENT_NAME_BIBLE_TALK,
     EVENT_NAME_HALL_CLEANING,
     EVENT_NAME_MEMORIAL_MEETING,
+    ACTIVITY_NAME_PRESIDE,
+    ACTIVITY_NAME_PRESIDER,
 } from "utils/constants";
 import { PAGE_ID_SCHEDULES } from "utils/backendConstants";
 import { stringToHslColor } from "utils/generalUtils";
@@ -113,6 +105,21 @@ export class Schedules extends React.Component {
         this.questionValidatorRules = [
             required("Response"),
         ];
+    }
+
+    shouldComponentUpdate(nextProps) {
+        let returnVal = true;
+
+        if (
+            this.state.openOpeningDialogId !== null &&
+            !this.props.openingsIsLoading &&
+            !nextProps.openingsIsLoading &&
+            this.props.location.pathname === nextProps.location.pathname
+        ) {
+            returnVal = false;
+        }
+
+        return returnVal;
     }
 
     componentDidUpdate(prevProps) {
@@ -171,11 +178,6 @@ export class Schedules extends React.Component {
         this.props.unapplyFromOpening(openingId, rowVersion, onSuccess);
     }
 
-    handleQuestionFocus(openingId, questionId) {
-        this.props.setCurrentOpeningId(openingId);
-        this.props.setCurrentQuestionId(questionId);
-    }
-
     handleOpenQuestionDialog(opening) {
         const openingId = opening.getId();
 
@@ -212,29 +214,14 @@ export class Schedules extends React.Component {
         const accountColor = calendarIsUndefined
             ? stringToHslColor(accountName)
             : calendar.getAccountColor();
-        const fullScreenIcon = (this.props.drawerIsOpen)
-            ? <FullscreenIcon />
-            : <FullscreenExitIcon color="secondary" />;
         const firstColumnStyle = {
-            width: "80px",
+            width: "86px",
         };
         const header = (scheduleName) => (
             <header
                 className={styles.header}
                 ref={this.headerRef}
             >
-                <div className={styles.preWrap}>
-                    <IconButton
-                        className={styles.fullScreenButton}
-                        onClick={
-                            () => this.props.setDrawerIsOpen(
-                                !this.props.drawerIsOpen,
-                            )
-                        }
-                    >
-                        {fullScreenIcon}
-                    </IconButton>
-                </div>
                 <div className={styles.leftWrap}>
                     <span className={styles.allHeading}>
                         {`${scheduleName} schedule`}
@@ -255,21 +242,38 @@ export class Schedules extends React.Component {
             );
 
             const activityCells = activities.map((activity) => {
+                let returnVal;
+                const name = activity.getName();
                 const openings = activity.getOpenings().map(
                     (openingId) => this.props.openings.getAll().get(openingId),
                 );
-                return (
-                    <TableCell
-                        className={styles.tableCell}
-                        key={`activity${activity.getId()}`}
-                    >
-                        {renderOpenings(openings, activity)}
-                    </TableCell>
-                );
+
+                if (
+                    event.getName() !== EVENT_NAME_MEMORIAL_MEETING &&
+                (
+                    name === ACTIVITY_NAME_PRESIDE ||
+                    name === ACTIVITY_NAME_PRESIDER
+                )
+                ) {
+                    returnVal = false;
+                } else {
+                    returnVal = (
+                        <TableCell
+                            data-heading={activity.getName()}
+                            className={styles.tableCell}
+                            key={`activity${activity.getId()}`}
+                        >
+                            {renderOpenings(openings, activity)}
+                        </TableCell>
+                    );
+                }
+
+                return returnVal;
             });
             const dateCell = (
                 <TableCell
-                    className={styles.tableCell}
+                    data-heading="Date"
+                    className={`${styles.tableCell} ${styles.mobileHeading}`}
                     key={`date${event.getId()}`}
                 >
                     <span>{format(event.getStartDate(), "MMM. dd")}</span>
@@ -303,6 +307,7 @@ export class Schedules extends React.Component {
         };
         const renderOpening = (opening, activityCriteria, withName) => {
             const openingId = opening.getId();
+            const openingRequestInProgress = this.props.openingsIsLoading === openingId;
             const applyText = "Apply";
             const openingButtonText = withName ? opening.getName() : applyText;
             const isOpeningName = openingButtonText !== applyText;
@@ -315,7 +320,7 @@ export class Schedules extends React.Component {
             const questions = opening.getQuestions();
             const dialogApplyButtonProps = {
                 className: styles.applyButton,
-                disabled: !userMeetsCriteria,
+                disabled: openingRequestInProgress,
             };
             const buttonProps = {
                 ...dialogApplyButtonProps,
@@ -389,12 +394,20 @@ export class Schedules extends React.Component {
             content = null,
         ) => {
             const openingId = opening.getId();
+            const progress = (opening.getTitle() !== null)
+                ? false
+                : renderOpeningProgress(styles.openingProgressTextButton);
             const questionMarkup = (questions.length > 0)
-                ? renderOpeningQuestions(openingId, questions)
+                ? (
+                    <OpeningQuestions
+                        openingId={openingId}
+                        questions={questions}
+                    />
+                )
                 : (
                     <div className={styles.progressWrap}>
                         <CircularProgress
-                            thickness={6}
+                            thickness={4}
                             size={22}
                         />
                     </div>
@@ -407,8 +420,7 @@ export class Schedules extends React.Component {
                     launchButton={launchButton}
                     buttonContent={buttonContent}
                     launchButtonProps={launchButtonProps}
-                    progress={renderOpeningProgress()}
-                    dialogTitle="Please answer the following questions:"
+                    progress={progress}
                     handleClose={() => this.setState({ openOpeningDialogId: null })}
                     handleOpen={() => this.handleOpenQuestionDialog(opening)}
                     handleSubmit={() => this.handleQuestionDialogSubmit(opening)}
@@ -418,30 +430,6 @@ export class Schedules extends React.Component {
                 </DialogWithContent>
             );
         };
-        const renderOpeningQuestions = (
-            openingId,
-            questions,
-        ) => questions.map((question) => {
-            const questionId = question.getId();
-            const value = (
-                !isUndefined(this.props.answers[openingId]) &&
-                !isUndefined(this.props.answers[openingId][questionId])
-            ) ? this.props.answers[openingId][questionId] : "";
-            return (
-                <ValidatedTextField
-                    key={`opening${openingId}_question${questionId}`}
-                    id={`opening${openingId}_question${questionId}`}
-                    data-id={openingId}
-                    inputLabelProps={{ shrink: true }}
-                    label={question.getText()}
-                    syncValidatorRules={this.questionValidatorRules}
-                    value={value}
-                    variant="standard"
-                    onFocus={() => this.handleQuestionFocus(openingId, questionId)}
-                    storeValueSetter={this.props.setAnswerFromState}
-                />
-            );
-        });
         const renderOpeningParticipants = (
             applications,
             opening,
@@ -450,6 +438,9 @@ export class Schedules extends React.Component {
             (application) => {
                 const participant = application.getParticipant();
                 const openingId = application.getOpeningId();
+                const openingRequestInProgress = (
+                    this.props.openingsIsLoading === openingId
+                );
                 const questions = opening.getQuestions();
                 const firstName = participant.getFirstName();
                 const lastName = participant.getLastName();
@@ -465,18 +456,29 @@ export class Schedules extends React.Component {
                         {
                             isMe
                                 ? (
-                                    <IconButton
-                                        className={styles.unapplyButton}
-                                        onClick={
-                                            () => this.handleUnapplyButtonClick(
-                                                openingId,
-                                                this.props.openings.getOpening(openingId)
-                                                    .getRowVersion(),
-                                            )
+                                    <div className={styles.progressWrapper}>
+                                        <IconButton
+                                            className={styles.unapplyButton}
+                                            disabled={openingRequestInProgress}
+                                            onClick={
+                                                () => this.handleUnapplyButtonClick(
+                                                    openingId,
+                                                    this.props.openings
+                                                        .getOpening(openingId)
+                                                        .getRowVersion(),
+                                                )
+                                            }
+                                        >
+                                            <CancelIcon className={styles.unapplyIcon} />
+                                        </IconButton>
+                                        {
+                                            (this.props.openingsIsLoading === openingId)
+                                                ? renderOpeningProgress(
+                                                    styles.openingProgressUnapplyButton,
+                                                )
+                                                : false
                                         }
-                                    >
-                                        <CancelIcon className={styles.unapplyIcon} />
-                                    </IconButton>
+                                    </div>
                                 )
                                 : false
                         }
@@ -525,6 +527,9 @@ export class Schedules extends React.Component {
                 return [
                     <Tooltip
                         key={`${openingId}_${participant.getId()}_opening_participant`}
+                        classes={{
+                            tooltip: styles.avatarTooltip,
+                        }}
                         placement="top"
                         title={`${participant.getDisplayName()}`}
                     >
@@ -535,35 +540,6 @@ export class Schedules extends React.Component {
                 ];
             },
         );
-        const loadMoreButton = () => {
-            const nextMonth = addMonths(this.props.scheduleEndDate, 1);
-            const isLastMonth = isSameMonth(nextMonth, DATE_END_ECCLESIAL_SCHEDULE);
-
-            return (
-                isBefore(nextMonth, DATE_END_ECCLESIAL_SCHEDULE) ||
-                isSameMonth(nextMonth, DATE_END_ECCLESIAL_SCHEDULE)
-            )
-                ? (
-                    <div className={styles.loadMoreWrap}>
-                        <Button
-                            className={styles.loadMore}
-                            variant="contained"
-                            color="secondary"
-                            onClick={
-                                (isLastMonth)
-                                    ? () => this.props.setScheduleEndDate(
-                                        DATE_END_ECCLESIAL_SCHEDULE,
-                                    )
-                                    : () => this.props.setScheduleEndDate(nextMonth)
-                            }
-                        >
-                            <ExpandMoreIcon />
-                            Load {format(addMonths(this.props.scheduleEndDate, 1), "MMMM")}
-                        </Button>
-                    </div>
-                )
-                : false;
-        };
         const page = (scheduleName, events) => (
             <div>
                 {header(scheduleName)}
@@ -587,7 +563,6 @@ export class Schedules extends React.Component {
                         </TableBody>
                     </Table>
                 </Card>
-                {loadMoreButton()}
             </div>
         );
         const routedPage = () => {
@@ -681,12 +656,9 @@ export default withRouter(connect((state) => ({
     applyToOpening,
     fetchOpening,
     setAnswer,
-    setAnswerFromState,
     setDrawerIsOpen,
     setScheduleEndDate,
     setScheduleStartDate,
-    setCurrentOpeningId,
-    setCurrentQuestionId,
     unapplyFromOpening,
 })(Schedules));
 
@@ -718,9 +690,6 @@ Schedules.propTypes = {
     applyToOpening: PropTypes.func.isRequired,
     fetchOpening: PropTypes.func.isRequired,
     setAnswer: PropTypes.func.isRequired,
-    setAnswerFromState: PropTypes.func.isRequired,
-    setCurrentOpeningId: PropTypes.func.isRequired,
-    setCurrentQuestionId: PropTypes.func.isRequired,
     setDrawerIsOpen: PropTypes.func.isRequired,
     setScheduleEndDate: PropTypes.func.isRequired,
     setScheduleStartDate: PropTypes.func.isRequired,

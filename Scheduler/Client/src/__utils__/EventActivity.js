@@ -7,16 +7,13 @@ import { ActivityCriterion } from "utils/ActivityCriterion";
 
 export class EventActivity {
     constructor(data, openings) {
-        const startDate = new Date(data.startOn);
-        const endDate = new Date(data.endOn);
-
         this.id = data.id;
         this.key = data.key;
         this.name = data.name;
         this.eventId = data.eventId;
         this.description = data.description;
-        this.startDate = startDate.getUTCDate();
-        this.endDate = endDate.getUTCDate();
+        this.startDate = new Date(data.startOn);
+        this.endDate = new Date(data.endOn);
         this.sequence = data.sequence;
         this.addedById = data.addedById;
         this.addedOn = data.addedOn;

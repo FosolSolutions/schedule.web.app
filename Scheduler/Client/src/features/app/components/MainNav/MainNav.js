@@ -13,7 +13,10 @@ import format from "date-fns/format";
 //------------------------------------------------------------------------------
 import { signOff } from "redux/actions/userActions";
 import { selectCalendars } from "redux/reducers/calendarReducer";
-import { selectDrawerIsOpen } from "redux/reducers/uiReducer";
+import {
+    selectDrawerIsOpen,
+    selectScreenWidth,
+} from "redux/reducers/uiReducer";
 import {
     selectFetchIdentityInProgress,
     selectIsAuthenticated,
@@ -31,6 +34,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 import MenuList from "@material-ui/core/MenuList";
 import MenuItem from "@material-ui/core/MenuItem";
 import ScheduleList from "features/app/components/ScheduleList/ScheduleList";
@@ -45,6 +49,8 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import Event from "@material-ui/icons/EventOutlined";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Home from "@material-ui/icons/HomeOutlined";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import MenuIcon from "@material-ui/icons/Menu";
 import coEventLogoWh from "assets/images/logos/coEventLogoWh.svg";
 import styles from "features/app/components/MainNav/mainNav.scss";
 
@@ -55,6 +61,7 @@ import {
     PAGE_ID_CALENDAR,
     PAGE_ID_DASHBOARD,
 } from "utils/backendConstants";
+import { WINDOW_WIDTH_DRAWER_PERSISTENT } from "utils/constants";
 import { stringToHslColor } from "utils/generalUtils";
 
 //------------------------------------------------------------------------------
@@ -101,6 +108,14 @@ export class MainNav extends React.Component {
         this.setState({ userMenuAnchorEl: null });
     }
 
+    handleNavItemClick(path) {
+        this.props.history.push(path);
+
+        if (this.props.screenWidth < WINDOW_WIDTH_DRAWER_PERSISTENT) {
+            this.props.setDrawerIsOpen(false);
+        }
+    }
+
     render() {
         const user = this.props.user;
         const userIsNull = (this.props.user.getId() === null);
@@ -120,115 +135,141 @@ export class MainNav extends React.Component {
             [styles.listItem]: true,
             [styles.active]: this.props.location.pathname === `/${PAGE_ID_CALENDAR}`,
         });
+        const drawerVariant = (this.props.screenWidth < WINDOW_WIDTH_DRAWER_PERSISTENT)
+            ? "temporary"
+            : "persistent";
         /**
          * Render the main app navigation.
          *
          * @return {ReactElement[]} Array of navigation elements.
          */
-        const appNav = () => [
-            <Drawer
-                className={styles.drawer}
-                classes={{
-                    paper: classNames(styles.paper, styles.noOverflowVert),
-                }}
-                key="navDrawer"
-                open={this.props.drawerIsOpen}
-                variant="persistent"
-            >
-                <div className={styles.backHeader}>
-                    <Button
-                        className={styles.account}
-                        disableRipple
-                        fullWidth={true}
-                        onClick={(e) => this.handleUserMenuClick(e)}
-                    >
-                        <InitialsAvatar
-                            avatarColor={nameColor}
-                            firstName={firstName}
-                            lastName={lastName}
-                        />
-                        <span className={styles.displayName}>
-                            {displayName}
-                            <ExpandMoreIcon fontSize="small"/>
-                        </span>
-                    </Button>
-                    <TipMenu
-                        anchorEl={this.state.userMenuAnchorEl}
-                        open={Boolean(this.state.userMenuAnchorEl)}
-                        onClose={() => this.handleUserMenuClose()}
-                        placement="bottom-start"
-                    >
-                        <MenuList className={styles.menuList}>
-                            <MenuItem
-                                className={styles.name}
-                                disableRipple={true}
-                                style={{ backgroundColor: nameColor }}
-                            >
-                                {`Hi, ${fullName}`}
-                            </MenuItem>
-                            <MenuItem
-                                className={styles.menuListItem}
-                                onClick={() => this.handleSignOutClick()}
-                            >
+        const appNav = () => (
+            <div>
+                <Drawer
+                    className={styles.drawer}
+                    classes={{
+                        paper: styles.paper,
+                    }}
+                    key="navDrawer"
+                    open={this.props.drawerIsOpen}
+                    variant={drawerVariant}
+                >
+                    <div className={styles.backHeader}>
+                        <Button
+                            className={styles.account}
+                            disableRipple
+                            fullWidth={true}
+                            onClick={(e) => this.handleUserMenuClick(e)}
+                        >
+                            <InitialsAvatar
+                                avatarColor={nameColor}
+                                firstName={firstName}
+                                lastName={lastName}
+                            />
+                            <span className={styles.displayName}>
+                                {displayName}
+                                <ExpandMoreIcon fontSize="small"/>
+                            </span>
+                        </Button>
+                        <TipMenu
+                            anchorEl={this.state.userMenuAnchorEl}
+                            open={Boolean(this.state.userMenuAnchorEl)}
+                            onClose={() => this.handleUserMenuClose()}
+                            placement="bottom-start"
+                        >
+                            <MenuList className={styles.menuList}>
+                                <MenuItem
+                                    className={styles.name}
+                                    disableRipple={true}
+                                    style={{ backgroundColor: nameColor }}
+                                >
+                                    {`Hi, ${fullName}`}
+                                </MenuItem>
+                                <MenuItem
+                                    className={styles.menuListItem}
+                                    onClick={() => this.handleSignOutClick()}
+                                >
                                 Sign Out
-                                {
-                                    (this.props.signOffInProgress)
-                                        ? (
-                                            <CircularProgress
-                                                className={styles.progress}
-                                                color="primary"
-                                                size={12}
-                                                thickness={6}
-                                            />
-                                        ) : false
-                                }
-                            </MenuItem>
-                        </MenuList>
-                    </TipMenu>
-                </div>
-                <List className={styles.list}>
-                    <ListItem
-                        button
-                        className={homeNavListClassNames}
-                        onClick={() => this.props.history.push(`/${PAGE_ID_DASHBOARD}`)}
-                    >
-                        <ListItemIcon className={styles.listItemIcon}>
-                            <Home />
-                        </ListItemIcon>
-                        <ListItemText
-                            className={styles.listItemText}
-                            disableTypography={true}
+                                    {
+                                        (this.props.signOffInProgress)
+                                            ? (
+                                                <CircularProgress
+                                                    className={styles.progress}
+                                                    color="primary"
+                                                    size={12}
+                                                    thickness={6}
+                                                />
+                                            ) : false
+                                    }
+                                </MenuItem>
+                            </MenuList>
+                        </TipMenu>
+                        <IconButton
+                            className={styles.menu}
+                            onClick={(e) => this.handleMenuButtonClick(e)}
                         >
-                            Dashboard
-                        </ListItemText>
-                    </ListItem>
-                    <ListItem
-                        button
-                        className={calendarNavListClassNames}
-                        onClick={() => this.props.history.push(`/${PAGE_ID_CALENDAR}`)}
-                    >
-                        <ListItemIcon className={styles.listItemIcon}>
-                            <Event />
-                        </ListItemIcon>
-                        <ListItemText
-                            className={styles.listItemText}
-                            disableTypography={true}
+                            <ChevronLeftIcon />
+                        </IconButton>
+                    </div>
+                    <List className={styles.list}>
+                        <ListItem
+                            button
+                            className={homeNavListClassNames}
+                            onClick={() => this.handleNavItemClick(`/${PAGE_ID_DASHBOARD}`)}
                         >
-                            Calendar
-                        </ListItemText>
-                    </ListItem>
-                    <ScheduleList />
-                </List>
-                <div className={styles.logoWrap}>
-                    <img
-                        className={styles.logo}
-                        src={coEventLogoWh}
-                        alt="CoEvent"
-                    />
-                    <span className={styles.copy}>{`© ${format(new Date(), "yyyy")}`}</span>
-                </div>
-            </Drawer>,
-        ];
+                            <ListItemIcon className={styles.listItemIcon}>
+                                <Home />
+                            </ListItemIcon>
+                            <ListItemText
+                                className={styles.listItemText}
+                                disableTypography={true}
+                            >
+                                Dashboard
+                            </ListItemText>
+                        </ListItem>
+                        <ListItem
+                            button
+                            className={calendarNavListClassNames}
+                            onClick={() => this.handleNavItemClick(`/${PAGE_ID_CALENDAR}`)}
+                        >
+                            <ListItemIcon className={styles.listItemIcon}>
+                                <Event />
+                            </ListItemIcon>
+                            <ListItemText
+                                className={styles.listItemText}
+                                disableTypography={true}
+                            >
+                                Calendar
+                            </ListItemText>
+                        </ListItem>
+                        <ScheduleList />
+                    </List>
+                    <div className={styles.logoWrap}>
+                        <img
+                            className={styles.logo}
+                            src={coEventLogoWh}
+                            alt="CoEvent"
+                        />
+                        <span className={styles.copy}>{`© ${format(new Date(), "yyyy")}`}</span>
+                    </div>
+                </Drawer>
+                {
+                    (this.props.drawerIsOpen)
+                        ? false
+                        : (
+                            <Button
+                                key="fab"
+                                className={styles.floatingMenuButton}
+                                color="secondary"
+                                variant="fab"
+                                onClick={(e) => this.handleMenuButtonClick(e)}
+                            >
+                                <MenuIcon />
+                            </Button>
+                        )
+                }
+            </div>
+        );
         /**
          * Render the main app navigation.
          *
@@ -322,6 +363,7 @@ export default withRouter(connect((state) => ({
     drawerIsOpen: selectDrawerIsOpen(state),
     fetchIdentityInProgress: selectFetchIdentityInProgress(state),
     isAuthenticated: selectIsAuthenticated(state),
+    screenWidth: selectScreenWidth(state),
     signOffInProgress: selectSignOffInProgress(state),
     user: selectUser(state),
 }), {
@@ -337,6 +379,7 @@ MainNav.propTypes = {
     drawerIsOpen: PropTypes.bool.isRequired,
     fetchIdentityInProgress: PropTypes.bool.isRequired,
     isAuthenticated: PropTypes.bool.isRequired,
+    screenWidth: PropTypes.any,
     signOffInProgress: PropTypes.bool.isRequired,
     user: PropTypes.object,
 

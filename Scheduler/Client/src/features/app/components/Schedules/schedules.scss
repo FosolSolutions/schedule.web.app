@@ -122,7 +122,7 @@
 }
 
 .dateCol {
-    width: 80px;
+    width: 86px;
 }
 
 .tableCell,
@@ -142,7 +142,9 @@
 }
 
 .opening {
-    white-space: nowrap;
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .overflowWrap {
@@ -163,7 +165,8 @@
 }
 
 .openingProgressIconButton,
-.openingProgressTextButton {
+.openingProgressTextButton,
+.openingProgressUnapplyButton {
     color: $secondaryMid;
     position: absolute;
 }
@@ -176,6 +179,12 @@
 .openingProgressTextButton {
     left: 0.35em;
     top: 0.7em;
+}
+
+.openingProgressUnapplyButton {
+    right: -8px;
+    top: -6px;
+    z-index: 1;
 }
 
 .applyButton,
@@ -191,6 +200,10 @@
     .applyButtonIcon {
         margin-right: 0.1em;
     }
+
+    &:disabled {
+        color: $baseText;
+    }
 }
 
 .applyIconButton {
@@ -202,8 +215,7 @@
     color: $secondaryMain;
 }
 
-.applyButtonIcon,
-.applyButtonIconDisabled {
+.applyButtonIcon {
     font-size: 1.8em;
 }
 
@@ -215,7 +227,10 @@
 .openingTitle {
     display: inline-block;
     font-style: italic;
-    margin-left: 1em;
+    margin-left: 0.5em;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     width: calc(100% - 3.5rem);
 }
 
@@ -279,17 +294,27 @@
     margin: 0.25em 0;
 }
 
+.avatarTooltip {
+    font-size: 0.75rem;
+}
+
 .unapplyButton {
+    color: darken($baseTextLight, 20%);
     padding: 0;
     position: absolute;
     right: -7px;
     top: -5px;
     z-index: 1;
+
+    &:disabled {
+        color: darken($baseTextLight, 10%);
+    }
 }
 
 .unapplyIcon {
     font-size: 1.3rem;
     opacity: 0.5;
+    transition: color $uiTransitionDuration $uiTransitionFunction;
 
     &:hover {
         color: $errorLight;
@@ -306,4 +331,64 @@
 .loadMore {
     color: $baseBackground;
     padding-left: 8px;
+}
+
+@include breakpoint(max-width 50em) {
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
+        display: block !important;
+    }
+
+    thead tr {
+        left: -9999px;
+        position: absolute;
+        top: -9999px;
+    }
+
+    tr {
+        height: auto !important;
+    }
+
+    td {
+        border-bottom: 1px solid darken($primaryLight, 5%) !important;
+        min-height: 3em;
+        padding-left: 40% !important;
+        position: relative !important;
+    }
+
+    .mobileHeading {
+        align-items: center;
+        background-color: $primaryMain;
+        color: $baseBackground;
+        display: flex;
+        font-weight: bold;
+        padding: 1em;
+
+        td::before {
+            font-weight: bold;
+        }
+    }
+
+    td::before {
+        left: 6px;
+        overflow: hidden;
+        padding: 0.5em;
+        position: absolute;
+        text-overflow: ellipsis;
+        top: calc(50% - 1.25em);
+        white-space: nowrap;
+        width: 40%;
+    }
+
+    .tableCell[data-heading]::before {
+        content: attr(data-heading);
+    }
+
+    .tableHeadPlaceholder {
+        display: none !important;
+    }
 }

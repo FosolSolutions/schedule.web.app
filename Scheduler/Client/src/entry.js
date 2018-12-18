@@ -4,7 +4,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { AppContainer } from "react-hot-loader";
-import { BrowserRouter } from "react-router-dom";
+import { Router } from "react-router-dom";
 import DateFnsUtils from "@date-io/date-fns";
 import { MuiPickersUtilsProvider } from "material-ui-pickers";
 import {
@@ -19,6 +19,7 @@ import JssProvider from "react-jss/lib/JssProvider";
 //------------------------------------------------------------------------------
 // Polyfills
 //------------------------------------------------------------------------------
+import "utils/polyfills";
 
 //------------------------------------------------------------------------------
 // Redux Support
@@ -42,6 +43,7 @@ import {
     COLOR_ERROR_MAIN,
     COLOR_DEFAULT_MAIN,
 } from "utils/constants";
+import history from "utils/history";
 
 //------------------------------------------------------------------------------
 // Global requires
@@ -108,9 +110,9 @@ const render = (Component) => {
                         generateClassName={generateClassName}
                     >
                         <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <BrowserRouter>
+                            <Router history={history}>
                                 <Component />
-                            </BrowserRouter>
+                            </Router>
                         </MuiPickersUtilsProvider>
                     </JssProvider>
                 </MuiThemeProvider>

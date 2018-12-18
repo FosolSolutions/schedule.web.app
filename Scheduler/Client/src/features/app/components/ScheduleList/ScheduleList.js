@@ -14,6 +14,8 @@ import {
     selectCalendars,
     selectEvents,
 } from "redux/reducers/calendarReducer";
+import { selectScreenWidth } from "redux/reducers/uiReducer";
+import { setDrawerIsOpen } from "redux/actions/uiActions";
 
 //------------------------------------------------------------------------------
 // Components
@@ -41,6 +43,7 @@ import {
     buildRelativePath,
     getEventPath,
 } from "utils/appDataUtils";
+import { WINDOW_WIDTH_DRAWER_PERSISTENT } from "utils/constants";
 
 //------------------------------------------------------------------------------
 
@@ -48,6 +51,14 @@ import {
  * Renders and adds handling for the main application navigation.
  */
 export class ScheduleList extends React.Component {
+    handleNavItemClick(path) {
+        this.props.history.push(path);
+
+        if (this.props.screenWidth < WINDOW_WIDTH_DRAWER_PERSISTENT) {
+            this.props.setDrawerIsOpen(false);
+        }
+    }
+
     render() {
         const calendar = this.props.calendars.getAllValues()[0];
         const calendarIsUndefined = typeof calendar === "undefined";
@@ -74,7 +85,7 @@ export class ScheduleList extends React.Component {
                         button
                         className={listItemClassNames}
                         key={`${eventType}ListItem`}
-                        onClick={() => this.props.history.push(routePath)}
+                        onClick={() => this.handleNavItemClick(routePath)}
                     >
                         <ListItemIcon className={styles.listItemIcon}>
                             <AssignmentIconFilled fontSize="small"/>
@@ -134,8 +145,10 @@ export class ScheduleList extends React.Component {
 export default withRouter(connect((state) => ({
     calendars: selectCalendars(state),
     events: selectEvents(state),
-}),
-null)(ScheduleList));
+    screenWidth: selectScreenWidth(state),
+}), {
+    setDrawerIsOpen,
+})(ScheduleList));
 
 ScheduleList.propTypes = {
     // -------------------------------------------------------------------------
@@ -144,6 +157,7 @@ ScheduleList.propTypes = {
     // Redux -------------------------------------------------------------------
     calendars: PropTypes.object.isRequired,
     events: PropTypes.object.isRequired,
+    screenWidth: PropTypes.any,
 
     // React Router ------------------------------------------------------------
     history: PropTypes.object,
@@ -153,4 +167,5 @@ ScheduleList.propTypes = {
     // Method propTypes
     // -------------------------------------------------------------------------
     // Redux -------------------------------------------------------------------
+    setDrawerIsOpen: PropTypes.func.isRequired,
 };

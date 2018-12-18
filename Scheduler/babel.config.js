@@ -1,14 +1,10 @@
 module.exports = function babelConfig(api) {
-    "use strict";
-
     const ENV = api.env();
     const presets = [
         [
             "@babel/env",
             {
-                targets: {
-                    browsers: ["last 4 years"],
-                },
+                useBuiltIns: "entry",
             },
         ],
         "@babel/react",

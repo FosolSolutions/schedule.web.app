@@ -19,3 +19,26 @@
 .narrow {
     margin-left: $drawerWidth;
 }
+
+.errorWrap {
+    display: block;
+    font-size: 1.2rem;
+    padding-top: 5%;
+
+    h1 {
+        color: $primaryMain;
+        display: block;
+        font-size: inherit;
+        line-height: 1.4;
+        padding: 0 2em;
+        text-align: center;
+    }
+}
+
+.errorIcon {
+    color: $primaryMain;
+    display: block;
+    font-size: 2.5em;
+    margin: 0 auto;
+    padding-bottom: 0.25em;
+}

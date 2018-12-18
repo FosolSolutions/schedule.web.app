@@ -2,6 +2,20 @@
 // Third Party
 //------------------------------------------------------------------------------
 import React from "react";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import format from "date-fns/format";
+
+//------------------------------------------------------------------------------
+// Redux Support
+//------------------------------------------------------------------------------
+import {
+    selectCalendars,
+    selectEvents,
+    selectActivities,
+    selectOpenings,
+} from "redux/reducers/calendarReducer";
+import { selectUser } from "redux/reducers/userReducer";
 
 //------------------------------------------------------------------------------
 // Components
@@ -10,21 +24,104 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardHeader from "@material-ui/core/CardHeader";
 import Grid from "@material-ui/core/Grid";
-import IconButton from "@material-ui/core/IconButton";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 
 //------------------------------------------------------------------------------
 // Assets
 //------------------------------------------------------------------------------
 import styles from "features/app/components/Dashboard/dashboard.scss";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
+import {
+    DATE_END_ECCLESIAL_SCHEDULE,
+    DATE_START_ECCLESIAL_SCHEDULE,
+} from "utils/constants";
 
 //------------------------------------------------------------------------------
 
 /**
  * Renders the dashboard content.
  */
-export default class Dashboard extends React.PureComponent {
+export class Dashboard extends React.PureComponent {
+    getMyTasks(events) {
+        const returnVal = [];
+        let activities = [];
+        let openings = [];
+        let openingObjects = [];
+
+        events.forEach((event) => {
+            const newActivities = event.getActivities();
+            activities = activities.slice().concat(newActivities);
+        });
+
+        activities.forEach((activity) => {
+            const newOpenings = this.props.activities.getActivity(activity).getOpenings();
+            openings = openings.slice().concat(newOpenings);
+        });
+        openingObjects = openings.map(
+            (opening) => this.props.openings.getOpening(opening),
+        );
+        openingObjects.forEach((openingObject) => {
+            const openingName = openingObject.getName();
+            const openingTitle = openingObject.getTitle();
+            const activity = this.props.activities.getActivity(
+                openingObject.getActivityId(),
+            );
+            const date = format(activity.getStartDate(), "MMM. dd");
+            const eventName = this.props.events.getEvent(activity.getEventId()).getName();
+
+            openingObject.getParticipants().forEach((participant) => {
+                if (participant.getId() === this.props.user.getId()) {
+                    returnVal.push({
+                        date,
+                        eventName,
+                        openingName,
+                        openingTitle: (openingTitle === null) ? "" : ` - ${openingTitle}`,
+                    });
+                }
+            });
+        });
+
+        return returnVal;
+    }
+
     render() {
+        const startDate = DATE_START_ECCLESIAL_SCHEDULE;
+        const endDate = DATE_END_ECCLESIAL_SCHEDULE;
+        const myTasks = this.getMyTasks(
+            this.props.events.getAllByRange(startDate, endDate),
+        );
+        const renderUpcomingTasks = () => myTasks.map((task) => {
+            const listText = (
+                <span>
+                    <span className={styles.listTextOpeningName}>
+                        {task.openingName}
+                    </span>
+                    <span className={styles.listTextEventName}>
+                        &nbsp;({task.eventName})
+                    </span>
+                    <span className={styles.listTextOpeningTitle}>
+                        {task.openingTitle}
+                    </span>
+                </span>
+            );
+
+            return (
+                <ListItem key={`${task.date}${task.eventName}${task.openingName}`}>
+                    <ListItemText
+                        primary={listText}
+                        secondary={task.date}
+                    />
+                </ListItem>
+            );
+        });
+        const upcomingTasksMarkup = (myTasks.length > 0)
+            ? (
+                <List>
+                    {renderUpcomingTasks()}
+                </List>
+            )
+            : <span>No upcoming tasks.</span>;
         return (
             <Grid
                 container
@@ -34,18 +131,47 @@ export default class Dashboard extends React.PureComponent {
                     item
                     xs={12}
                 >
-                    <Card>
+                    <Card className={styles.noticeCard}>
                         <CardHeader
-                            action={
-                                <IconButton>
-                                    <MoreVertIcon />
-                                </IconButton>
-                            }
                             className={styles.cardHeader}
-                            title="At a glance"
-                            subheader="My activities"
+                            title={
+                                <header className={styles.cardHeaderHeader}>
+                                    <span className={styles.cardHeaderPrimary}>
+                                        Welcome
+                                    </span>
+                                </header>
+                            }
+                            disableTypography
                         />
                         <CardContent>
+                            <h3 className={styles.contentHeading}>
+                                Victoria Ecclesial Schedule Sign-up for Winter/Spring 2019
+                            </h3>
+                            <ul>
+                                <li>{`To view the schedule and volunteer for openings, use the left sidebar "Ecclesial Schedule" navigation.`}</li>
+                                <li>{`A summary of your upcoming tasks is shown below.`}</li>
+                                <li>{`Use the "Calendar" (via left sidebar navigation) to view all the scheduled events in calendar format, with your tasks highlighted.`}</li>
+                            </ul>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid
+                    item
+                    xs={12}
+                >
+                    <Card>
+                        <CardHeader
+                            className={styles.cardHeader}
+                            disableTypography
+                            title={
+                                <header className={styles.cardHeaderHeader}>
+                                    <span className={styles.cardHeaderPrimary}>{`At a glance`}</span>
+                                    <span className={styles.cardHeaderSecondary}>{`My tasks (${format(startDate, "MMMM d")} - ${format(endDate, "MMMM d")})`}</span>
+                                </header>
+                            }
+                        />
+                        <CardContent className={styles.cardContent}>
+                            {upcomingTasksMarkup}
                         </CardContent>
                     </Card>
                 </Grid>
@@ -54,6 +180,26 @@ export default class Dashboard extends React.PureComponent {
     }
 }
 
-Dashboard.propTypes = {};
+// Export the redux-connected component
+export default connect((state) => ({
+    calendars: selectCalendars(state),
+    activities: selectActivities(state),
+    openings: selectOpenings(state),
+    events: selectEvents(state),
+    user: selectUser(state),
+}),
+null)(Dashboard);
+
+Dashboard.propTypes = {
+    // -------------------------------------------------------------------------
+    // Data propTypes
+    // -------------------------------------------------------------------------
+    // Redux -------------------------------------------------------------------
+    calendars: PropTypes.object.isRequired,
+    activities: PropTypes.object.isRequired,
+    openings: PropTypes.object.isRequired,
+    events: PropTypes.object.isRequired,
+    user: PropTypes.object.isRequired,
+};
 
 Dashboard.defaultProps = {};

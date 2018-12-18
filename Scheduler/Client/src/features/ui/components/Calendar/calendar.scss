@@ -131,8 +131,14 @@
     padding: 0.15em 0.25em;
     position: relative;
     text-overflow: ellipsis;
+    user-select: none;
     white-space: nowrap;
     width: 100%;
+}
+
+.event.myEventWrap {
+    background-color: $primaryLight;
+    border-bottom: 1px solid $baseBackground;
 }
 
 .event.past {
@@ -147,4 +153,13 @@
     margin: 0 0.25em;
     position: relative;
     width: 8px;
+}
+
+.myEvent {
+    font-weight: bold;
+    position: relative;
+}
+
+.taskTooltip {
+    font-size: 0.75rem;
 }

@@ -7,24 +7,25 @@ import axios from "axios";
 // Redux Support
 //------------------------------------------------------------------------------
 import {
-	FETCH_IDENTITY,
-	FETCH_IDENTITY_ERROR,
-	FETCH_IDENTITY_FAILURE,
-	FETCH_IDENTITY_SUCCESS,
-	LOGIN,
-	LOGIN_ERROR,
-	LOGIN_FAILURE,
-	LOGIN_SUCCESS,
-	MANAGE_PARTICIPANT,
-	MANAGE_PARTICIPANT_SUCCESS,
-	MANAGE_PARTICIPANT_FAILURE,
-	MANAGE_PARTICIPANT_ERROR,
-	SIGN_OFF,
-	SIGN_OFF_ERROR,
-	SIGN_OFF_FAILURE,
-	SIGN_OFF_SUCCESS,
-	SET_IS_AUTHENTICATED,
-	SET_PARTICIPANT_ID,
+    FETCH_IDENTITY,
+    FETCH_IDENTITY_ERROR,
+    FETCH_IDENTITY_FAILURE,
+    FETCH_IDENTITY_SUCCESS,
+    LOGIN,
+    LOGIN_ERROR,
+    LOGIN_FAILURE,
+    LOGIN_SUCCESS,
+    MANAGE_PARTICIPANT,
+    MANAGE_PARTICIPANT_SUCCESS,
+    MANAGE_PARTICIPANT_FAILURE,
+    MANAGE_PARTICIPANT_ERROR,
+    SIGN_OFF,
+    SIGN_OFF_ERROR,
+    SIGN_OFF_FAILURE,
+    SIGN_OFF_SUCCESS,
+    SET_IS_AUTHENTICATED,
+    SET_PARTICIPANT_ID,
+    SET_SAFARI_CORS_ERROR,
 } from "redux/actionTypes";
 import { selectParticipantKey } from "redux/reducers/userReducer";
 import { setSnackbarContent } from "redux/actions/uiActions";
@@ -39,19 +40,21 @@ import {
 	PATH_AUTH_SIGN_OFF,
 } from "utils/backendConstants";
 import {
-	deleteFromWebStorage,
-	readWebStorage,
-	updateHistory,
-	writeWebStorage,
+    deleteFromWebStorage,
+    getBrowser,
+    readWebStorage,
+    writeWebStorage,
 } from "utils/generalUtils";
 import {
-	CLIENT_KEY_IS_AUTHENTICATED,
-	HISTORY_REPLACE,
-	LOCAL_STORAGE,
-	SNACKBAR_NETWORK_ERROR,
-	SNACKBAR_DYNAMIC_USER_ERROR,
-	ARRAY_COMMAND_PUSH,
+    CLIENT_KEY_IS_AUTHENTICATED,
+    LOCAL_STORAGE,
+    SNACKBAR_NETWORK_ERROR,
+    SNACKBAR_DYNAMIC_USER_ERROR,
+    ARRAY_COMMAND_PUSH,
+    BROWSER_NAME_SAFARI_IOS,
+    BROWSER_NAME_SAFARI_DESKTOP,
 } from "utils/constants";
+import history from "utils/history";
 import { UserNormalizer } from "utils/UserNormalizer";
 
 //------------------------------------------------------------------------------
@@ -240,25 +243,30 @@ export function signOff() {
 			type: SIGN_OFF,
 		});
 
-		axios
-			.get(
-				PATH_AUTH_SIGN_OFF,
-				{
-					withCredentials: true,
-				},
-			)
-			.then((response) => {
-				if (response.status === 200) {
-					dispatch({ type: SIGN_OFF_SUCCESS });
-					updateHistory("", HISTORY_REPLACE);
-				} else {
-					dispatch({ type: SIGN_OFF_FAILURE });
-				}
-			})
-			.catch((error) => {
-				handleErrorResponse(SIGN_OFF_ERROR, dispatch, error);
-			});
-	};
+        axios
+            .get(
+                PATH_AUTH_SIGN_OFF,
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((response) => {
+                if (response.status === 200) {
+                    dispatch({ type: SIGN_OFF_SUCCESS });
+                    history.replace("/");
+
+                    // This is gross... Shouldn't be necessary, but logging in
+                    // again without a page reload fails to trigger the startup
+                    // XHR calls.
+                    window.location.reload();
+                } else {
+                    dispatch({ type: SIGN_OFF_FAILURE });
+                }
+            })
+            .catch((error) => {
+                handleErrorResponse(SIGN_OFF_ERROR, dispatch, error);
+            });
+    };
 }
 
 //------------------------------------------------------------------------------
@@ -272,13 +280,37 @@ export function signOff() {
  * @param {Object}   error           The returned error object.
  */
 function handleErrorResponse(errorActionType, dispatch, error) {
-	let showSnackbar = false;
-	let dynamicSnackbarError = false;
-	let snackbarContentKey;
-	let errorMsg;
+    let showSnackbar = false;
+    let dynamicSnackbarError = false;
+    let snackbarContentKey;
+    let errorMsg;
+    let isSafariCorsError = false;
+    const cachedIsAuthenticated = readWebStorage(
+        LOCAL_STORAGE,
+        CLIENT_KEY_IS_AUTHENTICATED,
+    );
+    const browser = getBrowser();
 
-	// Send the user to the login page.
-	updateHistory("", HISTORY_REPLACE);
+    if (browser) {
+        if (
+            (
+                browser.name === BROWSER_NAME_SAFARI_IOS ||
+                browser.name === BROWSER_NAME_SAFARI_DESKTOP
+            ) &&
+            cachedIsAuthenticated &&
+            errorActionType === MANAGE_PARTICIPANT_ERROR &&
+            typeof error.response !== "undefined" &&
+            error.response.status === 401
+        ) {
+            isSafariCorsError = true;
+            dispatch({
+                type: SET_SAFARI_CORS_ERROR,
+            });
+        }
+    }
+
+    // Send the user to the login page.
+    history.replace("/");
 
 	if (typeof error.response !== "undefined" && typeof error.response.data !== "undefined") {
 		if (error.response.status === 401 && errorActionType === FETCH_IDENTITY_ERROR) {
@@ -315,12 +347,12 @@ function handleErrorResponse(errorActionType, dispatch, error) {
 	});
 	dispatch(setIsAuthenticated(false));
 
-	if (showSnackbar && errorMsg !== "") {
-		if (dynamicSnackbarError) {
-			snackbarContentKey = SNACKBAR_DYNAMIC_USER_ERROR;
-		} else {
-			snackbarContentKey = SNACKBAR_NETWORK_ERROR;
-		}
+    if (showSnackbar && errorMsg !== "" && !isSafariCorsError) {
+        if (dynamicSnackbarError) {
+            snackbarContentKey = SNACKBAR_DYNAMIC_USER_ERROR;
+        } else {
+            snackbarContentKey = SNACKBAR_NETWORK_ERROR;
+        }
 
 		dispatch(setSnackbarContent(
 			ARRAY_COMMAND_PUSH,

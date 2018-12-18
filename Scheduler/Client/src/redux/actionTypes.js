@@ -38,6 +38,7 @@ export const SET_MAIN_CONTENT_KEY = "SET_MAIN_CONTENT_KEY";
 export const SET_SCHEDULE_END_DATE = "SET_SCHEDULE_END_DATE";
 export const SET_SCHEDULE_START_DATE = "SET_SCHEDULE_START_DATE";
 export const SET_SNACKBAR_CONTENT_KEY = "SET_SNACKBAR_CONTENT_KEY";
+export const SET_SCREEN_WIDTH = "SET_SCREEN_WIDTH";
 
 // -----------------------------------------------------------------------------
 // User action types
@@ -69,3 +70,8 @@ export const UNAPPLY_FROM_OPENING_ERROR = "UNAPPLY_FROM_OPENING_ERROR";
 export const UNAPPLY_FROM_OPENING_FAILURE = "UNAPPLY_FROM_OPENING_FAILURE";
 export const UNAPPLY_FROM_OPENING_SUCCESS = "UNAPPLY_FROM_OPENING_SUCCESS";
 export const SET_PARTICIPANT_ID = "SET_PARTICIPANT_ID";
+
+// -----------------------------------------------------------------------------
+// Other
+// -----------------------------------------------------------------------------
+export const SET_SAFARI_CORS_ERROR = "SET_SAFARI_CORS_ERROR";
