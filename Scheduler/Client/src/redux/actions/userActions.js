@@ -34,10 +34,10 @@ import { setSnackbarContent } from "redux/actions/uiActions";
 // Helpers
 //------------------------------------------------------------------------------
 import {
-    PATH_AUTH_IDENTITY,
-    PATH_AUTH_PARTICIPANT,
-    PATH_MANAGE_PARTICIPANT,
-    PATH_AUTH_SIGN_OFF,
+	PATH_AUTH_IDENTITY,
+	PATH_AUTH_PARTICIPANT,
+	PATH_MANAGE_PARTICIPANT,
+	PATH_AUTH_SIGN_OFF,
 } from "utils/backendConstants";
 import {
     deleteFromWebStorage,
@@ -69,16 +69,16 @@ import { UserNormalizer } from "utils/UserNormalizer";
  * @return {Function} Action-dispatching thunk
  */
 export function initUserFromCache() {
-    return (dispatch) => {
-        const cachedIsAuthenticated = readWebStorage(
-            LOCAL_STORAGE,
-            CLIENT_KEY_IS_AUTHENTICATED,
-        );
+	return (dispatch) => {
+		const cachedIsAuthenticated = readWebStorage(
+			LOCAL_STORAGE,
+			CLIENT_KEY_IS_AUTHENTICATED,
+		);
 
-        if (cachedIsAuthenticated) {
-            dispatch(fetchIdentity());
-        }
-    };
+		if (cachedIsAuthenticated) {
+			dispatch(fetchIdentity());
+		}
+	};
 }
 
 /**
@@ -89,10 +89,10 @@ export function initUserFromCache() {
  * @return {Object}             Action object.
  */
 export function setParticipantKey(participantKey = "") {
-    return {
-        type: SET_PARTICIPANT_ID,
-        participantKey,
-    };
+	return {
+		type: SET_PARTICIPANT_ID,
+		participantKey,
+	};
 }
 
 /**
@@ -103,12 +103,12 @@ export function setParticipantKey(participantKey = "") {
  * @return {Object}                 Action object.
  */
 export function setIsAuthenticated(isAuthenticated) {
-    writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, isAuthenticated);
+	writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, isAuthenticated);
 
-    return {
-        type: SET_IS_AUTHENTICATED,
-        isAuthenticated,
-    };
+	return {
+		type: SET_IS_AUTHENTICATED,
+		isAuthenticated,
+	};
 }
 
 /**
@@ -117,38 +117,38 @@ export function setIsAuthenticated(isAuthenticated) {
  * @return {Function} Action-dispatching thunk.
  */
 export function participantLogin() {
-    return (dispatch, getState) => {
-        const participantKey = selectParticipantKey(getState());
-        const PATH = `${PATH_AUTH_PARTICIPANT}/${participantKey}`;
-        let normalizedParticipant;
+	return (dispatch, getState) => {
+		const participantKey = selectParticipantKey(getState());
+		const PATH = `${PATH_AUTH_PARTICIPANT}/${participantKey}`;
+		let normalizedParticipant;
 
-        dispatch({
-            type: LOGIN,
-        });
+		dispatch({
+			type: LOGIN,
+		});
 
-        axios({
-            method: "get",
-            url: PATH,
-            withCredentials: true,
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    normalizedParticipant = normalizeUserData(response.data);
-                    dispatch({
-                        type: LOGIN_SUCCESS,
-                        user: normalizedParticipant.user,
-                        attributes: normalizedParticipant.attributes,
-                    });
-                    dispatch(manageParticipant(normalizedParticipant.user.id));
-                    writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
-                } else {
-                    dispatch({ type: LOGIN_FAILURE });
-                }
-            })
-            .catch((error) => {
-                handleErrorResponse(LOGIN_ERROR, dispatch, error);
-            });
-    };
+		axios({
+			method: "post",
+			url: PATH,
+			withCredentials: true,
+		})
+			.then((response) => {
+				if (response.status === 200) {
+					normalizedParticipant = normalizeUserData(response.data);
+					dispatch({
+						type: LOGIN_SUCCESS,
+						user: normalizedParticipant.user,
+						attributes: normalizedParticipant.attributes,
+					});
+					dispatch(manageParticipant(normalizedParticipant.user.id));
+					writeWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED, true);
+				} else {
+					dispatch({ type: LOGIN_FAILURE });
+				}
+			})
+			.catch((error) => {
+				handleErrorResponse(LOGIN_ERROR, dispatch, error);
+			});
+	};
 }
 
 /**
@@ -157,37 +157,37 @@ export function participantLogin() {
  * @return {Function} Action-dispatching thunk.
  */
 export function fetchIdentity() {
-    return (dispatch) => {
-        let normalizedParticipant;
+	return (dispatch) => {
+		let normalizedParticipant;
 
-        dispatch({
-            type: FETCH_IDENTITY,
-        });
+		dispatch({
+			type: FETCH_IDENTITY,
+		});
 
-        axios
-            .get(
-                PATH_AUTH_IDENTITY,
-                {
-                    withCredentials: true,
-                },
-            )
-            .then((response) => {
-                if (response.status === 200) {
-                    normalizedParticipant = normalizeUserData(response.data);
-                    dispatch({
-                        type: FETCH_IDENTITY_SUCCESS,
-                        user: normalizedParticipant.user,
-                        attributes: normalizedParticipant.attributes,
-                    });
-                    dispatch(manageParticipant(normalizedParticipant.user.id));
-                } else {
-                    dispatch({ type: FETCH_IDENTITY_FAILURE });
-                }
-            })
-            .catch((error) => {
-                handleErrorResponse(FETCH_IDENTITY_ERROR, dispatch, error);
-            });
-    };
+		axios
+			.get(
+				PATH_AUTH_IDENTITY,
+				{
+					withCredentials: true,
+				},
+			)
+			.then((response) => {
+				if (response.status === 200) {
+					normalizedParticipant = normalizeUserData(response.data);
+					dispatch({
+						type: FETCH_IDENTITY_SUCCESS,
+						user: normalizedParticipant.user,
+						attributes: normalizedParticipant.attributes,
+					});
+					dispatch(manageParticipant(normalizedParticipant.user.id));
+				} else {
+					dispatch({ type: FETCH_IDENTITY_FAILURE });
+				}
+			})
+			.catch((error) => {
+				handleErrorResponse(FETCH_IDENTITY_ERROR, dispatch, error);
+			});
+	};
 }
 
 /**
@@ -198,37 +198,37 @@ export function fetchIdentity() {
  * @return {Function} Action-dispatching thunk.
  */
 export function manageParticipant(id) {
-    return (dispatch) => {
-        const PATH = `${PATH_MANAGE_PARTICIPANT}/${id}`;
-        let normalizedParticipant;
+	return (dispatch) => {
+		const PATH = `${PATH_MANAGE_PARTICIPANT}/${id}`;
+		let normalizedParticipant;
 
-        dispatch({
-            type: MANAGE_PARTICIPANT,
-        });
+		dispatch({
+			type: MANAGE_PARTICIPANT,
+		});
 
-        axios
-            .get(
-                PATH,
-                {
-                    withCredentials: true,
-                },
-            )
-            .then((response) => {
-                if (response.status === 200) {
-                    normalizedParticipant = normalizeUserData(response.data);
-                    dispatch({
-                        type: MANAGE_PARTICIPANT_SUCCESS,
-                        user: normalizedParticipant.user,
-                        attributes: normalizedParticipant.attributes,
-                    });
-                } else {
-                    dispatch({ type: MANAGE_PARTICIPANT_FAILURE });
-                }
-            })
-            .catch((error) => {
-                handleErrorResponse(MANAGE_PARTICIPANT_ERROR, dispatch, error);
-            });
-    };
+		axios
+			.get(
+				PATH,
+				{
+					withCredentials: true,
+				},
+			)
+			.then((response) => {
+				if (response.status === 200) {
+					normalizedParticipant = normalizeUserData(response.data);
+					dispatch({
+						type: MANAGE_PARTICIPANT_SUCCESS,
+						user: normalizedParticipant.user,
+						attributes: normalizedParticipant.attributes,
+					});
+				} else {
+					dispatch({ type: MANAGE_PARTICIPANT_FAILURE });
+				}
+			})
+			.catch((error) => {
+				handleErrorResponse(MANAGE_PARTICIPANT_ERROR, dispatch, error);
+			});
+	};
 }
 
 /**
@@ -237,11 +237,11 @@ export function manageParticipant(id) {
  * @return {Function} Action-dispatching thunk.
  */
 export function signOff() {
-    return (dispatch) => {
-        deleteFromWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED);
-        dispatch({
-            type: SIGN_OFF,
-        });
+	return (dispatch) => {
+		deleteFromWebStorage(LOCAL_STORAGE, CLIENT_KEY_IS_AUTHENTICATED);
+		dispatch({
+			type: SIGN_OFF,
+		});
 
         axios
             .get(
@@ -312,40 +312,40 @@ function handleErrorResponse(errorActionType, dispatch, error) {
     // Send the user to the login page.
     history.replace("/");
 
-    if (typeof error.response !== "undefined" && typeof error.response.data !== "undefined") {
-        if (error.response.status === 401 && errorActionType === FETCH_IDENTITY_ERROR) {
-            errorMsg = "";
-        } else {
-            dynamicSnackbarError = true;
-            errorMsg = error.response.data.message;
-            showSnackbar = true;
-        }
-    } else if (
-        typeof error.response !== "undefined" &&
-        typeof error.response.status !== "undefined" &&
-        typeof error.response.statusText !== "undefined"
-    ) {
-        if (error.response.status !== 401) {
-            showSnackbar = true;
-        }
+	if (typeof error.response !== "undefined" && typeof error.response.data !== "undefined") {
+		if (error.response.status === 401 && errorActionType === FETCH_IDENTITY_ERROR) {
+			errorMsg = "";
+		} else {
+			dynamicSnackbarError = true;
+			errorMsg = error.response.data.message;
+			showSnackbar = true;
+		}
+	} else if (
+		typeof error.response !== "undefined" &&
+		typeof error.response.status !== "undefined" &&
+		typeof error.response.statusText !== "undefined"
+	) {
+		if (error.response.status !== 401) {
+			showSnackbar = true;
+		}
 
-        errorMsg = `${error.response.status}: ${error.response.statusText}`;
-    } else if (typeof error.message !== "undefined" && typeof errorMsg !== "undefined") {
-        errorMsg = error.message;
-        showSnackbar = true;
-    } else {
-        errorMsg = "Unknown Error";
-        showSnackbar = true;
-    }
+		errorMsg = `${error.response.status}: ${error.response.statusText}`;
+	} else if (typeof error.message !== "undefined" && typeof errorMsg !== "undefined") {
+		errorMsg = error.message;
+		showSnackbar = true;
+	} else {
+		errorMsg = "Unknown Error";
+		showSnackbar = true;
+	}
 
-    // Dispatch the error into the redux store, and let the rest of the app
-    // know that the user is not authenticated. Update the cached authenticated
-    // flag.
-    dispatch({
-        type: errorActionType,
-        error: errorMsg,
-    });
-    dispatch(setIsAuthenticated(false));
+	// Dispatch the error into the redux store, and let the rest of the app
+	// know that the user is not authenticated. Update the cached authenticated
+	// flag.
+	dispatch({
+		type: errorActionType,
+		error: errorMsg,
+	});
+	dispatch(setIsAuthenticated(false));
 
     if (showSnackbar && errorMsg !== "" && !isSafariCorsError) {
         if (dynamicSnackbarError) {
@@ -354,14 +354,14 @@ function handleErrorResponse(errorActionType, dispatch, error) {
             snackbarContentKey = SNACKBAR_NETWORK_ERROR;
         }
 
-        dispatch(setSnackbarContent(
-            ARRAY_COMMAND_PUSH,
-            {
-                key: snackbarContentKey,
-                text: errorMsg,
-            },
-        ));
-    }
+		dispatch(setSnackbarContent(
+			ARRAY_COMMAND_PUSH,
+			{
+				key: snackbarContentKey,
+				text: errorMsg,
+			},
+		));
+	}
 }
 
 /**
@@ -375,13 +375,13 @@ function handleErrorResponse(errorActionType, dispatch, error) {
  *
  */
 export function normalizeUserData(rawUser) {
-    const normalizedUser = new UserNormalizer(rawUser);
+	const normalizedUser = new UserNormalizer(rawUser);
 
-    return {
-        user: normalizedUser.getUser(),
-        attributes: {
-            byId: normalizedUser.getAllAttributes(),
-            allIds: normalizedUser.getAllAttributeIds(),
-        },
-    };
+	return {
+		user: normalizedUser.getUser(),
+		attributes: {
+			byId: normalizedUser.getAllAttributes(),
+			allIds: normalizedUser.getAllAttributeIds(),
+		},
+	};
 }

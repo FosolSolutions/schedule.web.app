@@ -1,47 +1,48 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+	<TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.1.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.1.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
+	</ItemGroup>
 
   <ItemGroup>
-    <Content Remove="Views\Shared\_CookieConsentPartial.cshtml" />
+	<Content Remove="Views\Shared\_CookieConsentPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Areas\Admin\Models\" />
-    <Folder Include="Areas\Data\Controllers\" />
-    <Folder Include="Areas\Data\Models\" />
-    <Folder Include="Areas\Data\Views\" />
-    <Folder Include="Areas\Schedule\Controllers\" />
-    <Folder Include="Areas\Schedule\Models\" />
-    <Folder Include="Properties\PublishProfiles\" />
-    <Folder Include="wwwroot\client\" />
-    <Folder Include="wwwroot\client\__assets__\" />
-    <Folder Include="wwwroot\client\__assets__\fonts\" />
-    <Folder Include="wwwroot\client\__assets__\images\" />
+	<Folder Include="Areas\Admin\Models\" />
+	<Folder Include="Areas\Data\Controllers\" />
+	<Folder Include="Areas\Data\Models\" />
+	<Folder Include="Areas\Data\Views\" />
+	<Folder Include="Areas\Schedule\Controllers\" />
+	<Folder Include="Areas\Schedule\Models\" />
+	<Folder Include="Properties\PublishProfiles\" />
+	<Folder Include="Views\Auth\" />
+	<Folder Include="wwwroot\client\" />
+	<Folder Include="wwwroot\client\__assets__\" />
+	<Folder Include="wwwroot\client\__assets__\fonts\" />
+	<Folder Include="wwwroot\client\__assets__\images\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Update="Areas\Admin\Views\Home\Index.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="Areas\Admin\Views\Participant\Index.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="Areas\Admin\Views\Shared\_Layout.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="Areas\Admin\Views\_ViewImports.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="Areas\Admin\Views\_ViewStart.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
+	<Content Update="Areas\Admin\Views\Home\Index.cshtml">
+	  <Pack>$(IncludeRazorContentInPack)</Pack>
+	</Content>
+	<Content Update="Areas\Admin\Views\Participant\Index.cshtml">
+	  <Pack>$(IncludeRazorContentInPack)</Pack>
+	</Content>
+	<Content Update="Areas\Admin\Views\Shared\_Layout.cshtml">
+	  <Pack>$(IncludeRazorContentInPack)</Pack>
+	</Content>
+	<Content Update="Areas\Admin\Views\_ViewImports.cshtml">
+	  <Pack>$(IncludeRazorContentInPack)</Pack>
+	</Content>
+	<Content Update="Areas\Admin\Views\_ViewStart.cshtml">
+	  <Pack>$(IncludeRazorContentInPack)</Pack>
+	</Content>
   </ItemGroup>
 </Project>
