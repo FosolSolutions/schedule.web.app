@@ -24,7 +24,7 @@ steps:
   displayName: 'Build the react client with webpack.'
   inputs:
     script: cd $(Build.Repository.LocalPath)/Scheduler; npm run build:prod;
-    failOnStderr: true
+    failOnStderr: false
 - task: DotNetCoreCLI@2
   displayName: 'Publish the .NET project.'
   inputs:
