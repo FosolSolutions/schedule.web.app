@@ -24,6 +24,8 @@ steps:
   inputs:
     script: cd $(Build.Repository.LocalPath)/Scheduler; npm run build:prod;
     failOnStderr: true
+    errStream: process.stdout,
+    outStream: process.stdout
 - task: DotNetCoreCLI@2
   displayName: 'Publish the .NET project.'
   inputs:
