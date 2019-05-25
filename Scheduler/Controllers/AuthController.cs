@@ -33,11 +33,11 @@ namespace Scheduler.Controllers
 		}
 
 		[HttpPost("authenticate")]
-		public async Task<IActionResult> Authenticate(string userName, string password)
+		public async Task<IActionResult> Authenticate(string email, string password)
 		{
 			try
 			{
-				var message = await _apiClient.PostAsJsonAsync<TokenMessage>("/bearer/authenticate", new { userName, password });
+				var message = await _apiClient.PostAsJsonAsync<TokenMessage>("/bearer/authenticate", new { email, password });
 
 				var identity = new ClaimsIdentity("CoEvent");
 				identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, message.Id.ToString()));
