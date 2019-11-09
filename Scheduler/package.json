@@ -90,7 +90,7 @@
     "immutability-helper": "2.8.1",
     "intersection-observer": "0.5.1",
     "jss": "9.8.7",
-    "lodash": "4.17.11",
+    "lodash": "4.17.13",
     "material-ui-pickers": "2.0.1",
     "popper.js": "1.14.5",
     "prop-types": "15.6.2",
