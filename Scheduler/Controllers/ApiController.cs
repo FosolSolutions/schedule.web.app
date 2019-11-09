@@ -38,6 +38,13 @@ namespace Scheduler.Controllers
 		#endregion
 
 		#region Data
+		[HttpGet("endpoints")]
+		public async Task<IActionResult> GetEndpoints()
+		{
+			var message = await _apiClient.GetAsJsonAsync<object>("/api/endpoints");
+			return Json(message);
+		}
+
 		[HttpGet("data/calendars")]
 		public async Task<IActionResult> GetCalendars()
 		{

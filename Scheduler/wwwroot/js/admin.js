@@ -1,6 +1,6 @@
 ﻿const SETTINGS = {
 	api_dev: 'https://coeventapi.azurewebsites.net',
-	api_local: 'https://localhost:44375'
+	api_local: 'https://localhost:44321'
 };
 
 var api;
@@ -345,7 +345,7 @@ function remove(type, url) {
  * @param {string} options.api - The domain to the api.
  */
 function init(options) {
-	var params = Object.assign({ errorDiv: '#error', api: SETTINGS.api_dev }, options);
+	var params = Object.assign({ errorDiv: '#error', api: SETTINGS.api_local }, options);
 	var errorDiv = typeof(params.errorDiv) === 'string' ? $(params.errorDiv) : params.errorDiv;
 	api = params.api;
 
@@ -360,10 +360,14 @@ function init(options) {
 			$('#loader').show();
 		},
 		error: (xhr, status, error) => {
-			var data = JSON.parse(xhr.responseText);
-			var msg = data.message || 'We\'re very sorry an error has occured.  The request has returned a ' + status;
-			alert(msg);
-			overlay();
+			try {
+				var data = JSON.parse(xhr.responseText);
+				var msg = data.message || 'We\'re very sorry an error has occured.  The request has returned a ' + status;
+				console.log(msg);
+				overlay();
+			} catch (ex) {
+				console.log(ex.message);
+			}
 		}
 	});
 
@@ -388,7 +392,10 @@ function overlay() {
 
 
 function signinBackdoorUser() {
-	get(endpoint(routes._.auth.backdoorUser.route)).done(data => {
+	//get(endpoint(routes._.auth.backdoorUser.route)).done(data => {
+	//    alert('success');
+	//});
+	post(endpoint('/auth/authenticate?email=admin@fosol.ca')).done(data => {
 		alert('success');
-	})
+	});
 }
