@@ -48,8 +48,8 @@ export const SVG_PATH_MICROSOFT =
 
 // Hardcoded data values -------------------------------------------------------
 // Schedule dates
-export const DATE_START_ECCLESIAL_SCHEDULE = new Date(2020, 6, 1);
-export const DATE_END_ECCLESIAL_SCHEDULE = new Date(2020, 9, 30);
+export const DATE_START_ECCLESIAL_SCHEDULE = new Date(2020, 5, 1);
+export const DATE_END_ECCLESIAL_SCHEDULE = new Date(2020, 8, 30);
 
 // Event names/types
 export const EVENT_NAME_MEMORIAL_MEETING = "Memorial Meeting";
