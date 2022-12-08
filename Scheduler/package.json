@@ -47,7 +47,7 @@
     "eslint-import-resolver-webpack": "0.10.1",
     "eslint-plugin-import": "2.14.0",
     "eslint-plugin-react": "7.11.1",
-    "express": "4.16.3",
+    "express": "4.17.3",
     "file-loader": "2.0.0",
     "identity-obj-proxy": "3.0.0",
     "jest": "24.8.0",
